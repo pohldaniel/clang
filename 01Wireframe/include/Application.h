@@ -1,13 +1,17 @@
 #pragma once
-#include <iostream>
+#include <stdint.h>
 
 struct GLFWwindow;
+class StateMachine;
 
 class Application {
 
 	friend void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	friend void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 	friend void glfwMouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
+	friend void glfwWindowScroll(GLFWwindow* window, double xpos, double ypos);
+	friend void glfwFramebufferResizeCallback(GLFWwindow* m_window, int width , int height);
+
 
 public:
 
@@ -38,7 +42,7 @@ private:
 	float& dt;
 	double last;
 	
-	//static StateMachine* Machine;
+	static StateMachine* Machine;
 	static double Time;
 	static bool Init;
 };

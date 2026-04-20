@@ -136,11 +136,11 @@ void wgpRequestDeviceSync(WGPUAdapter instance, const WGPUDeviceDescriptor* devi
 #endif // __EMSCRIPTEN__
 }
 
-void wgpInit(void* window) {
-	wgpCreateDevice(window);
+void wgpInit(void* window, uint32_t msaaSampleCount) {
+	wgpCreateDevice(window, msaaSampleCount);
 }
 
-bool wgpCreateDevice(void* window) {
+bool wgpCreateDevice(void* window, uint32_t msaaSampleCount) {
 
 
 	static const WGPUInstanceFeatureName ckTimedWaitAny = WGPUInstanceFeatureName::WGPUInstanceFeatureName_TimedWaitAny;
@@ -220,6 +220,7 @@ bool wgpCreateDevice(void* window) {
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge), SS_NEAREST_CLAMP);
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_Repeat), SS_NEAREST_REPEAT);
 
+	wgpContext.setMSAASampleCount(msaaSampleCount);
     return true;
 }
 
@@ -588,6 +589,7 @@ void wgpResize(uint32_t width, uint32_t height) {
 
 		wgpContext.config.width = width;
 		wgpContext.config.height = height;
+		
 		wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
 	}
 }
@@ -679,6 +681,12 @@ void wgpDraw() {
 	commandBufferDescriptor.label = WGPU_STR("command_buffer");
 	WGPUCommandBuffer command = wgpuCommandEncoderFinish(encoder, &commandBufferDescriptor);
 	wgpuQueueSubmit(wgpContext.queue, 1, &command );
+
+	wgpuSurfacePresent(wgpContext.surface);
+#ifdef WEBGPU_DAWN
+	wgpuDeviceTick(wgpContext.device);
+#endif
+	wgpuInstanceProcessEvents(wgpContext.instance);
 
 	wgpuCommandBufferRelease(command);
 	wgpuCommandEncoderRelease(encoder);

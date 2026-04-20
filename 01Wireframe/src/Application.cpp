@@ -1,9 +1,18 @@
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_wgpu.h>
+
 #include <GLFW/glfw3.h>
 
+#include <WebGPU/WgpContext.h>
+#include <States/StateMachine.h>
+#include <States/Wireframe.h>
+
+#include "Mouse.h"
 #include "Application.h"
 
 GLFWwindow* Application::Window = nullptr;
-//StateMachine* Application::Machine = nullptr;
+StateMachine* Application::Machine = nullptr;
 int Application::Width;
 int Application::Height;
 double Application::Time;
@@ -29,7 +38,6 @@ void Application::MessageLopp(void *arg) {
 Application::Application(float& dt, float& fdt) : fdt(fdt), dt(dt), last(0.0) {
   Application::Width = 1260;
   Application::Height = 720;
-
 
   initWindow();
   initWebGPU();
@@ -58,16 +66,15 @@ void Application::initWindow() {
   glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
   glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_FALSE);
   glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
-  //glfwWindowHint(GLFW_SAMPLES, 4);
   Window = glfwCreateWindow(Width, Height, "WebGPU window", nullptr, nullptr);
 }
 
 void Application::initWebGPU(){
-  //wgpInit(Window);
+  wgpInit(Window, 4u);
 }
 
 void Application::initImGUI() {
-	/*ImGui::CreateContext();
+	ImGui::CreateContext();
 	
 	ImGuiIO& io = ImGui::GetIO();
   io.IniFilename = NULL;
@@ -78,14 +85,15 @@ void Application::initImGUI() {
 	initInfo.Device = wgpContext.device;
 	initInfo.RenderTargetFormat = wgpContext.colorformat;
 	initInfo.DepthStencilFormat = wgpContext.depthformat;
+  initInfo.PipelineMultisampleState.count = wgpContext.msaaSampleCount;
 
 	ImGui_ImplGlfw_InitForOther(Window, true);
-	ImGui_ImplWGPU_Init(&initInfo);*/
+	ImGui_ImplWGPU_Init(&initInfo);
 }
 
 void Application::initStates(){
-  //Machine = new StateMachine(dt, fdt);
-	//Machine->addStateAtTop(new Wireframe(*Machine));
+  Machine = new StateMachine(dt, fdt);
+	Machine->addStateAtTop(new Wireframe(*Machine));
 }
 
 bool Application::isRunning(){
@@ -95,18 +103,15 @@ bool Application::isRunning(){
 
 void Application::messageLopp(){
     glfwPollEvents();
-    //Mouse::instance().update();
-    //Machine->update();
-    //Machine->render();
+    Mouse::instance().update();
+    Machine->update();
+    Machine->render();
 }
 
 void Application::Resize(uint32_t width, uint32_t height){
   if(Init){
-    Application::Width = static_cast<int>(width);
-    Application::Height = static_cast<int>(height);
-    glfwSetWindowSize(Window, width, height);
-    //wgpResize(width, height);
-    //Machine->getStates().top()->resize(0, 0);
+    wgpResize(Width, Height);
+    Machine->getStates().top()->resize(0, 0);
   }
 }
 
@@ -115,16 +120,16 @@ bool Application::IsInitialized(){
 }
 
 void Application::Cleanup(){
-  //delete Machine;
-  //wgpShutDown();
-  //ImGui_ImplWGPU_Shutdown();
-  //ImGui_ImplGlfw_Shutdown();
+  delete Machine;
+  wgpShutDown();
+  ImGui_ImplWGPU_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
   glfwDestroyWindow(Window);
   glfwTerminate();
 }
 
 void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods){
-  /*if(ImGui::GetIO().WantCaptureMouse){  
+  if(ImGui::GetIO().WantCaptureMouse){  
     ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
     return;
   }
@@ -152,11 +157,11 @@ void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int 
         Application::Machine->getStates().top()->OnKeyUp(event.data.keyboard);
       }
     }
-  }*/
+  }
 }
 
 void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-  /*if(ImGui::GetIO().WantCaptureMouse && !Mouse::instance().isAttached()){
+  if(ImGui::GetIO().WantCaptureMouse && !Mouse::instance().isAttached()){
     ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
   }else{
     double xpos, ypos;
@@ -176,27 +181,30 @@ void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mod
       event.type = Event::MOUSEBUTTONUP;
       Application::Machine->getStates().top()->OnMouseButtonUp(event.data.mouseButton);
     }
-  }*/
+  }
 }
 
 void glfwMouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
-  /*ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+  ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
 	Event event;
   event.type = Event::MOUSEMOTION;
   event.data.mouseMove.x = static_cast<int>(xpos);
   event.data.mouseMove.y = static_cast<int>(ypos);
     
-  Application::Machine->getStates().top()->OnMouseMotion(event.data.mouseMove);*/
+  Application::Machine->getStates().top()->OnMouseMotion(event.data.mouseMove);
 }
 
-void glfwWindowScroll(GLFWwindow* m_window, double xoffset, double yoffset) {
-	//Application::Machine->getStates().top()->OnScroll(xoffset, yoffset);
+void glfwWindowScroll(GLFWwindow* window, double xoffset, double yoffset) {
+	Application::Machine->getStates().top()->OnScroll(xoffset, yoffset);
 }
 
 void glfwWindowResizeCallback(GLFWwindow* window, int width, int height){
 
 }
 
-void glfwFramebufferResizeCallback(GLFWwindow* m_window, int /* width */, int /* height */) {
-	
+void glfwFramebufferResizeCallback(GLFWwindow* window, int width , int height) {
+	glfwSetWindowSize(window, width, height);
+  Application::Width = static_cast<int>(width);
+  Application::Height = static_cast<int>(height);
+  Application::Resize(Application::Width, Application::Height);
 }

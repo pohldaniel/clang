@@ -1,8 +1,8 @@
 clang++^
- -I "./include/" -I "../" -I "../include/" -I "../SDKs/wgpu-dawn/include/"^
+ -I "./" -I "./include/" -I "../" -I "../include/" -I "../libimgui" -I "../libimgui/backends" -I "../SDKs/wgpu-dawn/include/"^
  -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/"^
  -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt^
- -llibglfw3 -lwgpu -llibfreeimage -llibjpeg -llibjxr -llibopenexr -llibopenjpeg -llibpng -llibrawlite -llibtiff4 -llibwebp -llibzlib^
+ -llibglfw3 -llibimgui -lwgpu -llibfreeimage -llibjpeg -llibjxr -llibopenexr -llibopenjpeg -llibpng -llibrawlite -llibtiff4 -llibwebp -llibzlib^
  src/Mouse.cpp^
  src/Material.cpp^
  src/Transform.cpp^
@@ -12,6 +12,8 @@ clang++^
  src/CharacterSet.cpp^
  src/Application.cpp^
  src/main.cpp^
+ states/StateMachine.cpp^
+ states/Wireframe.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Sphere.cpp^
  ../Shape/Torus.cpp^
@@ -25,6 +27,6 @@ clang++^
  ../WebGPU/WgpModel.cpp^
  ../WebGPU/WgpBatchRenderer.cpp^
  ../WebGPU/WgpFontRenderer.cpp^
- -D_WASM -DNDEBUG -DFREEIMAGE_LIB^
+ -DNWASM -DNDEBUG -DFREEIMAGE_LIB -DWEBGPU_DAWN^
  -D_MD -D_DLL -O3 -flto -fuse-ld=lld -std=c++17^
  -o wireframe.exe

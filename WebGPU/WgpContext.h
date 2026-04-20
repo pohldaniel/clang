@@ -27,8 +27,8 @@ extern std::unordered_map<VertexLayoutSlot, std::vector<WGPUVertexAttribute>> wg
 extern std::unordered_map<VertexLayoutSlot, WGPUVertexBufferLayout> wgpVertexBufferLayouts;
 
 extern "C" {
-	void wgpInit(void* window);
-	bool wgpCreateDevice(void* window);
+	void wgpInit(void* window, uint32_t msaaSampleCount = 1u);
+	bool wgpCreateDevice(void* window, uint32_t msaaSampleCount = 1u);
 	void wgpRequestAdapterSync(WGPUInstance instance, const WGPURequestAdapterOptions* requestAdapterOptions);
 	void wgpRequestDeviceSync(WGPUAdapter adapter, const WGPUDeviceDescriptor* deviceDescriptor);
 
@@ -64,6 +64,7 @@ enum SamplerSlot {
 
 struct WgpContext {
 
+	friend bool wgpCreateDevice(void* window, uint32_t msaaSampleCount);
     friend void wgpPipelinesRelease();
     friend void wgpSamplersRelease();
     friend void wgpShaderModulesRelease();
@@ -71,7 +72,6 @@ struct WgpContext {
 
     void createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts);
 	void createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, uint32_t msaaSampleCount = 1u, WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList);
-
 	
     void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
     void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
@@ -79,7 +79,6 @@ struct WgpContext {
     void addSahderModule(const std::string& shaderModuleName, const std::string& shaderModulePath);
     const WGPUShaderModule& getShaderModule(std::string shaderModuleName);
 	void setClearColor(const WGPUColor& clearColor);
-	void setMSAASampleCount(const uint32_t count);
 
 	WGPUInstance instance = NULL;
 	WGPUAdapter adapter = NULL;
@@ -105,6 +104,8 @@ struct WgpContext {
 
 private:
 
+	void setMSAASampleCount(const uint32_t count);
+	
 	std::unordered_map<std::string, WGPUPipelineLayout> pipelineLayouts;
 	std::unordered_map<SamplerSlot, WGPUSampler> samplers;
 	std::unordered_map<std::string, WGPUShaderModule> shaderModules;
