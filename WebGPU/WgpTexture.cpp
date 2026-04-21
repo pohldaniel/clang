@@ -591,6 +591,7 @@ FIBITMAP* WgpTexture::AddAlphaChannel(FIBITMAP* bitmap, const short alphaChannel
             unsigned char c[4];
         } one;
 
+        one.flt = 1.0f;
         for (unsigned int i = 0, k = 0; i < width * height * 4u * sizeof(float); i = i + 4u * sizeof(float), k = k + 3u * sizeof(float)) {
             pixels[i + 0] = imageData[k + 0]; pixels[i + 1] = imageData[k + 1]; pixels[i + 2] = imageData[k + 2];  pixels[i + 3] = imageData[k + 3];
             pixels[i + 4] = imageData[k + 4]; pixels[i + 5] = imageData[k + 5]; pixels[i + 6] = imageData[k + 6];  pixels[i + 7] = imageData[k + 7];

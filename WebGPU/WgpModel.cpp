@@ -1,6 +1,6 @@
 #include <Shape/Shape.h>
 #include "ObjModel.h"
-//#include "AssimpModel.h"
+#include "AssimpModel.h"
 
 #include "WgpModel.h"
 
@@ -25,7 +25,7 @@ void WgpModel::create(const ObjModel& model) {
 	}
 }
 
-/*void WgpModel::create(const AssimpModel& model) {
+void WgpModel::create(const AssimpModel& model) {
 	for (const AssimpMesh* mesh : model.getMeshes()) {
 		if (mesh->getEmbeddedTextures().count(TextureSlot::TEXTURE_DIFFUSE)) {
 			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getEmbeddedTextures().at(TextureSlot::TEXTURE_DIFFUSE)));
@@ -39,7 +39,7 @@ void WgpModel::create(const ObjModel& model) {
 	for (WgpMesh& mesh : m_meshes) {
 		mesh.markForDelete();
 	}
-}*/
+}
 
 void WgpModel::create(const Shape& shape) {
 	m_meshes.push_back(WgpMesh(shape.getVertexBuffer(), shape.getIndexBuffer()));
