@@ -24,7 +24,6 @@ clang^
 clang++^
  -Xlinker /MANIFEST:EMBED -Xlinker /implib:zlib.lib^
  -nostartfiles -nostdlib -O3 -D_MD -Xclang --dependent-lib=msvcrt -fuse-ld=lld-link -shared^
- -lmsvcrt^
  adler32.o^
  compress.o^
  crc32.o^

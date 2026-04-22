@@ -1,8 +1,8 @@
 clang++^
- -I "./" -I "./include/" -I "../" -I "../include/" -I "../libimgui/include/" -I "../SDKs/wgpu-dawn/include/"^
+ -I "./" -I "./include/" -I "../" -I "../include/" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../SDKs/wgpu-dawn/include/"^
  -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/"^
  -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt^
- -llibglfw3 -llibimgui -llibassimp -lwgpu -llibfreeimage -llibzlib^
+ -lglfw3 -llibimgui -llibassimp -lwgpu -llibfreeimage -llibzlib^
  src/Mouse.cpp^
  src/Material.cpp^
  src/Transform.cpp^
