@@ -1,11 +1,11 @@
 clang++^
- -I "./" -I "../include/" -I "../SDKs/wgpu-dawn/include/"^
- backends/imgui_impl_glfw.cpp^
- backends/imgui_impl_wgpu.cpp^
- imgui_draw.cpp^
- imgui_tables.cpp^
- imgui_widgets.cpp^
- imgui.cpp^
+ -I "./include/" -I "../include/" -I "../SDKs/wgpu-dawn/include/"^
+ src/backends/imgui_impl_glfw.cpp^
+ src/backends/imgui_impl_wgpu.cpp^
+ src/imgui_draw.cpp^
+ src/imgui_tables.cpp^
+ src/imgui_widgets.cpp^
+ src/imgui.cpp^
  -DIMGUI_IMPL_WEBGPU_BACKEND_DAWN^
  -D_MD -O3 -std=c++17 -c
 
@@ -22,3 +22,6 @@ llvm-ranlib^
  libimgui.lib
 
 copy "libimgui.lib" "..\lib\" 
+
+DEL /S/Q *.o
+DEL /S/Q libimgui.lib
