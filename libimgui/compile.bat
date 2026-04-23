@@ -1,5 +1,5 @@
 clang++^
- -I "./include/" -I "../include/" -I "../SDKs/wgpu-dawn/include/"^
+ -I "./include/" -I "../libglfw3/include/" -I "../SDKs/wgpu-dawn/include/"^
  src/backends/imgui_impl_glfw.cpp^
  src/backends/imgui_impl_wgpu.cpp^
  src/imgui_draw.cpp^
