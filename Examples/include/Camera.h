@@ -17,6 +17,7 @@ public:
 	void lookAt(const glm::vec3& eye, const glm::vec3& target, const glm::vec3& up);
 
 	void move(const glm::vec3& direction);
+	void move(float distance);
 	virtual void rotate(float yaw, float pitch);
 
     void setPosition(float x, float y, float z);

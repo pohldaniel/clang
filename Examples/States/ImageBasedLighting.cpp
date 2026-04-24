@@ -231,7 +231,13 @@ void ImageBasedLighting::OnMouseMotion(const Event::MouseMoveEvent& event) {
 }
 
 void ImageBasedLighting::OnScroll(double xoffset, double yoffset) {
-	
+	if (yoffset > 0) {
+		m_camera.move(-0.5f);
+	}
+
+	if (yoffset < 0) {
+		m_camera.move(0.5f);
+	}
 }
 
 void ImageBasedLighting::OnKeyDown(const Event::KeyboardEvent& event ){
