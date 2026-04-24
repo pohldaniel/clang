@@ -1,5 +1,4 @@
-#ifndef __TrackBallH__
-#define __TrackBallH__
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -232,4 +231,3 @@ protected:
 	float _pScale;  //pan scale
 	glm::quat _incr;
 };
-#endif

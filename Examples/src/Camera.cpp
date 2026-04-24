@@ -304,6 +304,10 @@ const glm::mat4 Camera::getRotationMatrix() const{
                      0.0f,0.0f, 0.0f, 1.0f);
 }
 
+const glm::vec3& Camera::getPosition() const{
+	return m_eye;
+}
+
 glm::mat4 Camera::GetNormalMatrix(const glm::mat4& m) {
 
 	glm::mat4 normalMatrix;

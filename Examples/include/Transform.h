@@ -1,5 +1,4 @@
-#ifndef _TRANSFORM_H
-#define _TRANSFORM_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -58,4 +57,3 @@ private:
 	glm::mat4 T;
 	glm::mat4 invT;
 };
-#endif

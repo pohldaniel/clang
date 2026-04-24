@@ -36,7 +36,7 @@ extern "C" {
 	WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);
 	WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount = 1u, uint32_t sampleCount = 1u, WGPUTextureFormat viewFormat = WGPUTextureFormat_Undefined);
 	WGPUTextureView wgpCreateTextureView(const WGPUTexture& texture, WGPUTextureAspect aspect);
-	WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode = WGPUFilterMode_Linear, WGPUAddressMode addressMode = WGPUAddressMode_ClampToEdge, uint16_t maxAnisotropy = 1u);
+	WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode = WGPUFilterMode_Linear, WGPUAddressMode addressMode = WGPUAddressMode_ClampToEdge, uint16_t maxAnisotropy = 1u, WGPUMipmapFilterMode mipmapFilterMode = WGPUMipmapFilterMode_Undefined);
 	WGPUShaderModule wgpCreateShader(std::string path);
 
 	void wgpCreateVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
@@ -71,7 +71,15 @@ struct WgpContext {
     friend void wgpPipelineLayoutsRelease();
 
     void createComputePipeline(std::string shaderModuleName, std::string pipelineLayoutName, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts);
-	void createRenderPipeline(std::string shaderModuleName, std::string pipelineLayoutName, const VertexLayoutSlot vertexLayoutSlot, const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, uint32_t msaaSampleCount = 1u, WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList);
+	void createRenderPipeline(std::string shaderModuleName, 
+	                          std::string pipelineLayoutName, 
+	                          const VertexLayoutSlot vertexLayoutSlot, 
+	                          const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts = NULL, 
+	                          uint32_t msaaSampleCount = 1u, 
+	                          WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_TriangleList,
+	                          WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
+	                          bool addDepthStencilState = true,
+	                          bool addBlendState = true);
 	
     void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
     void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);

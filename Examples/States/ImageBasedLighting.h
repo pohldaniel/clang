@@ -9,8 +9,6 @@
 #include <WebGPU/WgpData.h>
 
 #include "Camera.h"
-#include "TrackBall.h"
-#include "AssimpModel.h"
 
 class ImageBasedLighting : public State {
 
@@ -35,29 +33,41 @@ public:
 	
 private:
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
-	std::vector<WGPUBindGroup> OnBindGroups();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsEnvCube();
-	std::vector<WGPUBindGroup> OnBindGroupsEnvCube();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsEnvSphere();
-	std::vector<WGPUBindGroup> OnBindGroupsEnvSphere();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPBR();
+	std::vector<WGPUBindGroup> OnBindGroupsPBR();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsIrradiance();
+	std::vector<WGPUBindGroup> OnBindGroupsIrradiance();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsCube();
+	std::vector<WGPUBindGroup> OnBindGroupsCube();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPrefilter();
+	std::vector<WGPUBindGroup> OnBindGroupsPrefilter();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSkybox();
+	std::vector<WGPUBindGroup> OnBindGroupsSkybox();
+
+	void OnDrawBrdf(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip);
+	void OnDrawCube(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip);
+	void OnDrawIrradiance(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip);
+	void OnDrawPrefilter(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip);
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
-	void applyTransformation(const TrackBall& arc);
+	void initMatrices();
+	void initLights();
+	void initIrradianceMatrices();
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	const uint32_t ROUGHNESS_LEVELS = 5u;
 
-	TrackBall m_trackball;
 	Camera m_camera;
 	Uniforms m_uniforms;
-	WgpBuffer m_uniformBuffer;
+	WgpBuffer m_uniformBuffer, m_uniformModelBuffer, m_uniformLightBuffer, m_uniformMVPBuffer, m_roughnessBuffer;
 
-	AssimpModel m_helmet;
 	Shape m_cube, m_sphere;
-	WgpModel m_wgpHelmet, m_wgpCube, m_wgpSphere;
-	WgpTexture m_wgpTextureCube, m_wgpTexture;
+	WgpModel m_wgpCube, m_wgpSphere;
+	WgpTexture m_wgpTextureHDR, m_wgpTextureCube, m_wgpTextureIrradiance, m_wgpTexturePrefilter, m_wgpTextureBrdf;
 
-	static void AddBindgroups(const WgpModel& model);
-	static void AddBindgroups(const WgpModel& model, const WgpTexture& texture, std::string pipelineName);
+	glm::mat4 m_models[12];
+	PBRLightingUniforms m_lights[4];
+	glm::mat4 m_mvpInvCube[6];
+	glm::mat4 m_mvpCube[6];
 };

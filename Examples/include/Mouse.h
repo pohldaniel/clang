@@ -1,5 +1,4 @@
-#ifndef __mouseH__
-#define __mouseH__
+#pragma once
 
 struct GLFWwindow;
 
@@ -39,5 +38,3 @@ private:
 
 	float m_centerX, m_centerY;
 };
-
-#endif

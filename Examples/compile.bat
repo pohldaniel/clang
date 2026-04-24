@@ -29,6 +29,7 @@ clang++^
  ../WebGPU/WgpModel.cpp^
  ../WebGPU/WgpBatchRenderer.cpp^
  ../WebGPU/WgpFontRenderer.cpp^
+ ../WebGPU/WgpRenderer.cpp^
  -D_MD -D_DLL -O3 -flto -fuse-ld=lld -std=c++17 -D_CRT_SECURE_NO_WARNINGS^
  -DNWASM -DNDEBUG -DFREEIMAGE_LIB -DWEBGPU_DAWN^
  -o Examples.exe

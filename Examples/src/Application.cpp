@@ -99,7 +99,7 @@ void Application::initStates(){
 }
 
 bool Application::isRunning(){
-  messageLopp();
+  MessageLopp(this);
   return !glfwWindowShouldClose(Window);
 }
 

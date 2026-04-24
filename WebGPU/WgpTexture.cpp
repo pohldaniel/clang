@@ -4,8 +4,8 @@
 #include <FreeImage/FreeImage.h>
 #include <FreeImage/Utilities.h>
 
-#include "WgpTexture.h"
 #include "WgpContext.h"
+#include "WgpTexture.h"
 
 WgpTexture::WgpTexture() :
     m_texture(NULL),

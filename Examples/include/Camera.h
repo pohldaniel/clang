@@ -1,5 +1,4 @@
-#ifndef __cameraH__
-#define __cameraH__
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -31,8 +30,9 @@ public:
 	const glm::mat4& getInvPerspectiveMatrix() const;
 	const glm::mat4& getOrthographicMatrix() const;
 	const glm::mat4& getInvOrthographicMatrix() const;
-
 	const glm::mat4 getRotationMatrix() const;
+
+	const glm::vec3& getPosition() const;
 
 	static glm::mat4 GetNormalMatrix(const glm::mat4& m);
 protected:
@@ -68,5 +68,3 @@ private:
 	glm::mat4		m_orthMatrix;
 	glm::mat4		m_invOrthMatrix;
 };
-
-#endif
