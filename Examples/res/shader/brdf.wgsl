@@ -1,16 +1,19 @@
+struct VertexInput {
+	@location(0) position: vec3f,
+	@location(1) uv: vec2f
+};
+
 struct VertexOutput {
 	@builtin(position) position : vec4<f32>, 
 	@location(0) uv : vec2<f32>,
 }
 
 @vertex 
-fn vs_main(@builtin(vertex_index) vertex_index : u32) ->VertexOutput {
-    var output : VertexOutput;
-    let x           = f32((vertex_index << 1u) & 2u);
-    let y           = f32(vertex_index & 2u);
-    output.position = vec4<f32>(x * 2.0 - 1.0, y * 2.0 - 1.0, 0.0, 1.0);
-    output.uv       = vec2<f32>(x, 1.0 - y);
-    return output;
+fn vs_main(in: VertexInput) ->VertexOutput {
+	var out : VertexOutput;
+	out.position = vec4f(in.position, 1.0);
+	out.uv       = in.uv;
+	return out;
 }
 
 const PI : f32 = 3.1415926535897932384626433832795;

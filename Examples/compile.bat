@@ -16,6 +16,7 @@ clang++^
  states/StateMachine.cpp^
  states/Wireframe.cpp^
  states/ImageBasedLighting.cpp^
+ ../Shape/Quad.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Sphere.cpp^
  ../Shape/Torus.cpp^

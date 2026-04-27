@@ -10,7 +10,11 @@ struct Uniforms {
   glm::mat4 normalMatrix;
   std::array<float, 4> color;
   glm::vec3 camPosition;
-  float _pad[1];
+  float _pad0;
+  glm::mat4 lightVP;
+  glm::mat4 shadow;
+  glm::vec3 lightPosition;
+  float _pad1;
 };
 
 struct ComputeUniforms {
@@ -43,4 +47,10 @@ struct PBRLightingUniforms {
 	float padding1;
 	std::array <float, 3> color;
 	float padding2;
+};
+
+struct MaterialUniforms {
+	std::array <float, 4> baseColorFactor;
+	float alphaCutoff;
+	float padding[3];
 };
