@@ -75,9 +75,9 @@ private:
 	Uniforms m_uniforms;
 	MaterialUniforms m_material;
 	PBRLightingUniforms m_lights[4];
-	WgpBuffer m_uniformBuffer, m_uniformModelBuffer, m_uniformLightBuffer, m_uniformMVPBuffer, m_roughnessBuffer, m_uniformMaterial, m_instanceBuffer;
 
 	Shape m_cube, m_sphere, m_quad;
+	WgpBuffer m_uniformBuffer, m_uniformModelBuffer, m_uniformLightBuffer, m_uniformMVPBuffer, m_roughnessBuffer, m_uniformMaterial, m_instanceBuffer;
 	WgpModel m_wgpCube, m_wgpSphere, m_wgpQuad, m_wgpHelmet;
 	WgpTexture m_wgpTextureHDR, m_wgpTextureCube, m_wgpTextureIrradiance, m_wgpTexturePrefilter, m_wgpTextureBrdf, m_wgpTextureShadow;
 	WgpTexture m_wgpTextutreNormal, m_wgpTextutreEmission, m_wgpTextutreMetalness, m_wgpTextutreLightmap;

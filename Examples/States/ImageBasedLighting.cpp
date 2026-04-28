@@ -151,7 +151,25 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 }
 
 ImageBasedLighting::~ImageBasedLighting() {
-	m_uniformBuffer.markForDelete();
+	m_uniformBuffer.markForDelete(); 
+	m_uniformModelBuffer.markForDelete(); 
+	m_uniformLightBuffer.markForDelete(); 
+	m_uniformMVPBuffer.markForDelete(); 
+	m_roughnessBuffer.markForDelete(); 
+	m_uniformMaterial.markForDelete(); 
+	m_instanceBuffer.markForDelete();
+
+	m_wgpTextureHDR.markForDelete();
+	m_wgpTextureCube.markForDelete();
+	m_wgpTextureIrradiance.markForDelete();
+	m_wgpTexturePrefilter.markForDelete();
+	m_wgpTextureBrdf.markForDelete();
+	m_wgpTextureShadow.markForDelete();
+
+	m_wgpTextutreNormal.markForDelete();
+	m_wgpTextutreEmission.markForDelete();
+	m_wgpTextutreMetalness.markForDelete();
+	m_wgpTextutreLightmap.markForDelete();
 }
 
 void ImageBasedLighting::fixedUpdate() {
