@@ -27,8 +27,8 @@ extern std::unordered_map<VertexLayoutSlot, std::vector<WGPUVertexAttribute>> wg
 extern std::unordered_map<VertexLayoutSlot, WGPUVertexBufferLayout> wgpVertexBufferLayouts;
 
 extern "C" {
-	void wgpInit(void* window, uint32_t msaaSampleCount = 1u);
-	bool wgpCreateDevice(void* window, uint32_t msaaSampleCount = 1u);
+	void wgpInit(void* window);
+	bool wgpCreateDevice(void* window);
 	void wgpRequestAdapterSync(WGPUInstance instance, const WGPURequestAdapterOptions* requestAdapterOptions);
 	void wgpRequestDeviceSync(WGPUAdapter adapter, const WGPUDeviceDescriptor* deviceDescriptor);
 
@@ -50,7 +50,8 @@ extern "C" {
 	void wgpResize(uint32_t width, uint32_t height);
 	void wgpToggleVerticalSync();
 	void wgpConfigureSurface();
-	void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat);
+	void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange = NULL);
+	void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& onSurfaceChange = NULL);
 }
 
 enum SamplerSlot {
@@ -65,7 +66,7 @@ enum SamplerSlot {
 
 struct WgpContext {
 
-	friend bool wgpCreateDevice(void* window, uint32_t msaaSampleCount);
+	friend bool wgpCreateDevice(void* window);
     friend void wgpPipelinesRelease();
     friend void wgpSamplersRelease();
     friend void wgpShaderModulesRelease();
@@ -113,8 +114,6 @@ struct WgpContext {
 
 private:
 
-	void setMSAASampleCount(const uint32_t count);
-	
 	std::unordered_map<std::string, WGPUPipelineLayout> pipelineLayouts;
 	std::unordered_map<SamplerSlot, WGPUSampler> samplers;
 	std::unordered_map<std::string, WGPUShaderModule> shaderModules;
