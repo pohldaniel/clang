@@ -9,6 +9,7 @@ class Camera {
 public:
 
 	static const glm::mat4 BIAS_SHIFT_Z;
+	static const glm::mat4 BIAS;
 
 	Camera();
 	Camera(const glm::vec3& eye, const glm::vec3& target, const glm::vec3& up);

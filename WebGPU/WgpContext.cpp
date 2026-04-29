@@ -787,6 +787,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
                                       uint32_t msaaSampleCount, 
                                       WGPUPrimitiveTopology primitiveTopology,
                                       WGPUTextureFormat colorTextureFormat,
+									  WGPUCompareFunction compareFunction,
                                       bool addDepthStencilState,
                                       bool addBlendState) {
 
@@ -829,7 +830,7 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 
 	WGPUDepthStencilState depthStencilState = {};
 	setDefault(depthStencilState);
-	depthStencilState.depthCompare = WGPUCompareFunction::WGPUCompareFunction_Less;
+	depthStencilState.depthCompare = compareFunction;
 	depthStencilState.depthWriteEnabled = WGPUOptionalBool::WGPUOptionalBool_True;
 	depthStencilState.format = depthformat;
 	depthStencilState.stencilReadMask = 0u;

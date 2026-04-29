@@ -59,7 +59,12 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	wgpContext.createRenderPipeline("PBR_HELMET", "RP_PBR_HELMET", VL_PTNTB, std::bind(&ImageBasedLighting::OnBindGroupLayoutsPBRHelmet, this), 4u);
 	
 	wgpContext.addSahderModule("SKYBOX", "res/shader/skybox.wgsl");
-	wgpContext.createRenderPipeline("SKYBOX", "RP_SKYBOX", VL_P, std::bind(&ImageBasedLighting::OnBindGroupLayoutsSkybox, this), 4u);
+	wgpContext.createRenderPipeline("SKYBOX", "RP_SKYBOX", VL_P, 
+		std::bind(&ImageBasedLighting::OnBindGroupLayoutsSkybox, this), 
+		4u,
+	    WGPUPrimitiveTopology_TriangleList,
+	    WGPUTextureFormat_Undefined,
+	    WGPUCompareFunction_LessEqual);
 
 	wgpContext.addSahderModule("IRRADIANCE", "res/shader/irradiance.wgsl");
 	wgpContext.createRenderPipeline("IRRADIANCE", "RP_IRRADIANCE", VL_P, 
@@ -67,6 +72,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		1u, 
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_RGBA16Float,
+		WGPUCompareFunction_Less,
 		false,
 		false);
 
@@ -76,6 +82,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		1u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_RGBA16Float,
+		WGPUCompareFunction_Less,
 		false,
 		false);
 
@@ -85,6 +92,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		1u,
 		WGPUPrimitiveTopology_TriangleList,
 		WGPUTextureFormat_RGBA16Float,
+		WGPUCompareFunction_Less,
 		false,
 		false);
 
@@ -94,6 +102,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		1u, 
 		WGPUPrimitiveTopology_TriangleList, 
 		WGPUTextureFormat_RG16Float,
+		WGPUCompareFunction_Less,
 		false,
 		false);
 
@@ -108,7 +117,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = lightProjection * lightView;
-	m_uniforms.shadow = Camera::BIAS_SHIFT_Z * m_uniforms.lightVP;
+	m_uniforms.shadow = Camera::BIAS * m_uniforms.lightVP;
 	m_uniforms.lightPosition = glm::vec3(0.25f, 0.5f, 1.0f);
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
@@ -261,9 +270,6 @@ void ImageBasedLighting::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) 
 
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 	
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_SKYBOX"));
-	m_wgpCube.draw(renderPassEncoder);
-
 	if(m_scene == Scene::HELMET){
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PBR_HELMET"));
 		m_wgpHelmet.draw(renderPassEncoder);
@@ -271,6 +277,9 @@ void ImageBasedLighting::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) 
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PBR"));
 		m_wgpSphere.draw(renderPassEncoder, 12u);
 	}
+
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_SKYBOX"));
+	m_wgpCube.draw(renderPassEncoder);
 	
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
