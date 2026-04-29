@@ -44,10 +44,11 @@ private:
 	std::vector<WGPUBindGroup> OnBindGroupsPBR();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPBRHelmet();
 	std::vector<WGPUBindGroup> OnBindGroupsPBRHelmet();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsIrradiance();
-	std::vector<WGPUBindGroup> OnBindGroupsIrradiance();
+
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsCube();
 	std::vector<WGPUBindGroup> OnBindGroupsCube();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsIrradiance();
+	std::vector<WGPUBindGroup> OnBindGroupsIrradiance();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPrefilter();
 	std::vector<WGPUBindGroup> OnBindGroupsPrefilter();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsSkybox();
