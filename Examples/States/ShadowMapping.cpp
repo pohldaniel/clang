@@ -13,7 +13,7 @@
 #include "ShadowMapping.h"
 #include "Application.h"
 #include "Mouse.h"
-#include <iostream>
+
 ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHADOW_MAPPING) {
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 
