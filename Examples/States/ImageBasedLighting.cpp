@@ -989,14 +989,12 @@ std::vector<WGPUBindGroup> ImageBasedLighting::OnBindGroupsSkyboxHelmet() {
 void ImageBasedLighting::OnDrawIrradiance(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpInvCube[layer], 64u);
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_IRRADIANCE"));
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_wgpCube.getMeshes().back().getBindGroups("IRRADIANCE")[0], 0u, NULL);
 	m_wgpCube.draw(renderPassEncoder);
 }
 
 void ImageBasedLighting::OnDrawCube(const WGPURenderPassEncoder& renderPassEncoder, uint32_t layer, uint32_t mip) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpCube[layer], 64u);
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_CUBE"));
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_wgpCube.getMeshes().back().getBindGroups("CUBE")[0], 0u, NULL);
 	m_wgpCube.draw(renderPassEncoder);
 }
 
@@ -1005,7 +1003,6 @@ void ImageBasedLighting::OnDrawPrefilter(const WGPURenderPassEncoder& renderPass
 	wgpuQueueWriteBuffer(wgpContext.queue, m_roughnessBuffer.getBuffer(), 0, &roughness_val, sizeof(float));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformMVPBuffer.getBuffer(), 0u, &m_mvpInvCube[layer], 64u);
 	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_PREFILTER"));
-	wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_wgpCube.getMeshes().back().getBindGroups("PREFILTER")[0], 0u, NULL);
 	m_wgpCube.draw(renderPassEncoder);
 }
 

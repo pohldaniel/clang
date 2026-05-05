@@ -23,9 +23,10 @@ public:
 
 	void cleanup();
 	void markForDelete();
-	void setBindGroupsSlot(const std::string& bindGroupsSlot);
 
+	void setBindGroupsSlot(const std::string& bindGroupsSlot);
 	void setBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups);
+	void addBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups);
 	void addBindGroup(std::string bindGroupsName, WGPUBindGroup bindGroup) const;
 
 	std::vector<WGPUBindGroup>& getBindGroups(std::string bindGroupsName) const;

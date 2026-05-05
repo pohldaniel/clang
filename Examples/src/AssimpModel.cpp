@@ -12,7 +12,6 @@ AssimpModel::AssimpModel() {
 	m_hasMaterial = false;
 	m_isStacked = false;
 
-	m_numberOfVertices = 0u;
 	m_numberOfTriangles = 0u;
 	m_numberOfMeshes = 0u;
 	m_stride = 0u;
@@ -22,7 +21,6 @@ AssimpModel::AssimpModel() {
 }
 
 AssimpModel::AssimpModel(AssimpModel const& rhs) {
-	m_numberOfVertices = rhs.m_numberOfVertices;
 	m_numberOfTriangles = rhs.m_numberOfTriangles;
 	m_numberOfMeshes = rhs.m_numberOfMeshes;
 	m_stride = rhs.m_stride;
@@ -39,7 +37,6 @@ AssimpModel::AssimpModel(AssimpModel const& rhs) {
 }
 
 AssimpModel::AssimpModel(AssimpModel&& rhs) noexcept {
-	m_numberOfVertices = rhs.m_numberOfVertices;
 	m_numberOfTriangles = rhs.m_numberOfTriangles;
 	m_numberOfMeshes = rhs.m_numberOfMeshes;
 	m_stride = rhs.m_stride;
@@ -56,7 +53,6 @@ AssimpModel::AssimpModel(AssimpModel&& rhs) noexcept {
 }
 
 AssimpModel& AssimpModel::operator=(const AssimpModel& rhs) {
-	m_numberOfVertices = rhs.m_numberOfVertices;
 	m_numberOfTriangles = rhs.m_numberOfTriangles;
 	m_numberOfMeshes = rhs.m_numberOfMeshes;
 	m_stride = rhs.m_stride;
@@ -74,7 +70,6 @@ AssimpModel& AssimpModel::operator=(const AssimpModel& rhs) {
 }
 
 AssimpModel& AssimpModel::operator=(AssimpModel&& rhs) noexcept {
-	m_numberOfVertices = rhs.m_numberOfVertices;
 	m_numberOfTriangles = rhs.m_numberOfTriangles;
 	m_numberOfMeshes = rhs.m_numberOfMeshes;
 	m_stride = rhs.m_stride;
@@ -101,7 +96,7 @@ void AssimpModel::cleanup() {
 	m_indexBuffer.clear();
 	m_indexBuffer.shrink_to_fit();
 
-	for (AssimpMesh* mesh : m_meshes) {
+	for (Mesh* mesh : m_meshes) {
 		delete mesh;
 	}
 
@@ -157,7 +152,7 @@ const Mesh* AssimpModel::getMesh(unsigned short index) const {
 	return m_meshes[index];
 }
 
-const std::vector<AssimpMesh*>& AssimpModel::getMeshes() const {
+const std::vector<Mesh*>& AssimpModel::getMeshes() const {
 	return m_meshes;
 }
 
@@ -233,9 +228,8 @@ void AssimpModel::loadModelCpu(const char* _filename, const glm::vec3& axis, flo
 
 	for (int j = 0; j < pScene->mNumMeshes; j++) {
 		const aiMesh* aiMesh = pScene->mMeshes[j];
-
 		m_meshes.push_back(new AssimpMesh(this));
-		AssimpMesh* mesh = m_meshes.back();
+		AssimpMesh* mesh = static_cast<AssimpMesh*>(m_meshes.back());
 		mesh->m_numberOfTriangles = aiMesh->mNumFaces;
 
 		const aiMaterial* aiMaterial = pScene->mMaterials[aiMesh->mMaterialIndex];
@@ -532,58 +526,28 @@ void AssimpModel::ReadAiMaterial(const aiMaterial* aiMaterial, short& index, std
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 AssimpMesh::AssimpMesh(AssimpModel* model) {
 	m_model = model;	
-	m_hasTextureCoords = false;
-	m_hasNormals = false;
-	m_hasTangents = false;
-	m_numberOfTriangles = 0u;
-	m_stride = 0u;
-	m_baseVertex = 0u;
-	m_baseIndex = 0u;
-
-	m_drawCount = 0u;
+	
 	m_materialIndex = -1;
 	m_textureIndex = -1;
 }
 
-AssimpMesh::AssimpMesh(AssimpMesh const& rhs) : Mesh(rhs) {
-	m_stride = rhs.m_stride;
+AssimpMesh::AssimpMesh(AssimpMesh const& rhs) : Mesh(rhs) {	
 	m_model = rhs.m_model;
-	m_drawCount = rhs.m_drawCount;
-	m_hasTextureCoords = rhs.m_hasTextureCoords;
-	m_hasNormals = rhs.m_hasNormals;
-	m_hasTangents = rhs.m_hasTangents;
-	m_numberOfTriangles = rhs.m_numberOfTriangles;
-	m_baseVertex = rhs.m_baseVertex;
-	m_baseIndex = rhs.m_baseIndex;
+	
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
 }
 
 AssimpMesh::AssimpMesh(AssimpMesh&& rhs) noexcept : Mesh(rhs) {
-	m_stride = rhs.m_stride;
 	m_model = rhs.m_model;
-	m_drawCount = rhs.m_drawCount;
-	m_hasTextureCoords = rhs.m_hasTextureCoords;
-	m_hasNormals = rhs.m_hasNormals;
-	m_hasTangents = rhs.m_hasTangents;
-	m_numberOfTriangles = rhs.m_numberOfTriangles;
-	m_baseVertex = rhs.m_baseVertex;
-	m_baseIndex = rhs.m_baseIndex;
+
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
 }
 
 AssimpMesh& AssimpMesh::operator=(const AssimpMesh& rhs) {
 	Mesh::operator=(rhs);
-	m_stride = rhs.m_stride;
 	m_model = rhs.m_model;
-	m_drawCount = rhs.m_drawCount;
-	m_hasTextureCoords = rhs.m_hasTextureCoords;
-	m_hasNormals = rhs.m_hasNormals;
-	m_hasTangents = rhs.m_hasTangents;
-	m_numberOfTriangles = rhs.m_numberOfTriangles;
-	m_baseVertex = rhs.m_baseVertex;
-	m_baseIndex = rhs.m_baseIndex;
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
 	return *this;
@@ -591,15 +555,7 @@ AssimpMesh& AssimpMesh::operator=(const AssimpMesh& rhs) {
 
 AssimpMesh& AssimpMesh::operator=(AssimpMesh&& rhs) noexcept {
 	Mesh::operator=(rhs);
-	m_stride = rhs.m_stride;
 	m_model = rhs.m_model;
-	m_drawCount = rhs.m_drawCount;
-	m_hasTextureCoords = rhs.m_hasTextureCoords;
-	m_hasNormals = rhs.m_hasNormals;
-	m_hasTangents = rhs.m_hasTangents;
-	m_numberOfTriangles = rhs.m_numberOfTriangles;
-	m_baseVertex = rhs.m_baseVertex;
-	m_baseIndex = rhs.m_baseIndex;
 	m_materialIndex = rhs.m_materialIndex;
 	m_textureIndex = rhs.m_textureIndex;
 	return *this;
@@ -614,18 +570,6 @@ void AssimpMesh::cleanup() {
 	m_vertexBuffer.shrink_to_fit();
 	m_indexBuffer.clear();
 	m_indexBuffer.shrink_to_fit();
-}
-
-const std::vector<float>& AssimpMesh::getVertexBuffer() const {
-	return m_vertexBuffer;
-}
-
-const std::vector<unsigned int>& AssimpMesh::getIndexBuffer() const {
-	return m_indexBuffer;
-}
-
-const unsigned int AssimpMesh::getStride() const {
-	return m_stride;
 }
 
 short AssimpMesh::getMaterialIndex() const {
