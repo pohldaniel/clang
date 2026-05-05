@@ -3,11 +3,11 @@
 #include <glm/glm.hpp>
 
 struct Uniforms {
-  glm::mat4 projectionMatrix;
-  glm::mat4 viewMatrix;
-  glm::mat4 envMatrix;
-  glm::mat4 modelMatrix;
-  glm::mat4 normalMatrix;
+  glm::mat4 projection;
+  glm::mat4 view;
+  glm::mat4 env;
+  glm::mat4 model;
+  glm::mat4 normal;
   std::array<float, 4> color;
   glm::vec3 camPosition;
   float _pad0;

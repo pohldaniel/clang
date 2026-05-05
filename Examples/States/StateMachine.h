@@ -5,7 +5,8 @@
 
 enum States {
 	WIREFRAME,
-	IMAGE_BASED_LIGHTING
+	IMAGE_BASED_LIGHTING,
+	SHADOW_MAPPING
 };
 
 class State;

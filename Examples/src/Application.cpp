@@ -8,6 +8,7 @@
 #include <States/StateMachine.h>
 #include <States/Wireframe.h>
 #include <States/ImageBasedLighting.h>
+#include <States/ShadowMapping.h>
 
 #include "Mouse.h"
 #include "Application.h"
@@ -94,7 +95,8 @@ void Application::initImGUI() {
 void Application::initStates(){
   Machine = new StateMachine(dt, fdt);
 	//Machine->addStateAtTop(new Wireframe(*Machine));
-  Machine->addStateAtTop(new ImageBasedLighting(*Machine));  
+  //Machine->addStateAtTop(new ImageBasedLighting(*Machine));
+  Machine->addStateAtTop(new ShadowMapping(*Machine)); 
 }
 
 bool Application::isRunning(){

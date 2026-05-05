@@ -24,8 +24,8 @@ public:
 	void move(float distance);
 	virtual void rotate(float yaw, float pitch);
 
-    void setPosition(float x, float y, float z);
-    void setPosition(const glm::vec3& position);
+    void setPosition(float x, float y, float z, bool observe = false);
+    void setPosition(const glm::vec3& position, bool observe = false);
     void setRotationSpeed(float rotationSpeed);
 	void setMovingSpeed(float movingSpeed);
 
@@ -40,14 +40,12 @@ public:
 
 	static glm::mat4 GetNormalMatrix(const glm::mat4& m);
 
-protected:
-
-   void updateViewMatrix();
-
 private:
 
     void rotateFirstPerson(float yaw, float pitch);
     void orthogonalize();
+	void fillRotationPart();
+	void fillTranslationPart();
 
     glm::vec3 WORLD_XAXIS;
 	glm::vec3 WORLD_YAXIS;

@@ -168,6 +168,26 @@ const unsigned int AssimpModel::getNumberOfTriangles() const {
 	return m_drawCount / 3;
 }
 
+void AssimpModel::generateNormals() {
+	if (m_isStacked) {
+		Model::GenerateNormals(m_vertexBuffer, m_indexBuffer, *this, m_hasNormals, m_stride, 0, m_meshes.size());
+	}else {
+		for (int j = 0; j < m_meshes.size(); j++) {
+			Model::GenerateNormals(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, *this, m_meshes[j]->m_hasNormals, m_meshes[j]->m_stride, j, j + 1);
+		}
+	}
+}
+
+void AssimpModel::rewind() {
+	if (m_isStacked) {
+		Model::Rewind(m_vertexBuffer, m_indexBuffer, m_stride);
+	}else {
+		for (int j = 0; j < m_meshes.size(); j++) {
+			Model::Rewind(m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_indexBuffer, m_meshes[j]->m_stride);
+		}
+	}
+}
+
 void AssimpModel::generateColors(ModelColor modelColor) {
 	if (m_isStacked) {
 		Model::GenerateColors(m_vertexBuffer, m_indexBuffer, m_stride, 0, m_meshes.size(), modelColor);

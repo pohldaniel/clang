@@ -55,6 +55,9 @@ public:
 	const std::vector<unsigned int>& getIndexBuffer() const;
 	const unsigned int getNumberOfTriangles() const;
 
+	void generateNormals();
+	void rewind();
+
 	void generateColors(ModelColor modelColor = MC_WHITE);
 	void packBuffer();
 	void cleanup();
