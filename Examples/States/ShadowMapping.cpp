@@ -32,7 +32,7 @@ ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHA
 
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge, 1u, WGPUMipmapFilterMode_Nearest, WGPUCompareFunction_Less), SS_0);
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
-	wgpContext.addSahderModule("SHADOW_BASE", SHADOW_MAPPING_WGSL, true);
+	wgpContext.addSahderModule("SHADOW_BASE", SHADOW_BASE_WGSL, true);
 	wgpContext.createRenderPipeline("SHADOW_BASE", "RP_COLOR", VL_PN, std::bind(&ShadowMapping::OnBindGroupLayouts, this));
     
 	wgpContext.addSahderModule("SHADOW", SHADOW_WGSL, true);

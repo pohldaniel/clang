@@ -9,6 +9,7 @@
 #include <States/Wireframe.h>
 #include <States/ImageBasedLighting.h>
 #include <States/ShadowMapping.h>
+#include <States/SkinnedMesh.h>
 
 #include "Mouse.h"
 #include "Application.h"
@@ -96,7 +97,8 @@ void Application::initStates(){
   Machine = new StateMachine(dt, fdt);
 	//Machine->addStateAtTop(new Wireframe(*Machine));
   //Machine->addStateAtTop(new ImageBasedLighting(*Machine));
-  Machine->addStateAtTop(new ShadowMapping(*Machine)); 
+  //Machine->addStateAtTop(new ShadowMapping(*Machine));
+  Machine->addStateAtTop(new SkinnedMesh(*Machine));
 }
 
 bool Application::isRunning(){

@@ -1,5 +1,5 @@
 clang++^
- -I "./" -I "./include/" -I "../" -I "../include/" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../SDKs/wgpu-dawn/include/"^
+ -I "./" -I "./include/" -I "./include/animation/" -I "../" -I "../include/" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../SDKs/wgpu-dawn/include/"^
  -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/"^
  -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt^
  -llibglfw3 -llibimgui -llibassimp -lwgpu -llibfreeimage -llibzlib^
@@ -14,10 +14,16 @@ clang++^
  src/CharacterSet.cpp^
  src/Application.cpp^
  src/main.cpp^
+ src/animation/MeshBone.cpp^
+ src/animation/Bone.cpp^
+ src/animation/Animation.cpp^
+ src/animation/AnimationState.cpp^
+ src/animation/AnimatedModel.cpp^
  states/StateMachine.cpp^
  states/Wireframe.cpp^
  states/ImageBasedLighting.cpp^
  states/ShadowMapping.cpp^
+ states/SkinnedMesh.cpp^
  ../Shape/Quad.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Sphere.cpp^
