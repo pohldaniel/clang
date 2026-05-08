@@ -1,6 +1,7 @@
+#include <animation/AnimatedModel.h>
 #include <Shape/Shape.h>
-#include "ObjModel.h"
 #include "AssimpModel.h"
+#include "ObjModel.h"
 
 #include "WgpModel.h"
 
@@ -35,6 +36,16 @@ void WgpModel::create(const AssimpModel& model) {
 			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer()));
 	}
 	markForDelete();
+}
+
+void WgpModel::create(const AnimatedModel& model) {
+	for (const Mesh* _mesh : model.getMeshes()) {
+		const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(_mesh);
+		//if (mesh->hasMaterial() && mesh->getMaterial().hasTexture(TextureSlot::TEXTURE_DIFFUSE))
+		//	m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getWeights(), mesh->getJoints(), mesh->getStride(), mesh->getMaterial().getTextures().at(TextureSlot::TEXTURE_DIFFUSE)));
+		//else
+			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getWeights(), mesh->getJoints(), mesh->getStride()));
+	}
 }
 
 void WgpModel::create(const Shape& shape) {

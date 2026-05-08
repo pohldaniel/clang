@@ -354,6 +354,14 @@ const unsigned short AnimatedMesh::getNumBones() const {
 	return m_numBones;
 }
 
+const bool AnimatedMesh::hasMaterial() const {
+	return m_materialIndex >= 0;
+}
+
+const Material& AnimatedMesh::getMaterial() const {
+	return Material::GetMaterials()[m_materialIndex];
+}
+
 void AnimatedMesh::createBones() {
 	m_numBones = static_cast<unsigned short>(m_meshBones.size());
 
@@ -413,7 +421,7 @@ void AnimatedMesh::update(float dt) {
 void AnimatedMesh::rotate(const float pitch, const float yaw, const float roll) {
 	for (size_t i = 0; i < m_numBones; ++i) {
 		if (m_meshBones[i].name == m_rootBone->m_name) {
-			m_meshBones[i].initialRotation *= glm::quat(glm::vec3(pitch, yaw, roll));
+			m_meshBones[i].initialRotation *= glm::quat(glm::vec3(glm::radians(pitch), glm::radians(yaw), glm::radians(roll)));
 		}
 	}
 }

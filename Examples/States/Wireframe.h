@@ -9,13 +9,12 @@
 #include "TrackBall.h"
 #include "ObjModel.h"
 
-enum SelectedModel {
-	MAMMOTH,
-	DRAGON
-};
 
 class Wireframe : public State {
-
+	enum SelectedModel {
+		MAMMOTH,
+		DRAGON
+	};
 public:    
 
     Wireframe(StateMachine& machine);

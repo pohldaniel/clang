@@ -54,6 +54,7 @@ Application::Application(float& dt, float& fdt) : fdt(fdt), dt(dt), last(0.0) {
   glfwSetScrollCallback(Window, glfwWindowScroll);
 
   Application::Init = true;
+  last = glfwGetTime();
 }
 
 Application::~Application() {

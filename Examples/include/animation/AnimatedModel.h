@@ -7,6 +7,7 @@
 #include "../Model.h"
 #include "../Mesh.h"
 
+#include "../Material.h"
 #include "MeshBone.h"
 #include "AnimationState.h"
 
@@ -86,6 +87,8 @@ public:
 	const std::vector<std::array<unsigned int, 4>>& getJoints() const;
 	const glm::mat4* getSkinMatrices() const;
 	const unsigned short getNumBones() const;
+	const bool hasMaterial() const;
+	const Material& getMaterial() const;
 
 	void rotate(const float pitch, const float yaw, const float roll);
 	void scale(const float sx, const float sy, const float sz);

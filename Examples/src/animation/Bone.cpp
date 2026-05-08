@@ -6,7 +6,10 @@
 thread_local glm::mat4 Bone::Transformation;
 
 Bone::Bone() : m_parent(nullptr), m_isRootBone(false), m_isDirty(true), m_numChildBones(0u), m_animationEnabled(true) {
-
+	m_position = glm::vec3(0.0f, 0.0f, 0.0f);
+	m_scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	m_modelMatrix = glm::mat4(1.0f);
 }
 
 Bone::~Bone() {
@@ -26,8 +29,11 @@ void Bone::OnTransformChanged() {
 }
 
 const glm::mat4& Bone::getWorldTransformation() const {
-	if (m_isDirty) {
-		m_modelMatrix = m_parent ? m_parent->getWorldTransformation() * getTransformationSOP() : getTransformationSOP();
+	if (m_isDirty) {		
+		m_modelMatrix = getTransformationSOP();
+		if(m_parent)
+			m_modelMatrix = m_parent->getWorldTransformation() * m_modelMatrix;
+				
 		m_isDirty = false;
 	}
 	return m_modelMatrix;
@@ -75,10 +81,8 @@ Bone* Bone::findChild(const std::string& name, bool recursive) const {
 	return nullptr;
 }
 
-const glm::mat4& Bone::getTransformationSOP() const {
-	Transformation = glm::scale(glm::mat4(1.0f), m_scale);
-	Transformation *= glm::toMat4(m_orientation);	
-	Transformation = glm::translate(Transformation, m_position);
+const glm::mat4& Bone::getTransformationSOP() const {	
+	Transformation = glm::translate(m_position) * glm::toMat4(m_orientation) * glm::scale(m_scale);
 	return Transformation;
 }
 
@@ -144,8 +148,4 @@ void Bone::countChildBones() {
 		if (dynamic_cast<Bone*>((*it).get()))
 			++m_numChildBones;
 	}
-}
-
-void Bone::rotate(const float pitch, const float yaw, const float roll) {
-	//m_orientation.rotate(pitch, yaw, roll);
 }

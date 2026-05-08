@@ -7,6 +7,8 @@
 #include "Animation.h"
 
 void AnimationTrack::findKeyFrameIndex(float time, size_t& index) const {
+	//std::cout << "INDEX1: " << index << "  " << time << std::endl;
+	
 	if (time < 0.0f)
 		time = 0.0f;
 
@@ -18,7 +20,9 @@ void AnimationTrack::findKeyFrameIndex(float time, size_t& index) const {
 
 	while (index < m_keyFrames.size() - 1 && time >= m_keyFrames[index + 1].m_time)
 		++index;
-}
+
+	//std::cout << "INDEX2: " << index << "  " << time << std::endl;
+} 
 
 Animation::Animation() : m_length(0.0f) {
 

@@ -119,6 +119,7 @@ void Camera::lookAt(const glm::vec3& eye, const glm::vec3& target, const glm::ve
 	m_zAxis = glm::normalize(m_eye - target);
 	m_xAxis = glm::normalize(glm::cross(up, m_zAxis));
 	m_yAxis = glm::normalize(glm::cross(m_zAxis, m_xAxis));
+	m_viewDir = -m_zAxis;
 	m_accumPitchDegrees = -asinf(m_yAxis[2]) * _180_ON_PI;
 
 	fillRotationPart();

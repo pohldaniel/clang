@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 class Bone  {
@@ -34,7 +34,6 @@ public:
 	void setAnimationEnabled(bool enable);
 	void setTransformSilent(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 	const bool isRootBone() const;
-	void rotate(const float pitch, const float yaw, const float roll);
 
 protected:
 

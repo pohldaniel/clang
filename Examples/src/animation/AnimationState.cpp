@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 #include "AnimationState.h"
 
@@ -244,6 +244,7 @@ void AnimationState::applyToModel() {
 
 	for (auto it = m_stateTracks.begin(); it != m_stateTracks.end(); ++it) {
 		AnimationStateTrack& stateTrack = *it;
+		
 		const AnimationTrack* track = stateTrack.m_track;
 		float finalWeight = m_blendWeight * stateTrack.m_weight;
 		Bone* bone = stateTrack.m_node;
@@ -291,11 +292,15 @@ void AnimationState::applyToModel() {
 			t = timeInterval > 0.0f ? (m_stateTime - keyFrame.m_time) / timeInterval : 1.0f;
 		}
 
-		if (track->m_channelMask & CHANNEL_POSITION)
+		if (track->m_channelMask & CHANNEL_POSITION) 
 			newPosition = glm::lerp(keyFrame.m_position, nextKeyFrame.m_position, t);
-		if (track->m_channelMask & CHANNEL_ROTATION)
+		if (track->m_channelMask & CHANNEL_ROTATION) {
 			newRotation = glm::slerp(keyFrame.m_rotation, nextKeyFrame.m_rotation, t);
-		if (track->m_channelMask & CHANNEL_SCALE)
+			//std::cout << "ROT1: " << nextFrame << "  " << keyFrame.m_rotation.x << "  " << keyFrame.m_rotation.y << "  " << keyFrame.m_rotation.z << "  " << keyFrame.m_rotation.w << std::endl;
+			//std::cout << "ROT2: " << nextFrame << "  " << nextKeyFrame.m_rotation.x << "  " << nextKeyFrame.m_rotation.y << "  " << nextKeyFrame.m_rotation.z << "  " << nextKeyFrame.m_rotation.w << std::endl;
+			//std::cout << "RES: " << nextFrame << "  " << newRotation.x << "  " << newRotation.y << "  " << newRotation.z << "  " << newRotation.w << std::endl;
+			//std::cout << "########" << std::endl;
+		}if (track->m_channelMask & CHANNEL_SCALE)
 			newScale = glm::lerp(keyFrame.m_scale, nextKeyFrame.m_scale, t);
 
 

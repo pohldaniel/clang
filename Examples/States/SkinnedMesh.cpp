@@ -8,47 +8,47 @@
 #include <glm/ext.hpp>
 
 #include <WebGPU/WgpContext.h>
-#include <WebGPU/WgpRenderer.h>
 
-#include "SkinnedMesh.h"
 #include "Application.h"
 #include "Mouse.h"
+#include "SkinnedMesh.h"
 
 SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED_MESH) {
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 
 	m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(glm::vec3(0.0f, 50.0f, -100.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	m_camera.lookAt(glm::vec3(0.0f, 0.0f, -50.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(50.0f);
 
-	m_dragon.loadModel("res/models/dragon_vrip_res4.ply", glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), 500.0f);
-	m_dragon.generateNormals();
+	m_attack.loadAnimationAssimp("res/models/whale.glb", "ATTACK", "attack");
+	m_swim.loadAnimationAssimp("res/models/whale.glb", "swim", "swim");
 
-	m_quad.buildQuadXZ({ -100.0f, 20.0f, -100.0f }, { 200.0f, 200.0f }, 1u, 1u, false, true);
+	m_whale.loadModelAssimp("res/models/whale.glb", 1u);
+	m_whale.scale(10.0f, 10.0f, 10.0f);
+	m_whale.rotate(-90.0f, 0.0f, 0.0f);
+	m_whale.rotate(0.0f, 0.0f, 180.0f);
+	m_whale.translate(0.0f, -5.0f, 0.0f);
+	m_whale.addAnimationState(m_attack);
+	m_whale.getAnimationState(0)->setLooped(true);
+
+	m_dance.loadAnimationAssimp("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
+	m_dance.setPositionOfTrack("Hips", 0.0f, 0.0f, 0.0f);
+	m_dance.scaleTrack("Hips", 0.1f, 0.1f, 0.1f);
+
+	m_vampire.loadModelAssimp("res/models/vampire/dancing_vampire.dae", 1u);
+	m_vampire.rotate(0.0f, 180.0f, 0.0f);
+	m_vampire.translate(0.0f, 0.0f, -25.0f);
+	m_vampire.addAnimationState(m_dance);
+	m_vampire.getAnimationState(0)->setLooped(true);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_skinBuffer.createBuffer(sizeof(glm::mat4) * 96u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
 
-	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge, 1u, WGPUMipmapFilterMode_Nearest, WGPUCompareFunction_Less), SS_0);
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
-	wgpContext.addSahderModule("SHADOW_BASE", SHADOW_BASE_WGSL, true);
-	wgpContext.createRenderPipeline("SHADOW_BASE", "RP_COLOR", VL_PN, std::bind(&SkinnedMesh::OnBindGroupLayouts, this));
-    
-	wgpContext.addSahderModule("SHADOW", SHADOW_WGSL, true);
-	wgpContext.createRenderPipeline("SHADOW", "RP_SHADOW", 
-		VL_PN, 
-		std::bind(&SkinnedMesh::OnBindGroupLayoutsShadow, this),
-		1u, 
-		WGPUPrimitiveTopology_TriangleList,
-		WGPUTextureFormat_Undefined,
-		WGPUTextureFormat_Depth32Float,
-		WGPUCompareFunction_Less,
-		true,
-		false,
-		false
-	);
-	
+	wgpContext.addSahderModule("ANIMATION", "res/shader/animation.wgsl");
+	wgpContext.createRenderPipeline("ANIMATION", "RP_ANIMATION", VL_PTNWJ, std::bind(&SkinnedMesh::OnBindGroupLayouts, this));
 
 	m_lightProjection = glm::ortho(-80.0f, 80.0f, -80.0f, 80.0f, -200.0f, 300.0f);
 	m_lightView = glm::lookAt(glm::vec3(50.0f, 100.0f, -100.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -66,22 +66,18 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
-	m_wgpTextureShadow.createEmpty(1024u, 1024u, 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_RenderAttachment, WGPUTextureFormat_Depth32Float);
-	
-	m_wgpDragon.create(m_dragon);
-	m_wgpDragon.addBindGroups("SHADOW", std::bind(&SkinnedMesh::OnBindGroupsShadow, this));
-	m_wgpDragon.addBindGroups("COLOR", std::bind(&SkinnedMesh::OnBindGroups, this));
+	m_wgpWhale.create(m_whale);
+	m_wgpWhale.setBindGroups("BG", std::bind(&SkinnedMesh::OnBindGroups, this));
 
-	m_wgpQuad.create(m_quad);
-	m_wgpQuad.addBindGroups("SHADOW", std::bind(&SkinnedMesh::OnBindGroupsShadow, this));
-	m_wgpQuad.addBindGroups("COLOR", std::bind(&SkinnedMesh::OnBindGroups, this));
+	m_wgpVampire.create(m_vampire);
+	m_wgpVampire.setBindGroups("BG", std::bind(&SkinnedMesh::OnBindGroups, this));
 
 	wgpContext.OnDraw = std::bind(&SkinnedMesh::OnDraw, this, std::placeholders::_1);
 }
 
 SkinnedMesh::~SkinnedMesh() {
 	m_uniformBuffer.markForDelete();
-	m_wgpTextureShadow.markForDelete();
+	m_skinBuffer.markForDelete();
 }
 
 void SkinnedMesh::fixedUpdate() {
@@ -142,19 +138,27 @@ void SkinnedMesh::update() {
 		}
 	}
 
-	glm::vec3 position = m_camera.getPosition();
-
-	RotateY(position, m_dt);
-	m_camera.setPosition(position, true);
-
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
 	m_uniforms.model = glm::translate(glm::vec3(0.0f, -45.0f, 0.0f));
 	m_uniforms.normal = Camera::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
-	m_uniforms.camPosition = position;
+	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = m_lightProjection * m_lightView;
 	m_uniforms.shadow = Camera::BIAS * m_uniforms.lightVP;
+
+	const AnimatedMesh* mesh;
+	if (m_model == SelectedModel::WHALE) {
+		m_whale.update(m_dt);
+		m_whale.updateSkinning();
+		mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
+	}else {
+		m_vampire.update(m_dt);
+		m_vampire.updateSkinning();
+		mesh = static_cast<const AnimatedMesh*>(m_vampire.getMesh());
+	}
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_skinBuffer.getBuffer(), 0u, mesh->getSkinMatrices(), mesh->getNumBones() * sizeof(glm::mat4));
 }
 
 void SkinnedMesh::render() {
@@ -172,17 +176,10 @@ void SkinnedMesh::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, lightVP), &m_uniforms.lightVP, sizeof(Uniforms::lightVP));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, shadow), &m_uniforms.shadow, sizeof(Uniforms::shadow));
 
-	WgpRenderer::DrawDepth(m_wgpTextureShadow, std::bind(&SkinnedMesh::OnDrawShadow, this, std::placeholders::_1));
-
-
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_COLOR"));
-	m_wgpDragon.setBindGroupsSlot("COLOR");
-	m_wgpDragon.draw(renderPassEncoder);
-
-	m_wgpQuad.setBindGroupsSlot("COLOR");
-	m_wgpQuad.draw(renderPassEncoder);
+	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
+	m_model == SelectedModel::WHALE ? m_wgpWhale.draw(renderPassEncoder) : m_wgpVampire.draw(renderPassEncoder);
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
@@ -256,6 +253,26 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	}
 
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	int currentModel = m_model;
+	if (ImGui::Combo("Model", &currentModel, "Vampire\0Whale\0\0")) {
+		m_model = static_cast<SelectedModel>(currentModel);
+	}
+
+	if (m_model == SelectedModel::WHALE) {
+		int currentAnimation = m_animation;
+		if (ImGui::Combo("Animation", &currentAnimation, "Attack\0Swim\0\0")) {
+			m_animation = static_cast<SelectedAnimation>(currentAnimation);
+			if (m_animation == SelectedAnimation::ATTACK) {
+				m_whale.removeAnimationState(m_swim);
+				m_whale.addAnimationState(m_attack);
+				m_whale.getAnimationState(0)->setLooped(true);
+			}else {
+				m_whale.removeAnimationState(m_attack);
+				m_whale.addAnimationState(m_swim);
+				m_whale.getAnimationState(0)->setLooped(true);
+			}
+		}
+	}
 
 	ImGui::End();
 
@@ -266,20 +283,16 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayouts() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
 	bindingLayoutEntries[0].binding = 0u;
 	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex | WGPUShaderStage_Fragment;
 	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
 	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
 
 	bindingLayoutEntries[1].binding = 1u;
-	bindingLayoutEntries[1].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[1].texture.viewDimension = WGPUTextureViewDimension_2D;
-	bindingLayoutEntries[1].texture.sampleType = WGPUTextureSampleType_Depth;
-
-	bindingLayoutEntries[2].binding = 2u;
-	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
-	bindingLayoutEntries[2].sampler.type = WGPUSamplerBindingType_Comparison;
+	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex;
+	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
+	bindingLayoutEntries[1].buffer.minBindingSize = 16 * sizeof(float);
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -293,80 +306,23 @@ std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayouts() {
 std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroups() {
 	std::vector<WGPUBindGroup> bindGroups(1);
 
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(3);
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(2);
 	bindGroupEntries[0].binding = 0u;
 	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
 	bindGroupEntries[0].offset = 0u;
 	bindGroupEntries[0].size = sizeof(Uniforms);
 
 	bindGroupEntries[1].binding = 1u;
-	bindGroupEntries[1].textureView = m_wgpTextureShadow.getTextureView();
-
-	bindGroupEntries[2].binding = 2u;
-	bindGroupEntries[2].sampler = wgpContext.getSampler(SS_0);
+	bindGroupEntries[1].buffer = m_skinBuffer.getBuffer();
+	bindGroupEntries[1].offset = 0u;
+	bindGroupEntries[1].size = wgpuBufferGetSize(m_skinBuffer.getBuffer());
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_COLOR"), 0u);
+	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_ANIMATION"), 0u);
 	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
 	bindGroupDesc.entries = bindGroupEntries.data();
 
 	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
 
 	return bindGroups;
-}
-
-std::vector<WGPUBindGroupLayout> SkinnedMesh::OnBindGroupLayoutsShadow() {
-	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
-
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(1);
-	bindingLayoutEntries[0].binding = 0u;
-	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex;
-	bindingLayoutEntries[0].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
-	bindingLayoutEntries[0].buffer.minBindingSize = sizeof(Uniforms);
-
-	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
-	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
-	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
-
-	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
-
-	return bindingLayouts;
-}
-
-std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroupsShadow() {
-	std::vector<WGPUBindGroup> bindGroups(1);
-
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(1);
-	bindGroupEntries[0].binding = 0u;
-	bindGroupEntries[0].buffer = m_uniformBuffer.getBuffer();
-	bindGroupEntries[0].offset = 0u;
-	bindGroupEntries[0].size = sizeof(Uniforms);
-
-	WGPUBindGroupDescriptor bindGroupDesc = {};
-	bindGroupDesc.layout = wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_SHADOW"), 0u);
-	bindGroupDesc.entryCount = (uint32_t)bindGroupEntries.size();
-	bindGroupDesc.entries = bindGroupEntries.data();
-
-	bindGroups[0] = wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
-
-	return bindGroups;
-}
-
-void SkinnedMesh::OnDrawShadow(const WGPURenderPassEncoder& renderPassEncoder) {
-	wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_SHADOW"));
-	m_wgpDragon.setBindGroupsSlot("SHADOW");
-	m_wgpDragon.draw(renderPassEncoder);
-
-	m_wgpQuad.setBindGroupsSlot("SHADOW");
-	m_wgpQuad.draw(renderPassEncoder);
-}
-
-glm::vec3& SkinnedMesh::RotateY(glm::vec3& p, float rad, const glm::vec3& centerOfRotation) {
-	float x = p[0] - centerOfRotation[0];
-	float z = p[2] - centerOfRotation[2];
-
-	p[0] = z * sinf(rad) + x * cosf(rad) + centerOfRotation[0];
-	p[2] = z * cosf(rad) - x * sinf(rad) + centerOfRotation[2];
-
-	return p;
 }
