@@ -51,6 +51,7 @@ public:
 	void rotate(const float pitch, const float yaw, const float roll);
 	void scale(const float sx, const float sy, const float sz);
 	void translate(const float dx, const float dy, const float dz);
+	void cleanup();
 
 private:
 
@@ -59,8 +60,10 @@ private:
 	void fetchAiHierarchy(aiNode* node, std::vector<MeshBone>& meshBones, int parentIndex = 0);
 	void printAiHierarchy(aiNode* node);
 
-	unsigned int m_stride;
-	bool m_hasTextureCoords, m_hasNormals, m_hasTangents, m_isStacked;
+	unsigned int m_numberOfTriangles, m_numberOfMeshes, m_stride;
+
+	bool m_hasTextureCoords, m_hasNormals, m_hasTangents, m_hasMaterial;
+	bool m_isStacked;
 
 	bool m_animationOrderDirty;
 	std::vector<std::shared_ptr<AnimationState>> m_animationStates;
@@ -98,7 +101,7 @@ private:
 
 	AnimatedModel* m_model;
 	
-	unsigned short m_numBones = 0;
+	unsigned short m_numBones;
 	glm::mat4* m_skinMatrices;
 
 	Bone* m_rootBone;

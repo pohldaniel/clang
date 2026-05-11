@@ -5,10 +5,11 @@
 
 thread_local glm::mat4 Bone::Transformation;
 
-Bone::Bone() : m_parent(nullptr), m_isRootBone(false), m_isDirty(true), m_numChildBones(0u), m_animationEnabled(true) {
+Bone::Bone() : m_parent(nullptr), m_numChildBones(0u), m_isRootBone(false), m_isDirty(true), m_animationEnabled(true) {
 	m_position = glm::vec3(0.0f, 0.0f, 0.0f);
 	m_scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	m_orientation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+	m_offsetMatrix = glm::mat4(1.0f);
 	m_modelMatrix = glm::mat4(1.0f);
 }
 

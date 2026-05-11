@@ -73,10 +73,10 @@ private:
 	void applyToModel();
 	void applyToNodes();
 
-	const Animation& m_animation;
-
-	Bone* m_startBone;
 	std::vector<AnimationStateTrack> m_stateTracks;
+
+	const Animation& m_animation;
+	Bone* m_startBone;
 
 	float m_stateTime;
 	unsigned char m_blendLayer;

@@ -3,6 +3,11 @@ clang++^
  -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/"^
  -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt^
  -llibglfw3 -llibimgui -llibassimp -lwgpu -llibfreeimage -llibzlib^
+ src/animation/MeshBone.cpp^
+ src/animation/Bone.cpp^
+ src/animation/Animation.cpp^
+ src/animation/AnimationState.cpp^
+ src/animation/AnimatedModel.cpp^
  src/Mouse.cpp^
  src/Material.cpp^
  src/Transform.cpp^
@@ -14,11 +19,6 @@ clang++^
  src/CharacterSet.cpp^
  src/Application.cpp^
  src/main.cpp^
- src/animation/MeshBone.cpp^
- src/animation/Bone.cpp^
- src/animation/Animation.cpp^
- src/animation/AnimationState.cpp^
- src/animation/AnimatedModel.cpp^
  states/StateMachine.cpp^
  states/Wireframe.cpp^
  states/ImageBasedLighting.cpp^

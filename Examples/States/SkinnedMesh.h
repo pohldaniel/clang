@@ -13,6 +13,7 @@
 
 #include "Camera.h"
 
+#define MAX_JOIN 96u
 
 class SkinnedMesh : public State {
     enum SelectedAnimation {

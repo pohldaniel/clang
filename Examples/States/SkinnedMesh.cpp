@@ -44,7 +44,7 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_vampire.getAnimationState(0)->setLooped(true);
 
 	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
-	m_skinBuffer.createBuffer(sizeof(glm::mat4) * 96u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
+	m_skinBuffer.createBuffer(sizeof(glm::mat4) * MAX_JOIN, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
 
 	wgpContext.setClearColor({ 0.5f, 0.5f, 0.5f, 1.0f });
 	wgpContext.addSahderModule("ANIMATION", "res/shader/animation.wgsl");
