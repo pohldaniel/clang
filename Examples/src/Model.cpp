@@ -18,27 +18,32 @@ void Model::GenerateColors(std::vector<float>& vertexBuffer, std::vector<unsigne
 				tmpVertex.push_back(vertexBuffer[i - stride + 2]);
 				tmpVertex.push_back(vertexBuffer[i - stride + 3]);
 				tmpVertex.push_back(1.0f);
-			}else if (modelColor == ModelColor::MC_WHITE) {
+			}
+			else if (modelColor == ModelColor::MC_WHITE) {
 				tmpVertex.push_back(1.0f);
 				tmpVertex.push_back(1.0f);
 				tmpVertex.push_back(1.0f);
 				tmpVertex.push_back(1.0f);
-			}else if (modelColor == ModelColor::MC_RED) {
+			}
+			else if (modelColor == ModelColor::MC_RED) {
 				tmpVertex.push_back(1.0f);
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(1.0f);
-			}else if (modelColor == ModelColor::MC_GREEN) {
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(1.0f);
-				tmpVertex.push_back(0.0f);
-				tmpVertex.push_back(1.0f);
-			}else if (modelColor == ModelColor::MC_BLUE) {
 				tmpVertex.push_back(0.0f);
 				tmpVertex.push_back(0.0f);
 				tmpVertex.push_back(1.0f);
+			}
+			else if (modelColor == ModelColor::MC_GREEN) {
+				tmpVertex.push_back(0.0f);
 				tmpVertex.push_back(1.0f);
-			}else if (modelColor == ModelColor::MC_BLACK) {
+				tmpVertex.push_back(0.0f);
+				tmpVertex.push_back(1.0f);
+			}
+			else if (modelColor == ModelColor::MC_BLUE) {
+				tmpVertex.push_back(0.0f);
+				tmpVertex.push_back(0.0f);
+				tmpVertex.push_back(1.0f);
+				tmpVertex.push_back(1.0f);
+			}
+			else if (modelColor == ModelColor::MC_BLACK) {
 				tmpVertex.push_back(0.0f);
 				tmpVertex.push_back(0.0f);
 				tmpVertex.push_back(0.0f);
@@ -200,7 +205,7 @@ void Model::GenerateNormals(std::vector<float>& vertexBuffer, std::vector<unsign
 	}
 
 	for (int j = startIndex; j < endIndex; j++) {
-		for (int i = 0; i < model.m_meshes[j]->m_numberOfTriangles; i++) {
+		for (int i = 0; i < model.m_meshes[j]->m_indexBuffer.size() / 3; i++) {
 
 			pTriangle = &indexBuffer[i * 3 + model.m_meshes[j]->m_baseIndex];
 
@@ -349,7 +354,7 @@ void Model::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsig
 	}
 
 	for (int j = startIndex; j < endIndex; j++) {
-		for (int i = 0; i < model.m_meshes[j]->m_numberOfTriangles; i++) {
+		for (int i = 0; i < model.m_meshes[j]->m_indexBuffer.size() / 3; i++) {
 
 			pTriangle = &indexBuffer[i * 3 + model.m_meshes[j]->m_baseIndex];
 
@@ -485,7 +490,7 @@ void Model::GenerateTangents(std::vector<float>& vertexBuffer, std::vector<unsig
 
 void Model::GenerateTangents(std::vector<float>& vertexCoords, std::vector<float>& textureCoords, std::vector<float>& normalCoords, std::vector<std::array<int, 10>>& face, std::vector<float>& tangentCoords, std::vector<float>& bitangentCoords) {
 
-	if(textureCoords.empty()) return;
+	if (textureCoords.empty()) return;
 
 	tangentCoords.resize(vertexCoords.size());
 	bitangentCoords.resize(vertexCoords.size());
@@ -539,7 +544,7 @@ void Model::GenerateTangents(std::vector<float>& vertexCoords, std::vector<float
 
 		det = texEdge1[0] * texEdge2[1] - texEdge2[0] * texEdge1[1];
 
-		if(fabs(det) < 1e-6f) {
+		if (fabs(det) < 1e-6f) {
 
 			tangent[0] = 1.0f;
 			tangent[1] = 0.0f;
@@ -638,7 +643,6 @@ void Model::GenerateTangents(std::vector<float>& vertexCoords, std::vector<float
 
 	}
 }
-
 
 std::array<float, 3> Model::Normalize(const std::array<float, 3>& v) {
 	float length = sqrtf((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]));

@@ -4,6 +4,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "BinaryIO.h"
 #include "Animation.h"
 
 void AnimationTrack::findKeyFrameIndex(float time, size_t& index) const {
@@ -30,6 +31,11 @@ Animation::Animation() : m_length(0.0f) {
 
 Animation::~Animation() {
 
+}
+
+void Animation::loadAnimation(std::string filename) {
+	Utils::MdlcIO mdlcIO;
+	mdlcIO.anicToBuffer(filename.c_str(), m_animationName, m_length, m_tracks);
 }
 
 void Animation::loadAnimationAssimp(const std::string& filename, std::string sourceName, std::string destName) {

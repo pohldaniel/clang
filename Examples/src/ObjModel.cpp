@@ -516,23 +516,21 @@ void ObjModel::loadModelCpu(const char* _filename, const glm::vec3& axis, float 
 		dup[face[i][9]]++;
 	}
 
+	std::vector<unsigned int> numberOfTriangles;
 	std::map<int, int>::const_iterator iterDup = dup.begin();
 	for (; iterDup != dup.end(); iterDup++) {
 
 		if (name.empty()) {
 			m_meshes.push_back(new ObjMesh(this));
-			m_meshes.back()->m_numberOfTriangles = iterDup->second;
+			numberOfTriangles.push_back(iterDup->second);
 		}else {
 
 			std::map<std::string, int >::const_iterator iterName = name.begin();
 			for (; iterName != name.end(); iterName++) {
 
-				if (iterDup->first == iterName->second) {
-					m_meshes.push_back(new ObjMesh(this, iterName->first));
-					m_meshes.back()->m_numberOfTriangles = iterDup->second;
-					if (m_meshes.size() > 1) {
-						m_meshes[m_meshes.size() - 1]->m_triangleOffset = m_meshes[m_meshes.size() - 2]->m_numberOfTriangles + m_meshes[m_meshes.size() - 2]->m_triangleOffset;
-					}
+				if (iterDup->first == iterName->second) {					
+					m_meshes.push_back(new ObjMesh(this, iterName->first));	
+					numberOfTriangles.push_back(iterDup->second);
 				}
 			}
 		}
@@ -551,10 +549,14 @@ void ObjModel::loadModelCpu(const char* _filename, const glm::vec3& axis, float 
 	indexBufferCreator.tangentCoordsIn = tangentCoords;
 	indexBufferCreator.bitangentCoordsIn = bitangentCoords;
 
+	std::vector<unsigned int>::iterator triangles = numberOfTriangles.begin();
+	Mesh* prevMesh = nullptr;
 	for (Mesh* _mesh : m_meshes) {
 		ObjMesh* mesh = static_cast<ObjMesh*>(_mesh);
-		std::vector<std::array<int, 10>>::const_iterator first = face.begin() + mesh->m_triangleOffset;
-		std::vector<std::array<int, 10>>::const_iterator last = face.begin() + (mesh->m_triangleOffset + mesh->m_numberOfTriangles);
+		unsigned int triangleOffset = prevMesh ? triangleOffset + (prevMesh->m_indexBuffer.size() / 3)  : 0u;
+
+		std::vector<std::array<int, 10>>::const_iterator first = face.begin() + triangleOffset;
+		std::vector<std::array<int, 10>>::const_iterator last = face.begin() + (triangleOffset + *triangles);
 		std::vector<std::array<int, 10>> subFace(first, last);
 		indexBufferCreator.face = subFace;
 		indexBufferCreator.createIndexBuffer(flipWinding || flipYZ);
@@ -605,6 +607,9 @@ void ObjModel::loadModelCpu(const char* _filename, const glm::vec3& axis, float 
 		indexBufferCreator.indexBufferOut.shrink_to_fit();
 		indexBufferCreator.vertexBufferOut.clear();
 		indexBufferCreator.vertexBufferOut.shrink_to_fit();
+
+		prevMesh = _mesh;
+		triangles++;
 	}
 
 	if (m_isStacked) {

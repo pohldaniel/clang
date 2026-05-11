@@ -22,10 +22,10 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(50.0f);
 
-	m_attack.loadAnimationAssimp("res/models/whale.glb", "ATTACK", "attack");
-	m_swim.loadAnimationAssimp("res/models/whale.glb", "swim", "swim");
+	m_attack.loadAnimation("res/models/whale/attack.anic");
+	m_swim.loadAnimation("res/models/whale/swim.anic");
 
-	m_whale.loadModelAssimp("res/models/whale.glb", 1u);
+	m_whale.loadModel("res/models/whale/whale.mdlc", 1u);
 	m_whale.scale(10.0f, 10.0f, 10.0f);
 	m_whale.rotate(-90.0f, 0.0f, 0.0f);
 	m_whale.rotate(0.0f, 0.0f, 180.0f);

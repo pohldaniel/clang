@@ -34,19 +34,27 @@ class Animation {
 
 	friend class AnimatedModel;
 
+
 public:
 
 	Animation();
 	~Animation();
 
 	void loadAnimationAssimp(const std::string& filename, std::string sourceName, std::string destName);
+	void loadAnimation(std::string filename);
+
 	AnimationTrack* createTrack(const std::string& name);
 	AnimationTrack* findTrack(const std::string& name) const;
 
 	const std::string& getAnimationName() const;
 	float getLength() const;
 	const std::map<std::string, AnimationTrack>& getTracks() const;
+	const std::vector<AnimationTrack> getAnimationTracks() const;
 	size_t getNumTracks() const;
+
+	std::string& animationName() const;
+	float& length() const;
+	std::map<std::string, AnimationTrack>& tracks() const;
 
 	void setPositionOfTrack(const std::string& name, const float x, const float y, const float z);
 	void setScaleOfTrack(const std::string& name, const float sx, const float sy, const float sz);
@@ -54,7 +62,7 @@ public:
 
 private:
 
-	std::string m_animationName;
-	float m_length;
-	std::map<std::string, AnimationTrack> m_tracks;
+	mutable std::string m_animationName;
+	mutable float m_length;
+	mutable std::map<std::string, AnimationTrack> m_tracks;
 };

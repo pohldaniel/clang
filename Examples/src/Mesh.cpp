@@ -1,64 +1,54 @@
 #include "Mesh.h"
 
-Mesh::Mesh() : m_hasTextureCoords(false), 
-               m_hasNormals(false), 
-	           m_hasTangents(false),
-               m_stride(0u),
+Mesh::Mesh() : m_stride(0u),
                m_drawCount(0u),
-               m_numberOfTriangles(0u),
                m_baseVertex(0u),
                m_baseIndex(0u),
-	           m_triangleOffset(0u) {
+               m_hasTextureCoords(false), 
+               m_hasNormals(false), 
+	           m_hasTangents(false) {
 
 }
 
-Mesh::Mesh(Mesh const& rhs) : m_hasTextureCoords(rhs.m_hasTextureCoords),
-                              m_hasNormals(rhs.m_hasNormals),
-                              m_hasTangents(rhs.m_hasTangents),
-                              m_stride(rhs.m_stride),
+Mesh::Mesh(Mesh const& rhs) : m_stride(rhs.m_stride),
                               m_drawCount(rhs.m_drawCount),
-                              m_numberOfTriangles(rhs.m_numberOfTriangles),
                               m_baseVertex(rhs.m_baseVertex),
                               m_baseIndex(rhs.m_baseIndex),
-                              m_triangleOffset(rhs.m_triangleOffset) {
+                              m_hasTextureCoords(rhs.m_hasTextureCoords),
+                              m_hasNormals(rhs.m_hasNormals),
+                              m_hasTangents(rhs.m_hasTangents) {
 
 }
 
-Mesh::Mesh(Mesh&& rhs) noexcept : m_hasTextureCoords(rhs.m_hasTextureCoords),
-                                  m_hasNormals(rhs.m_hasNormals),
-                                  m_hasTangents(rhs.m_hasTangents),
-                                  m_stride(rhs.m_stride),
+Mesh::Mesh(Mesh&& rhs) noexcept : m_stride(rhs.m_stride),
                                   m_drawCount(rhs.m_drawCount),
-                                  m_numberOfTriangles(rhs.m_numberOfTriangles),
                                   m_baseVertex(rhs.m_baseVertex),
                                   m_baseIndex(rhs.m_baseIndex),
-                                  m_triangleOffset(rhs.m_triangleOffset) {
+                                  m_hasTextureCoords(rhs.m_hasTextureCoords),
+                                  m_hasNormals(rhs.m_hasNormals),
+                                  m_hasTangents(rhs.m_hasTangents) {
 
 }
 
 Mesh& Mesh::operator=(const Mesh& rhs) {
+    m_stride = rhs.m_stride;
+    m_drawCount = rhs.m_drawCount;
+    m_baseVertex = rhs.m_baseVertex;
+    m_baseIndex = rhs.m_baseIndex;
     m_hasTextureCoords = rhs.m_hasTextureCoords;
     m_hasNormals = rhs.m_hasNormals;
     m_hasTangents = rhs.m_hasTangents;
-    m_stride = rhs.m_stride;
-    m_drawCount = rhs.m_drawCount;
-    m_numberOfTriangles = rhs.m_numberOfTriangles;
-    m_baseVertex = rhs.m_baseVertex;
-    m_baseIndex = rhs.m_baseIndex;
-    m_triangleOffset = rhs.m_triangleOffset;
     return *this;
 }
 
 Mesh& Mesh::operator=(Mesh&& rhs) noexcept {
+    m_stride = rhs.m_stride;
+    m_drawCount = rhs.m_drawCount;
+    m_baseVertex = rhs.m_baseVertex;
+    m_baseIndex = rhs.m_baseIndex;
     m_hasTextureCoords = rhs.m_hasTextureCoords;
     m_hasNormals = rhs.m_hasNormals;
     m_hasTangents = rhs.m_hasTangents;
-    m_stride = rhs.m_stride;
-    m_drawCount = rhs.m_drawCount;
-    m_numberOfTriangles = rhs.m_numberOfTriangles;
-    m_baseVertex = rhs.m_baseVertex;
-    m_baseIndex = rhs.m_baseIndex;
-    m_triangleOffset = rhs.m_triangleOffset;
     return *this;
 }
 

@@ -3,11 +3,12 @@ clang++^
  -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/"^
  -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt^
  -llibglfw3 -llibimgui -llibassimp -lwgpu -llibfreeimage -llibzlib^
- src/animation/MeshBone.cpp^
+ src/animation/BoneDescription.cpp^
  src/animation/Bone.cpp^
  src/animation/Animation.cpp^
  src/animation/AnimationState.cpp^
  src/animation/AnimatedModel.cpp^
+ src/BinaryIO.cpp^
  src/Mouse.cpp^
  src/Material.cpp^
  src/Transform.cpp^

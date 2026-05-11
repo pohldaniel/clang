@@ -250,7 +250,6 @@ void AssimpModel::loadModelCpu(const char* _filename, const glm::vec3& axis, flo
 		const aiMesh* aiMesh = pScene->mMeshes[j];
 		m_meshes.push_back(new AssimpMesh(this));
 		AssimpMesh* mesh = static_cast<AssimpMesh*>(m_meshes.back());
-		mesh->m_numberOfTriangles = aiMesh->mNumFaces;
 
 		const aiMaterial* aiMaterial = pScene->mMaterials[aiMesh->mMaterialIndex];
 
