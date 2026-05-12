@@ -37,27 +37,28 @@ public:
 
 	void update(float dt);
 	void updateSkinning();
+	void applyBindpose();
+	void cleanup();
 
 	void loadModelAssimp(const std::string& path, const short addVirtualRoots = 0, const bool reverseBoneList = false);
 	void loadModel(const std::string& path, const short addVirtualRoots = 0);
-	const unsigned int getStride() const override;
-	const Mesh* getMesh(unsigned short index = 0u) const;
-	const std::vector<Mesh*>& getMeshes() const;
-
-	AnimationState* addAnimationState(const Animation& animation);
-	AnimationState* findAnimationState(const Animation& animation) const;
-	AnimationState* getAnimationState(size_t index) const;
-	void removeAnimationState(const Animation& animation);
-	void removeAllAnimationStates();
-    void applyBindpose();
-
+	
 	void rotate(const float pitch, const float yaw, const float roll);
 	void scale(const float sx, const float sy, const float sz);
 	void translate(const float dx, const float dy, const float dz);
 
 	void setScale(const float sx, const float sy, const float sz);
 
-	void cleanup();
+	AnimationState* findAnimationState(const Animation& animation) const;
+	AnimationState* addAnimationState(const Animation& animation);
+	
+	AnimationState* getAnimationState(size_t index) const;
+	void removeAnimationState(const Animation& animation);
+	void removeAllAnimationStates();
+
+	const unsigned int getStride() const override;
+	const Mesh* getMesh(unsigned short index = 0u) const;
+	const std::vector<Mesh*>& getMeshes() const;
 
 private:
 
@@ -88,24 +89,24 @@ public:
 
 	void update(float dt);
 	void updateSkinning();
+	void applyBindpose();
 	void createBones();
+	void cleanup();
 
-	const std::vector<BoneDescription>& getBoneDescriptions() const;
-	const std::vector<std::array<float, 4>>& getWeights() const;
-	const std::vector<std::array<unsigned int, 4>>& getJoints() const;
-	const glm::mat4* getSkinMatrices() const;
-	const unsigned short getNumBones() const;
-	const bool hasMaterial() const;
-	const Material& getMaterial() const;
-
+	
 	void rotate(const float pitch, const float yaw, const float roll);
 	void scale(const float sx, const float sy, const float sz);
 	void translate(const float dx, const float dy, const float dz);
 
 	void setScale(const float sx, const float sy, const float sz);
 
-	void cleanup();
-    void applyBindpose();
+    const std::vector<BoneDescription>& getBoneDescriptions() const;
+	const std::vector<std::array<float, 4>>& getWeights() const;
+	const std::vector<std::array<unsigned int, 4>>& getJoints() const;
+	const glm::mat4* getSkinMatrices() const;
+	const unsigned short getNumBones() const;
+	const bool hasMaterial() const;
+	const Material& getMaterial() const;
 
 	std::vector<BoneDescription>& boneDescriptions() const;
 	std::vector<float>& vertexBuffer() const;

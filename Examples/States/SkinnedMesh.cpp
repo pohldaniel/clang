@@ -30,10 +30,10 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_whale.rotate(-90.0f, 0.0f, 0.0f);
 	m_whale.rotate(0.0f, 0.0f, 180.0f);
 	m_whale.translate(0.0f, -5.0f, 0.0f);
+	m_whale.applyBindpose();
 	m_whale.addAnimationState(m_attack);
 	m_whale.getAnimationState(0)->setLooped(true);
-	m_whale.applyBindpose();
-
+	
 	m_dance.loadAnimationAssimp("res/models/vampire/dancing_vampire.dae", "Hips", "vampire_dance");
 	m_dance.setPositionOfTrack("Hips", 0.0f, 0.0f, 0.0f);
 	m_dance.scaleTrack("Hips", 0.1f, 0.1f, 0.1f);
@@ -41,6 +41,7 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_vampire.loadModelAssimp("res/models/vampire/dancing_vampire.dae", 1u);
 	m_vampire.rotate(0.0f, 180.0f, 0.0f);
 	m_vampire.translate(0.0f, 0.0f, -25.0f);
+	m_vampire.applyBindpose();
 	m_vampire.addAnimationState(m_dance);
 	m_vampire.getAnimationState(0)->setLooped(true);
 
@@ -158,7 +159,7 @@ void SkinnedMesh::update() {
 	const AnimatedMesh* mesh;
 	if (m_model == SelectedModel::WHALE) {	
 		mesh = static_cast<const AnimatedMesh*>(m_whale.getMesh());
-		m_animation == SelectedAnimation::PROCEDURAL ? proceduralSking(mesh->bones(), mesh->getNumBones(), m_fadeValue) : m_whale.update(m_dt);
+		m_animation == SelectedAnimation::PROCEDURAL ? proceduralSkinning(mesh->bones(), mesh->getNumBones(), m_fadeValue) : m_whale.update(m_dt);
 		m_whale.updateSkinning();		
 	}else {
 		m_vampire.update(m_dt);
@@ -356,7 +357,7 @@ std::vector<WGPUBindGroup> SkinnedMesh::OnBindGroups() {
 	return bindGroups;
 }
 
-void SkinnedMesh::proceduralSking(Bone**& bones, unsigned short numBones, float angle) {
+void SkinnedMesh::proceduralSkinning(Bone**& bones, unsigned short numBones, float angle) {
 	angle = (angle - 0.5f) * 2.0f * m_angle * 0.5f * m_fade.getTransitionSpeed();
 
 	for (size_t i = 0u; i < numBones; ++i) {
