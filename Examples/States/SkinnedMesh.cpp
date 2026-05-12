@@ -279,6 +279,7 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 				if (prevAnimation == SelectedAnimation::PROCEDURAL) {
 					m_whale.scale(0.25f, 0.25f, 0.25f);
 					m_whale.translate(0.0f, 20.0f, 0.0f);
+					m_whale.applyBindpose();
 				}
 			}else if(m_animation == SelectedAnimation::SWIM) {
 				m_whale.removeAllAnimationStates();
@@ -288,6 +289,7 @@ void SkinnedMesh::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 				if (prevAnimation == SelectedAnimation::PROCEDURAL) {
 					m_whale.scale(0.25f, 0.25f, 0.25f);
 					m_whale.translate(0.0f, 20.0f, 0.0f);
+					m_whale.applyBindpose();
 				}
 			}else {
 				m_fadeValue = 0.0f;
