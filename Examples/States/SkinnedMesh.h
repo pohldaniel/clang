@@ -26,6 +26,11 @@ class SkinnedMesh : public State {
         VAMPIRE,
         WHALE
     };
+	enum SelectedMode {
+		NORMAL,
+		JOINTS,
+		WEIGHT
+	};
 public:
 
 	SkinnedMesh(StateMachine& machine);
@@ -70,8 +75,9 @@ private:
 
     SelectedAnimation m_animation = SelectedAnimation::ATTACK;
     SelectedModel m_model = SelectedModel::WHALE;
+	SelectedMode m_mode = SelectedMode::NORMAL;
 
-	WgpBuffer m_uniformBuffer, m_skinBuffer;
+	WgpBuffer m_uniformBuffer, m_skinBuffer, m_modeBuffer;
     WgpModel m_wgpWhale, m_wgpVampire, m_wgpCube;
 	WgpTexture m_wgpTextureCube;
 
