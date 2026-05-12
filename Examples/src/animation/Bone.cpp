@@ -136,11 +136,16 @@ bool Bone::animationEnabled() const {
 size_t Bone::getNumChildBones() const {
 	return m_numChildBones;
 }
-#include <iostream>
+
 void Bone::setTransformSilent(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale) {
 	m_position = position;
 	m_orientation = rotation;
 	m_scale = scale;
+}
+
+void Bone::setTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale) {
+	setTransformSilent(position, rotation, scale);
+	OnTransformChanged();
 }
 
 void Bone::countChildBones() {

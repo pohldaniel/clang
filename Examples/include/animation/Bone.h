@@ -33,6 +33,7 @@ public:
 	void setIsRootBone(bool rootBone);
 	void setAnimationEnabled(bool enable);
 	void setTransformSilent(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
+	void setTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 	const bool isRootBone() const;
 
 	void rotate(const float pitch, const float yaw, const float roll);
