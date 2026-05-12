@@ -392,6 +392,46 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
 }
 
+void WgpTexture::loadCubeFromFiles(std::string* fileNames, const bool flipVertical) {
+    FreeImage_Initialise();
+
+    uint32_t mipLevelCount = 1u;
+    for (unsigned short face = 0u; face < 6; face++) {
+        std::filesystem::path filePath = fileNames[face];
+        FIBITMAP* sourceBitmap = filePath.extension() == ".png" ? FreeImage_Load(FIF_PNG, fileNames[face].c_str(), PNG_DEFAULT) :
+            filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileNames[face].c_str(), JPEG_DEFAULT) :
+            filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileNames[face].c_str(), HDR_DEFAULT) :
+            FreeImage_Load(FIF_BMP, fileNames[face].c_str(), BMP_DEFAULT);
+
+        SwapRedBlue32(sourceBitmap);
+        
+        if (flipVertical)
+            FreeImage_FlipVertical(sourceBitmap);
+
+        sourceBitmap = AddAlphaChannel(sourceBitmap);
+
+        unsigned int channels = FreeImage_GetBPP(sourceBitmap) / 8;
+        unsigned int width = FreeImage_GetWidth(sourceBitmap);
+        unsigned int height = FreeImage_GetHeight(sourceBitmap);
+        unsigned char* imageData = FreeImage_GetBits(sourceBitmap);
+       
+        if (face == 0) {
+            m_width = width;
+            m_height = height;
+            m_channels = channels;
+            m_format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
+            mipLevelCount  = BitWidth(std::max(m_width, m_height));
+            m_texture = wgpCreateTexture(m_width, m_height, 6u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, m_format, mipLevelCount);
+        }
+
+        WriteMipMaps(m_texture, { m_width, m_height, 1u }, mipLevelCount, imageData, face);
+        FreeImage_Unload(sourceBitmap);
+    }
+
+    FreeImage_DeInitialise();
+    m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
+}
+
 void WgpTexture::createEmpty(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount) {
     m_width = width;
     m_height = height;
