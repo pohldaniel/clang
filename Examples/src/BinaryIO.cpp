@@ -266,7 +266,7 @@ void Utils::MdlcIO::mdlcModelToBuffer(const char* in, std::vector<float>& vertex
 		ret[1].c[0] = bufferBoneTrans[4]; ret[1].c[1]  = bufferBoneTrans[5]; ret[1].c[2]  = bufferBoneTrans[6];  ret[1].c[3]  = bufferBoneTrans[7];
 		ret[2].c[0] = bufferBoneTrans[8]; ret[2].c[1]  = bufferBoneTrans[9]; ret[2].c[2]  = bufferBoneTrans[10]; ret[2].c[3] = bufferBoneTrans[11];
 		ret[3].c[0] = bufferBoneTrans[12]; ret[3].c[1] = bufferBoneTrans[13]; ret[3].c[2] = bufferBoneTrans[14]; ret[3].c[3] = bufferBoneTrans[15];
-		boneDescription.initialRotation.x = ret[0].flt; boneDescription.initialRotation.y = ret[1].flt; boneDescription.initialRotation.z = ret[2].flt;; boneDescription.initialRotation.w = ret[3].flt;
+		boneDescription.initialRotation.x = ret[1].flt; boneDescription.initialRotation.y = ret[2].flt; boneDescription.initialRotation.z = ret[3].flt;; boneDescription.initialRotation.w = ret[0].flt;
 
 		file.read(bufferBoneTrans, sizeof(float) * 3);
 		ret[0].c[0] = bufferBoneTrans[0]; ret[0].c[1] = bufferBoneTrans[1]; ret[0].c[2] = bufferBoneTrans[2];  ret[0].c[3] = bufferBoneTrans[3];

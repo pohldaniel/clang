@@ -136,7 +136,7 @@ bool Bone::animationEnabled() const {
 size_t Bone::getNumChildBones() const {
 	return m_numChildBones;
 }
-
+#include <iostream>
 void Bone::setTransformSilent(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale) {
 	m_position = position;
 	m_orientation = rotation;
@@ -149,4 +149,9 @@ void Bone::countChildBones() {
 		if (dynamic_cast<Bone*>((*it).get()))
 			++m_numChildBones;
 	}
+}
+
+void Bone::rotate(const float pitch, const float yaw, const float roll) {
+	m_orientation *= glm::quat(glm::vec3(glm::radians(pitch), glm::radians(yaw), glm::radians(roll)));
+	OnTransformChanged();
 }

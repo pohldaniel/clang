@@ -9,6 +9,7 @@ clang++^
  src/animation/AnimationState.cpp^
  src/animation/AnimatedModel.cpp^
  src/BinaryIO.cpp^
+ src/Fade.cpp^
  src/Mouse.cpp^
  src/Material.cpp^
  src/Transform.cpp^

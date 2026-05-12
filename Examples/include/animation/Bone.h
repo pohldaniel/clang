@@ -35,6 +35,8 @@ public:
 	void setTransformSilent(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 	const bool isRootBone() const;
 
+	void rotate(const float pitch, const float yaw, const float roll);
+
 protected:
 
 	void OnTransformChanged();

@@ -12,13 +12,15 @@
 #include <Shape/Shape.h>
 
 #include "Camera.h"
+#include "Fade.h"
 
 #define MAX_JOIN 96u
 
 class SkinnedMesh : public State {
     enum SelectedAnimation {
         ATTACK,
-        SWIM
+        SWIM,
+		PROCEDURAL
     };
     enum SelectedModel {
         VAMPIRE,
@@ -51,6 +53,10 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = true;
+	float m_fadeValue = 0.0f;
+	float m_speed = 50.0f;
+	float m_angle = 0.2f;
+	float m_scale = 1.0f;
 
 	Camera m_camera;
 	Uniforms m_uniforms;
@@ -64,4 +70,8 @@ private:
 
     SelectedAnimation m_animation = SelectedAnimation::ATTACK;
     SelectedModel m_model = SelectedModel::WHALE;
+
+	Fade m_fade;
+
+	void proceduralSking(Bone**& bones, unsigned short numBones, float angle);
 };
