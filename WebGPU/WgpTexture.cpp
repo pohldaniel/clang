@@ -69,6 +69,18 @@ const WGPUTextureFormat WgpTexture::getFormat() const {
     return m_format;
 }
 
+const uint32_t  WgpTexture::getMipLevelCount() const {
+    return wgpuTextureGetMipLevelCount(m_texture);
+}
+
+const unsigned int& WgpTexture::width() const {
+    return m_width;
+}
+
+const unsigned int& WgpTexture::height() const {
+    return m_width;
+}
+
 static uint16_t Float32Tofloat16(float value) {
     union {
         float f;

@@ -30,6 +30,10 @@ public:
 	const unsigned int getWidth() const;
 	const unsigned int getHeight() const;
 	const WGPUTextureFormat getFormat() const;
+	const uint32_t getMipLevelCount() const;
+
+	const unsigned int& width() const;
+	const unsigned int& height() const;
 
 	static unsigned char* LoadFromFile(std::string fileName, const bool flipVertical = false, const short alphaChannel = -1);
 	static unsigned char* LoadFromFile(std::string fileName, uint32_t& width, uint32_t& height, const bool flipVertical = false, const short alphaChannel = -1);
