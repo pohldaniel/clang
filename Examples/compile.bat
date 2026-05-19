@@ -26,6 +26,7 @@ clang++^
  states/ImageBasedLighting.cpp^
  states/ShadowMapping.cpp^
  states/SkinnedMesh.cpp^
+ states/ComputeParticleLogo.cpp^
  ../Shape/Quad.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Sphere.cpp^
@@ -42,5 +43,6 @@ clang++^
  ../WebGPU/WgpFontRenderer.cpp^
  ../WebGPU/WgpRenderer.cpp^
  -D_MD -D_DLL -O3 -flto -fuse-ld=lld -std=c++17 -D_CRT_SECURE_NO_WARNINGS^
+ -Wno-return-type-c-linkage^
  -DNWASM -DNDEBUG -DFREEIMAGE_LIB -DWEBGPU_DAWN^
  -o Examples.exe

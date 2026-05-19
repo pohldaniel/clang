@@ -37,7 +37,10 @@ public:
 	const glm::mat4& getInvOrthographicMatrix() const;
 	const glm::mat4 getRotationMatrix() const;
 	const glm::vec3& getPosition() const;
-
+	const glm::vec3& getCamX() const;
+	const glm::vec3& getCamY() const;
+	const glm::vec3& getCamZ() const;
+	
 	static glm::mat4 GetNormalMatrix(const glm::mat4& m);
 
 private:

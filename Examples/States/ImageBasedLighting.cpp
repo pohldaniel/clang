@@ -67,6 +67,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_Undefined,
 	    WGPUCompareFunction_LessEqual,
 		true,
+		true,
 		false,
 		true);
 
@@ -78,6 +79,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
+		true,
 		false,
 		false,
 		true);
@@ -90,6 +92,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
+		true,
 		false,
 		false,
 		true);
@@ -102,6 +105,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RGBA16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
+		true,
 		false,
 		false,
 		true);
@@ -114,6 +118,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 		WGPUTextureFormat_RG16Float,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
+		true,
 		false,
 		false,
 		true);
@@ -170,7 +175,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 	m_wgpSphere.setBindGroups("BG", std::bind(&ImageBasedLighting::OnBindGroupsPBR, this));
 	m_wgpHelmet.setBindGroups("BG", std::bind(&ImageBasedLighting::OnBindGroupsPBRHelmet, this));
 
-	wgpContext.OnDraw = std::bind(&ImageBasedLighting::OnDraw, this, std::placeholders::_1);
+	wgpContext.OnDraw = std::bind(&ImageBasedLighting::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 }
 
 ImageBasedLighting::~ImageBasedLighting() {
@@ -269,7 +274,7 @@ void ImageBasedLighting::render() {
     wgpDraw();
 }
 
-void ImageBasedLighting::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
+void ImageBasedLighting::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projection), &m_uniforms.projection, sizeof(Uniforms::projection));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
@@ -280,6 +285,7 @@ void ImageBasedLighting::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, lightVP), &m_uniforms.lightVP, sizeof(Uniforms::lightVP));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, shadow), &m_uniforms.shadow, sizeof(Uniforms::shadow));
 
+	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 	
 	if(m_scene == Scene::HELMET){
@@ -295,6 +301,9 @@ void ImageBasedLighting::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) 
 	
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
+
+	wgpuRenderPassEncoderEnd(renderPassEncoder);
+	wgpuRenderPassEncoderRelease(renderPassEncoder);
 }
 
 void ImageBasedLighting::OnMouseButtonDown(const Event::MouseButtonEvent& event) {

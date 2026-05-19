@@ -29,7 +29,7 @@ public:
 	void update() override;
 	void render() override;
 
-	void OnDraw(const WGPURenderPassEncoder& renderPass);
+	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
 
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
 	void OnMouseButtonDown(const Event::MouseButtonEvent& event) override;

@@ -52,7 +52,7 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_uniforms.color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	m_uniforms.camPosition = glm::vec3(0.0f);
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
-	wgpContext.OnDraw = std::bind(&Wireframe::OnDraw, this, std::placeholders::_1);
+	wgpContext.OnDraw = std::bind(&Wireframe::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 }
 
 Wireframe::~Wireframe() {
@@ -129,11 +129,12 @@ void Wireframe::render() {
 	wgpDraw();
 }
 
-void Wireframe::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
+void Wireframe::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, projection), &m_uniforms.projection, sizeof(Uniforms::projection));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, view), &m_uniforms.view, sizeof(Uniforms::view));
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), offsetof(Uniforms, model), &m_uniforms.model, sizeof(Uniforms::model));
 
+	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
 	wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
 
 	if (StateMachine::GetWireframeEnabled()) {
@@ -157,6 +158,9 @@ void Wireframe::OnDraw(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	if (m_drawUi)
 		renderUi(renderPassEncoder);
+
+	wgpuRenderPassEncoderEnd(renderPassEncoder);
+	wgpuRenderPassEncoderRelease(renderPassEncoder);
 }
 
 

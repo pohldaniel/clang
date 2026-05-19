@@ -314,6 +314,18 @@ const glm::vec3& Camera::getPosition() const{
 	return m_eye;
 }
 
+const glm::vec3& Camera::getCamX() const{
+	return m_xAxis;
+}
+
+const glm::vec3& Camera::getCamY() const{
+	return m_yAxis;
+}
+
+const glm::vec3& Camera::getCamZ() const{
+	return m_zAxis;
+}
+
 glm::mat4 Camera::GetNormalMatrix(const glm::mat4& m) {
 
 	glm::mat4 normalMatrix;
