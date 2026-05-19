@@ -44,10 +44,7 @@ ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHA
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Depth32Float,
 		WGPUCompareFunction_Less,
-		true,
-		true,
-		false,
-		false
+		{ WRITE_DEPTH | DEPTH_STENCIL_STATE, BlendMode::ALPHA_BLENDING }
 	);
 	
 
