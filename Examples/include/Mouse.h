@@ -14,6 +14,8 @@ public:
     void hideCursor(bool hideCursor);
     const float xDelta() const;
     const float yDelta() const;
+    const float xPos() const;
+    const float yPos() const;
     const bool isAttached() const;
     
 private:

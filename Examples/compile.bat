@@ -27,6 +27,7 @@ clang++^
  states/ShadowMapping.cpp^
  states/SkinnedMesh.cpp^
  states/ComputeParticleLogo.cpp^
+ states/PrimitivePicking.cpp^
  ../Shape/Quad.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Sphere.cpp^

@@ -11,6 +11,7 @@
 #include <States/ShadowMapping.h>
 #include <States/SkinnedMesh.h>
 #include <States/ComputeParticleLogo.h>
+#include <States/PrimitivePicking.h>
 
 #include "Mouse.h"
 #include "Application.h"
@@ -101,7 +102,8 @@ void Application::initStates(){
   //Machine->addStateAtTop(new ImageBasedLighting(*Machine));
   //Machine->addStateAtTop(new ShadowMapping(*Machine));
   //Machine->addStateAtTop(new SkinnedMesh(*Machine));
-  Machine->addStateAtTop(new ComputeParticleLogo(*Machine));
+  //Machine->addStateAtTop(new ComputeParticleLogo(*Machine));
+  Machine->addStateAtTop(new PrimitivePicking(*Machine));
 }
 
 bool Application::isRunning(){

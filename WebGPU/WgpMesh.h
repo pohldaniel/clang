@@ -24,6 +24,7 @@ public:
 	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::string& texturePath);
 	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::vector<std::array<float, 4>>& weights, const std::vector<std::array<unsigned int, 4>>& joints, uint32_t stride, const std::string& texturePath);
 	WgpMesh(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, const std::pair<unsigned char*, unsigned int>& texture);
+	WgpMesh(const WgpBuffer& vertexBuffer, const WgpBuffer& indexBuffer);
 
 	WgpMesh(WgpMesh const& rhs);
 	WgpMesh(WgpMesh&& rhs) noexcept;
@@ -57,7 +58,4 @@ private:
 	uint32_t m_drawCount;
 	std::string m_bindGroupsSlot;
 	bool m_markForDelete;
-
-	const std::vector<float>& vertexBuffer;
-	const std::vector<unsigned int>& indexBuffer;	
 };
