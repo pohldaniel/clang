@@ -183,7 +183,7 @@ void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int 
 }
 
 void glfwMouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-  if(ImGui::GetIO().WantCaptureMouse && !Mouse::instance().isAttached()){
+  if(ImGui::GetIO().WantCaptureMouse && (!Mouse::instance().isAttached() || (Mouse::instance().isAttached() && Mouse::instance().isVisibile()))){
     ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
   }else{
     double xpos, ypos;

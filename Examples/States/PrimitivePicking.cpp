@@ -13,7 +13,7 @@
 #include "PrimitivePicking.h"
 
 PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, States::PRIMITIVE_PICKING) {
-	Mouse::instance().attach(Application::Window, false, false, false);
+	Mouse::instance().attach(Application::Window, false, true);
 
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 
@@ -157,7 +157,7 @@ void PrimitivePicking::update() {
 		move |= true;
 	}
 
-    if (glfwGetMouseButton(Application::Window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {	
+    if (mouse.buttonDownInvisible(GLFW_MOUSE_BUTTON_RIGHT)) {	
 		dx = mouse.xDelta();
 		dy = mouse.yDelta();
 	}
@@ -232,7 +232,7 @@ void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WG
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}
 
-	{
+	if(Mouse::instance().isVisibile()){
 		WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, NULL);
 		wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_PICK"));
 
@@ -258,23 +258,28 @@ void PrimitivePicking::OnDraw(const WGPUCommandEncoder& commandEncoder, const WG
 }
 
 void PrimitivePicking::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
-	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
-		Mouse::instance().attach(Application::Window, true, false, false);
-	}
-
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+		Mouse::instance().detach();	
 	}
+
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
+		Mouse::instance().attach(Application::Window, true, true, true);
+	}
+
+	uint32_t primitveId = 0u;
+	wgpuQueueWriteBuffer(wgpContext.queue, m_computeBuffer.getBuffer(), 2 * sizeof(glm::mat4) + 2 * sizeof(float), &primitveId, sizeof(uint32_t));
 }
 
 void PrimitivePicking::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
-	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
-		Mouse::instance().detach();
-	} 
-
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+		Mouse::instance().attach(Application::Window, false, true);
 	} 
+
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
+		Mouse::instance().attach(Application::Window, false, false, true);
+	} 	
 }
 
 void PrimitivePicking::OnMouseMotion(const Event::MouseMoveEvent& event) {
