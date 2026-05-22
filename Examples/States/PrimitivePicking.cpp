@@ -172,7 +172,7 @@ void PrimitivePicking::update() {
 	}
 
 	glm::vec3 position = m_camera.getPosition();
-	RotateY(position, m_dt * 180.0f * 0.2f);
+	RotateY(position, m_dt * 0.2f);
 	m_camera.setPosition(position, true);
 
 	m_trackball.idle();
