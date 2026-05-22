@@ -11,8 +11,6 @@
 #include "TrackBall.h"
 #include "ObjModel.h"
 
-#define PARTICLE_NUM (50000u)
-
 class PrimitivePicking : public State {
 
 	struct Vertex {
@@ -70,4 +68,6 @@ private:
 	std::vector<WGPURenderPassColorAttachment> renderPassColorAttachments;
 	std::vector<Vertex> m_vertices;
 	std::vector<unsigned int> m_indices;
+
+	static glm::vec3& RotateY(glm::vec3& p, float rad, const glm::vec3& centerOfRotation = glm::vec3(0.0f, 0.0f, 0.0f));
 };

@@ -141,8 +141,7 @@ void ShadowMapping::update() {
 	}
 
 	glm::vec3 position = m_camera.getPosition();
-
-	RotateY(position, m_dt);
+	RotateY(position, m_dt * 180.0f);
 	m_camera.setPosition(position, true);
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();

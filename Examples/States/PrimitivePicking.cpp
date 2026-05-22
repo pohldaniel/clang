@@ -6,7 +6,6 @@
 #include <imgui_internal.h>
 
 #include <WebGPU/WgpContext.h>
-#include <WebGPU/WgpRenderer.h>
 
 #include "Application.h"
 #include "Mouse.h"
@@ -172,6 +171,10 @@ void PrimitivePicking::update() {
 		}
 	}
 
+	glm::vec3 position = m_camera.getPosition();
+	RotateY(position, m_dt * 180.0f * 0.2f);
+	m_camera.setPosition(position, true);
+
 	m_trackball.idle();
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
@@ -301,6 +304,14 @@ void PrimitivePicking::OnKeyUp(const Event::KeyboardEvent& event) {
 void PrimitivePicking::resize(int deltaW, int deltaH) {
 	m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_indexTexture.resize(Application::Width, Application::Height);
+	wgpuBindGroupLayoutRelease(wgpuComputePipelineGetBindGroupLayout(wgpContext.computePipelines.at("CP_PICK"), 0u));
+	wgpuBindGroupLayoutRelease(wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PICK_DEBUG"), 0u));
+
+	renderPassColorAttachments[0].view = m_indexTexture.getTextureView();
+
+	m_computeBindGroup = createComputeBindGroup();
+	m_debugBindGroup = createDebugBindGroup();
 }
 
 void PrimitivePicking::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
@@ -465,4 +476,14 @@ WGPUBindGroup PrimitivePicking::createDebugBindGroup() {
 	bindGroupDesc.entries = bindGroupEntries.data();
 
 	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}
+
+glm::vec3& PrimitivePicking::RotateY(glm::vec3& p, float rad, const glm::vec3& centerOfRotation) {
+	float x = p[0] - centerOfRotation[0];
+	float z = p[2] - centerOfRotation[2];
+
+	p[0] = z * sinf(rad) + x * cosf(rad) + centerOfRotation[0];
+	p[2] = z * cosf(rad) - x * sinf(rad) + centerOfRotation[2];
+
+	return p;
 }
