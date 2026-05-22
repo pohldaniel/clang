@@ -156,7 +156,7 @@ void SkinnedMesh::update() {
 		move |= true;
 	}
 
-    if (glfwGetMouseButton(Application::Window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {	
+    if (mouse.buttonDownInvisible(GLFW_MOUSE_BUTTON_RIGHT)) {	
 		dx = mouse.xDelta();
 		dy = mouse.yDelta();
 	}
@@ -233,7 +233,7 @@ void SkinnedMesh::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURen
 
 void SkinnedMesh::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT) {
-		Mouse::instance().attach(Application::Window, true, false, false);
+		Mouse::instance().attach(Application::Window, true, true);
 	}
 }
 
