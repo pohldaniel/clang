@@ -1,8 +1,5 @@
 #include "Camera.h"
 
-#define _180_ON_PI  57.295779513082320877f
-#define PI_ON_180  0.0174532925199432957f
-
 const glm::mat4 Camera::BIAS_SHIFT_Z(0.5f, 0.0f, 0.0f, 0.0f,
                                      0.0f, 0.5f, 0.0f, 0.0f,
                                      0.0f, 0.0f, 0.5f, 0.0f,
@@ -120,7 +117,7 @@ void Camera::lookAt(const glm::vec3& eye, const glm::vec3& target, const glm::ve
 	m_xAxis = glm::normalize(glm::cross(up, m_zAxis));
 	m_yAxis = glm::normalize(glm::cross(m_zAxis, m_xAxis));
 	m_viewDir = -m_zAxis;
-	m_accumPitchDegrees = -asinf(m_yAxis[2]) * _180_ON_PI;
+	m_accumPitchDegrees = glm::degrees(-asinf(m_yAxis[2]))
 
 	fillRotationPart();
 	fillTranslationPart();
@@ -131,8 +128,8 @@ void Camera::lookAt(float distance, float pitch, float yaw){
 	m_accumPitchDegrees = pitch;
 	m_accumYawDegrees = yaw;
 
-	pitch = pitch * PI_ON_180;
-	yaw = yaw * PI_ON_180;
+	pitch = glm::radians(pitch);
+	yaw =  glm::radians(yaw);
 
 	float cosY = cosf(yaw);
 	float cosP = cosf(pitch);
@@ -182,7 +179,6 @@ void Camera::fillRotationPart() {
 }
 
 void Camera::fillTranslationPart() {
-
 	m_viewMatrix[3][0] = -glm::dot(m_xAxis, m_eye);
 	m_viewMatrix[3][1] = -glm::dot(m_yAxis, m_eye);
 	m_viewMatrix[3][2] = -glm::dot(m_zAxis, m_eye);
@@ -226,7 +222,6 @@ void Camera::rotateFirstPerson(float yaw, float pitch){
 
 	// Rotate camera's existing y and z axes about its existing x axis.
 	if (pitch != 0.0f){
-		//rotMtx.rotate(m_xAxis, pitch);
 		rotMtx = glm::mat4(1.0f);
 		rotMtx = glm::rotate(rotMtx, glm::radians(pitch), m_xAxis);
 		m_yAxis = rotMtx * glm::vec4(m_yAxis, 0.0f);
@@ -359,4 +354,11 @@ glm::mat4 Camera::GetNormalMatrix(const glm::mat4& m) {
 	normalMatrix[3][3] = 1.0f;
 
 	return normalMatrix;
+}
+
+glm::mat4 Camera::GetRotationMatrix(const glm::mat4& viewMatrix){
+	return glm::mat4(viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], 0.0f,
+                 	 viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], 0.0f,
+                 	 viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], 0.0f,
+                 	 0.0f, 0.0f, 0.0f, 1.0);
 }

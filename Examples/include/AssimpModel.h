@@ -10,9 +10,8 @@
 
 #include "Model.h"
 #include "Mesh.h"
-#include "Camera.h"
-#include "Transform.h"
 #include "Material.h"
+#include "Transform.h"
 
 //#define ASSIMP_LOAD_FLAGS (aiProcess_JoinIdenticalVertices | aiProcess_RemoveRedundantMaterials | aiProcess_PreTransformVertices | aiProcess_Triangulate)
 #define ASSIMP_LOAD_FLAGS (aiProcess_Triangulate | aiProcess_FindDegenerates | aiProcess_GenUVCoords)

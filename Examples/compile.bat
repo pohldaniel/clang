@@ -28,12 +28,16 @@ clang++^
  states/SkinnedMesh.cpp^
  states/ComputeParticleLogo.cpp^
  states/PrimitivePicking.cpp^
- ../Shape/Quad.cpp^
+ states/StencilMask.cpp^
+ ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
+ ../Shape/Cylinder.cpp^
+ ../Shape/Quad.cpp^
+ ../Shape/Segment.cpp^
  ../Shape/Sphere.cpp^
+ ../Shape/Spiral.cpp^
  ../Shape/Torus.cpp^
  ../Shape/TorusKnot.cpp^
- ../Shape/Spiral.cpp^
  ../Shape/Shape.cpp^
  ../WebGPU/WgpContext.cpp^
  ../WebGPU/WgpTexture.cpp^

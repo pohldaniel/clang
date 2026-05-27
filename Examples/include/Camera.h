@@ -42,7 +42,8 @@ public:
 	const glm::vec3& getCamZ() const;
 	
 	static glm::mat4 GetNormalMatrix(const glm::mat4& m);
-
+	static glm::mat4 GetRotationMatrix(const glm::mat4& viewMatrix);
+	
 private:
 
     void rotateFirstPerson(float yaw, float pitch);

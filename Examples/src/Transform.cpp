@@ -6,7 +6,7 @@ Transform::Transform() {
 }
 
 Transform::Transform(const glm::mat4& m) {
-	//fromMatrix(m);
+	fromMatrix(m);
 }
 
 Transform::Transform(Transform const& rhs) {
@@ -40,195 +40,66 @@ Transform::~Transform() {
 
 }
 
-void Transform::setRotPos(const glm::vec3& axis, float degrees, float dx, float dy, float dz) {
-	T = glm::mat4(1.0f);
-	invT = glm::mat4(1.0f);
+void Transform::rotate(const glm::vec3& axis, float degrees, bool inPlace) {
+	glm::mat4 rotMtx = glm::rotate(glm::radians(degrees), axis);
 
-	if (degrees != 0.0f && !(axis[0] == 0.0f && axis[1] == 0.0f && axis[2] == 0.0f)) {
-		//glm::mat4 rotMtx;
-		//rotMtx.rotate(axis, degrees);
-		//T = rotMtx * T;
-
-        //glm::mat4 invRotMtx = glm::mat4(rotMtx[0][0], rotMtx[1][0], rotMtx[2][0], rotMtx[3][0],
-        //	rotMtx[0][1], rotMtx[1][1], rotMtx[2][1], rotMtx[3][1],
-        //	rotMtx[0][2], rotMtx[1][2], rotMtx[2][2], rotMtx[3][2],
-        //	rotMtx[0][3], rotMtx[1][3], rotMtx[2][3], rotMtx[3][3]);
-
-        //invT = invT * invRotMtx;
+	if(inPlace){
+		rotMtx[3][0] = T[3][0] * (1.0f - rotMtx[0][0]) - T[3][1] * rotMtx[1][0] - T[3][2] * rotMtx[2][0];
+		rotMtx[3][1] = T[3][1] * (1.0f - rotMtx[1][1]) - T[3][0] * rotMtx[0][1] - T[3][2] * rotMtx[2][1];
+		rotMtx[3][2] = T[3][2] * (1.0f - rotMtx[2][2]) - T[3][0] * rotMtx[0][2] - T[3][1] * rotMtx[1][2];
+		rotMtx[3][3] = 1.0f;
 	}
 
-	//T = Translate * T
-	T[0][0] = T[0][0] + T[0][3] * dx; T[0][1] = T[0][1] + T[0][3] * dz; T[0][2] = T[0][2] + T[0][3] * dy;
-	T[1][0] = T[1][0] + T[1][3] * dx; T[1][1] = T[1][1] + T[1][3] * dz; T[1][2] = T[1][2] + T[1][3] * dy;
-	T[2][0] = T[2][0] + T[2][3] * dx; T[2][1] = T[2][1] + T[2][3] * dz; T[2][2] = T[2][2] + T[2][3] * dy;
-	T[3][0] = T[3][0] + dx; T[3][1] = T[3][1] + dy; T[3][2] = T[3][2] + dz;
-
-	//T^-1 = T^-1 * Translate^-1 
-	//invT[3][0] = invT[3][0] - dx*invT[0][0] - dz*invT[2][0] - dy*invT[1][0];
-	//invT[3][1] = invT[3][1] - dx*invT[0][1] - dz*invT[2][1] - dy*invT[1][1];
-	//invT[3][2] = invT[3][2] - dx*invT[0][2] - dz*invT[2][2] - dy*invT[1][2];
+	T = rotMtx * T;
 }
 
-void Transform::setRotPosScale(const glm::vec3& axis, float degrees, float dx, float dy, float dz, float sx, float sy, float sz) {
-	T = glm::mat4(1.0f);
-	invT = glm::mat4(1.0f);
-
-	if (degrees != 0.0f && !(axis[0] == 0.0f && axis[1] == 0.0f && axis[2] == 0.0f)) {
-
-		//glm::mat4 rotMtx;
-		//rotMtx.rotate(axis, degrees);
-		//T = rotMtx * T;
-
-		//glm::mat4 invRotMtx = glm::mat4(rotMtx[0][0], rotMtx[1][0], rotMtx[2][0], rotMtx[3][0],
-		//	rotMtx[0][1], rotMtx[1][1], rotMtx[2][1], rotMtx[3][1],
-		//	rotMtx[0][2], rotMtx[1][2], rotMtx[2][2], rotMtx[3][2],
-		//	rotMtx[0][3], rotMtx[1][3], rotMtx[2][3], rotMtx[3][3]);
-
-		//invT = invT * invRotMtx;
+void Transform::rotate(const glm::quat& quat, bool inPlace) {
+    glm::mat4 rotMtx  = glm::toMat4(quat);
+	if(inPlace){
+		rotMtx[3][0] = T[3][0] * (1.0f - rotMtx[0][0]) - T[3][1] * rotMtx[1][0] - T[3][2] * rotMtx[2][0];
+		rotMtx[3][1] = T[3][1] * (1.0f - rotMtx[1][1]) - T[3][0] * rotMtx[0][1] - T[3][2] * rotMtx[2][1];
+		rotMtx[3][2] = T[3][2] * (1.0f - rotMtx[2][2]) - T[3][0] * rotMtx[0][2] - T[3][1] * rotMtx[1][2];
+		rotMtx[3][3] = 1.0f;
 	}
-	//T = Translate * T
-	T[0][0] = T[0][0] + T[0][3] * dx; T[0][1] = T[0][1] + T[0][3] * dz; T[0][2] = T[0][2] + T[0][3] * dy;
-	T[1][0] = T[1][0] + T[1][3] * dx; T[1][1] = T[1][1] + T[1][3] * dz; T[1][2] = T[1][2] + T[1][3] * dy;
-	T[2][0] = T[2][0] + T[2][3] * dx; T[2][1] = T[2][1] + T[2][3] * dz; T[2][2] = T[2][2] + T[2][3] * dy;
-	T[3][0] = T[3][0] + dx; T[3][1] = T[3][1] + dy; T[3][2] = T[3][2] + dz;
-
-	//T^-1 = T^-1 * Translate^-1 
-	//invT[3][0] = invT[3][0] - dx*invT[0][0] - dz*invT[2][0] - dy*invT[1][0];
-	//invT[3][1] = invT[3][1] - dx*invT[0][1] - dz*invT[2][1] - dy*invT[1][1];
-	//invT[3][2] = invT[3][2] - dx*invT[0][2] - dz*invT[2][2] - dy*invT[1][2];
-
-	
-	T[0][0] = T[0][0] * sx;  T[1][0] = T[1][0] * sy; T[2][0] = T[2][0] * sz;
-	T[0][1] = T[0][1] * sx;  T[1][1] = T[1][1] * sy; T[2][1] = T[2][1] * sz;
-	T[0][2] = T[0][2] * sx;  T[1][2] = T[1][2] * sy; T[2][2] = T[2][2] * sz;
-
-	//invT[0][0] = invT[0][0] * (1.0 / sx); invT[0][1] = invT[0][1] * (1.0 / sy); invT[0][2] = invT[0][2] * (1.0 / sz);
-	//invT[1][0] = invT[1][0] * (1.0 / sx); invT[1][1] = invT[1][1] * (1.0 / sy); invT[1][2] = invT[1][2] * (1.0 / sz);
-	//invT[2][0] = invT[2][0] * (1.0 / sx); invT[2][1] = invT[2][1] * (1.0 / sy); invT[2][2] = invT[2][2] * (1.0 / sz);
-	//invT[3][0] = invT[3][0] * (1.0 / sx); invT[3][1] = invT[3][1] * (1.0 / sy); invT[3][2] = invT[3][2] * (1.0 / sz);
-}
-
-void Transform::rotate(const glm::vec3& axis, float degrees) {
-	glm::mat4 rotMtx;
-	//rotMtx.rotate(axis, degrees);
-
-	//T = (translate * rotMtx * invTranslate) * T
-	rotMtx[3][0] = T[3][0] * (1.0f - rotMtx[0][0]) - T[3][1] * rotMtx[1][0] - T[3][2] * rotMtx[2][0];
-	rotMtx[3][1] = T[3][1] * (1.0f - rotMtx[1][1]) - T[3][0] * rotMtx[0][1] - T[3][2] * rotMtx[2][1];
-	rotMtx[3][2] = T[3][2] * (1.0f - rotMtx[2][2]) - T[3][0] * rotMtx[0][2] - T[3][1] * rotMtx[1][2];
-	rotMtx[3][3] = 1.0f;
 
 	T = rotMtx * T;
-
-	//T = (translate * invRotMtx * invTranslate) * T
-	//glm::mat4 invRotMtx = glm::mat4(rotMtx[0][0], rotMtx[1][0], rotMtx[2][0], 0.0f,
-	//	rotMtx[0][1], rotMtx[1][1], rotMtx[2][1], 0.0f,
-	//	rotMtx[0][2], rotMtx[1][2], rotMtx[2][2], 0.0f,
-	//	0.0f, 0.0f, 0.0f, 1.0f);
-
-	//invRotMtx[3][0] = T[3][0] * (1.0f - invRotMtx[0][0]) - T[3][1] * invRotMtx[1][0] - T[3][2] * invRotMtx[2][0];
-	//invRotMtx[3][1] = T[3][1] * (1.0f - invRotMtx[1][1]) - T[3][0] * invRotMtx[0][1] - T[3][2] * invRotMtx[2][1];
-	//invRotMtx[3][2] = T[3][2] * (1.0f - invRotMtx[2][2]) - T[3][0] * invRotMtx[0][2] - T[3][1] * invRotMtx[1][2];
-	//invRotMtx[3][3] = 1.0f;
-
-	//invT = invT * invRotMtx;
 }
 
-void Transform::rotate(const glm::quat& quat) {
-	//Matrix4f rotMtx = quat.toMatrix4f();
-    glm::mat4 rotMtx;
+void Transform::rotate(float pitch, float yaw, float roll, bool inPlace) {
+	glm::mat4 rotMtx = glm::yawPitchRoll(glm::radians(yaw), glm::radians(pitch), glm::radians(roll));
+	if(inPlace){
+		rotMtx[3][0] = T[3][0] * (1.0f - rotMtx[0][0]) - T[3][1] * rotMtx[1][0] - T[3][2] * rotMtx[2][0];
+		rotMtx[3][1] = T[3][1] * (1.0f - rotMtx[1][1]) - T[3][0] * rotMtx[0][1] - T[3][2] * rotMtx[2][1];
+		rotMtx[3][2] = T[3][2] * (1.0f - rotMtx[2][2]) - T[3][0] * rotMtx[0][2] - T[3][1] * rotMtx[1][2];
+		rotMtx[3][3] = 1.0f;
+	}
 
-	//T = (translate * rotMtx * invTranslate) * T
-	rotMtx[3][0] = T[3][0] * (1.0f - rotMtx[0][0]) - T[3][1] * rotMtx[1][0] - T[3][2] * rotMtx[2][0];
-	rotMtx[3][1] = T[3][1] * (1.0f - rotMtx[1][1]) - T[3][0] * rotMtx[0][1] - T[3][2] * rotMtx[2][1];
-	rotMtx[3][2] = T[3][2] * (1.0f - rotMtx[2][2]) - T[3][0] * rotMtx[0][2] - T[3][1] * rotMtx[1][2];
-	rotMtx[3][3] = 1.0f;
-
-	T = rotMtx * T;
-	
-	//T = (translate * invRotMtx * invTranslate) * T
-	//glm::mat4  invRotMtx = glm::mat4 (rotMtx[0][0], rotMtx[1][0], rotMtx[2][0], 0.0f,
-	//	rotMtx[0][1], rotMtx[1][1], rotMtx[2][1], 0.0f,
-	//	rotMtx[0][2], rotMtx[1][2], rotMtx[2][2], 0.0f,
-	//	0.0f, 0.0f, 0.0f, 1.0f);
-
-	//invRotMtx[3][0] = T[3][0] * (1.0f - invRotMtx[0][0]) - T[3][1] * invRotMtx[1][0] - T[3][2] * invRotMtx[2][0];
-	//invRotMtx[3][1] = T[3][1] * (1.0f - invRotMtx[1][1]) - T[3][0] * invRotMtx[0][1] - T[3][2] * invRotMtx[2][1];
-	//invRotMtx[3][2] = T[3][2] * (1.0f - invRotMtx[2][2]) - T[3][0] * invRotMtx[0][2] - T[3][1] * invRotMtx[1][2];
-	//invRotMtx[3][3] = 1.0f;
-
-	//invT = invT * invRotMtx;
-}
-
-void Transform::rotate(float pitch, float yaw, float roll) {
-	glm::mat4  rotMtx;
-	//rotMtx.rotate(pitch, yaw, roll);
-
-	//T = (translate * rotMtx * invTranslate) * T
-	rotMtx[3][0] = T[3][0] * (1.0f - rotMtx[0][0]) - T[3][1] * rotMtx[1][0] - T[3][2] * rotMtx[2][0];
-	rotMtx[3][1] = T[3][1] * (1.0f - rotMtx[1][1]) - T[3][0] * rotMtx[0][1] - T[3][2] * rotMtx[2][1];
-	rotMtx[3][2] = T[3][2] * (1.0f - rotMtx[2][2]) - T[3][0] * rotMtx[0][2] - T[3][1] * rotMtx[1][2];
-	rotMtx[3][3] = 1.0f;
-
-	T = rotMtx * T;
-
-	//T = (translate * invRotMtx * invTranslate) * T
-	//glm::mat4  invRotMtx = glm::mat4 (rotMtx[0][0], rotMtx[1][0], rotMtx[2][0], 0.0f,
-	//	rotMtx[0][1], rotMtx[1][1], rotMtx[2][1], 0.0f,
-	//	rotMtx[0][2], rotMtx[1][2], rotMtx[2][2], 0.0f,
-	//	0.0f, 0.0f, 0.0f, 1.0f);
-
-	//invRotMtx[3][0] = T[3][0] * (1.0f - invRotMtx[0][0]) - T[3][1] * invRotMtx[1][0] - T[3][2] * invRotMtx[2][0];
-	//invRotMtx[3][1] = T[3][1] * (1.0f - invRotMtx[1][1]) - T[3][0] * invRotMtx[0][1] - T[3][2] * invRotMtx[2][1];
-	//invRotMtx[3][2] = T[3][2] * (1.0f - invRotMtx[2][2]) - T[3][0] * invRotMtx[0][2] - T[3][1] * invRotMtx[1][2];
-	//invRotMtx[3][3] = 1.0f;
-
-	//invT = invT * invRotMtx;
+	T = rotMtx * T ;
 }
 
 void Transform::rotate(const glm::vec3& axis, float degrees, const glm::vec3& centerOfRotation) {
-	glm::mat4  rotMtx;
-	//rotMtx.rotate(axis, degrees, centerOfRotation);
+	glm::mat4  rotMtx = glm::rotate(glm::radians(degrees), axis);
+	rotMtx[3][0] = centerOfRotation[0] * (1.0f - rotMtx[0][0]) - centerOfRotation[1] * rotMtx[1][0] - centerOfRotation[2] * rotMtx[2][0];
+	rotMtx[3][1] = centerOfRotation[1] * (1.0f - rotMtx[1][1]) - centerOfRotation[0] * rotMtx[0][1] - centerOfRotation[2] * rotMtx[2][1];
+	rotMtx[3][2] = centerOfRotation[2] * (1.0f - rotMtx[2][2]) - centerOfRotation[0] * rotMtx[0][2] - centerOfRotation[1] * rotMtx[1][2];
 	T = rotMtx * T;
-
-	//rotMtx.transpose3();	
-	//float tmp1 = rotMtx[3][0]; float tmp2 = rotMtx[3][1]; float tmp3 = rotMtx[3][2];
-	//rotMtx[3][0] = -(tmp1 * rotMtx[0][0] + tmp2 * rotMtx[1][0] + tmp3 * rotMtx[2][0]);
-	//rotMtx[3][1] = -(tmp1 * rotMtx[0][1] + tmp2 * rotMtx[1][1] + tmp3 * rotMtx[2][1]);
-	//rotMtx[3][2] = -(tmp1 * rotMtx[0][2] + tmp2 * rotMtx[1][2] + tmp3 * rotMtx[2][2]);
-	//rotMtx[0][3] = 0.0f; rotMtx[1][3] = 0.0f; rotMtx[2][3] = 0.0f; rotMtx[3][3] = 1.0f;
-
-	//invT = invT * rotMtx;
 }
 
 void Transform::rotate(const glm::quat& quat, const glm::vec3& centerOfRotation) {
-	//glm::mat4 rotMtx = quat.toMatrix4f(centerOfRotation);
-    glm::mat4 rotMtx;
+    glm::mat4 rotMtx =  glm::toMat4(quat);
+	rotMtx[3][0] = centerOfRotation[0] * (1.0f - rotMtx[0][0]) - centerOfRotation[1] * rotMtx[1][0] - centerOfRotation[2] * rotMtx[2][0];
+	rotMtx[3][1] = centerOfRotation[1] * (1.0f - rotMtx[1][1]) - centerOfRotation[0] * rotMtx[0][1] - centerOfRotation[2] * rotMtx[2][1];
+	rotMtx[3][2] = centerOfRotation[2] * (1.0f - rotMtx[2][2]) - centerOfRotation[0] * rotMtx[0][2] - centerOfRotation[1] * rotMtx[1][2];
 	T = rotMtx * T;
-
-	//rotMtx.transpose3();	
-	//float tmp1 = rotMtx[3][0]; float tmp2 = rotMtx[3][1]; float tmp3 = rotMtx[3][2];
-	//rotMtx[3][0] = -(tmp1 * rotMtx[0][0] + tmp2 * rotMtx[1][0] + tmp3 * rotMtx[2][0]);
-	//rotMtx[3][1] = -(tmp1 * rotMtx[0][1] + tmp2 * rotMtx[1][1] + tmp3 * rotMtx[2][1]);
-	//rotMtx[3][2] = -(tmp1 * rotMtx[0][2] + tmp2 * rotMtx[1][2] + tmp3 * rotMtx[2][2]);
-	//rotMtx[0][3] = 0.0f; rotMtx[1][3] = 0.0f; rotMtx[2][3] = 0.0f; rotMtx[3][3] = 1.0f;
-
-	//invT = invT * rotMtx;
 }
 
 void Transform::rotate(float pitch, float yaw, float roll, const glm::vec3& centerOfRotation) {
-	glm::mat4 rotMtx;
-	//rotMtx.rotate(pitch, yaw, roll, centerOfRotation);
+	glm::mat4 rotMtx = glm::yawPitchRoll(glm::radians(yaw), glm::radians(pitch), glm::radians(roll));
+	rotMtx[3][0] = centerOfRotation[0] * (1.0f - rotMtx[0][0]) - centerOfRotation[1] * rotMtx[1][0] - centerOfRotation[2] * rotMtx[2][0];
+	rotMtx[3][1] = centerOfRotation[1] * (1.0f - rotMtx[1][1]) - centerOfRotation[0] * rotMtx[0][1] - centerOfRotation[2] * rotMtx[2][1];
+	rotMtx[3][2] = centerOfRotation[2] * (1.0f - rotMtx[2][2]) - centerOfRotation[0] * rotMtx[0][2] - centerOfRotation[1] * rotMtx[1][2];
+
 	T = rotMtx * T;
-
-	//rotMtx.transpose3();	
-	//float tmp1 = rotMtx[3][0]; float tmp2 = rotMtx[3][1]; float tmp3 = rotMtx[3][2];
-	//rotMtx[3][0] = -(tmp1 * rotMtx[0][0] + tmp2 * rotMtx[1][0] + tmp3 * rotMtx[2][0]);
-	//rotMtx[3][1] = -(tmp1 * rotMtx[0][1] + tmp2 * rotMtx[1][1] + tmp3 * rotMtx[2][1]);
-	//rotMtx[3][2] = -(tmp1 * rotMtx[0][2] + tmp2 * rotMtx[1][2] + tmp3 * rotMtx[2][2]);
-	//rotMtx[0][3] = 0.0f; rotMtx[1][3] = 0.0f; rotMtx[2][3] = 0.0f; rotMtx[3][3] = 1.0f;
-
-	//invT = invT * rotMtx;
 }
 
 void Transform::translate(float dx, float dy, float dz) {
@@ -236,10 +107,6 @@ void Transform::translate(float dx, float dy, float dz) {
 	T[1][0] = T[1][0] + T[1][3] * dx; T[1][1] = T[1][1] + T[1][3] * dz; T[1][2] = T[1][2] + T[1][3] * dy;
 	T[2][0] = T[2][0] + T[2][3] * dx; T[2][1] = T[2][1] + T[2][3] * dz; T[2][2] = T[2][2] + T[2][3] * dy;
 	T[3][0] = T[3][0] + dx; T[3][1] = T[3][1] + dy; T[3][2] = T[3][2] + dz;
-
-	//invT[3][0] = invT[3][0] - dx*invT[0][0] - dz*invT[2][0] - dy*invT[1][0];
-	//invT[3][1] = invT[3][1] - dx*invT[0][1] - dz*invT[2][1] - dy*invT[1][1];
-	//invT[3][2] = invT[3][2] - dx*invT[0][2] - dz*invT[2][2] - dy*invT[1][2];
 }
 
 void Transform::translate(const glm::vec3& trans) {
@@ -247,10 +114,6 @@ void Transform::translate(const glm::vec3& trans) {
 	T[1][0] = T[1][0] + T[1][3] * trans[0]; T[1][1] = T[1][1] + T[1][3] * trans[2]; T[1][2] = T[1][2] + T[1][3] * trans[1];
 	T[2][0] = T[2][0] + T[2][3] * trans[0]; T[2][1] = T[2][1] + T[2][3] * trans[2]; T[2][2] = T[2][2] + T[2][3] * trans[1];
 	T[3][0] = T[3][0] + trans[0]; T[3][1] = T[3][1] + trans[1]; T[3][2] = T[3][2] + trans[2];
-
-	//invT[3][0] = invT[3][0] - trans[0]*invT[0][0] - trans[2]*invT[2][0] - trans[1]*invT[1][0];
-	//invT[3][1] = invT[3][1] - trans[0]*invT[0][1] - trans[2]*invT[2][1] - trans[1]*invT[1][1];
-	//invT[3][2] = invT[3][2] - trans[0]*invT[0][2] - trans[2]*invT[2][2] - trans[1]*invT[1][2];
 }
 
 void Transform::scale(float s) {
@@ -258,34 +121,15 @@ void Transform::scale(float s) {
 }
 
 void Transform::scale(float a, float b, float c) {
-	
 	T[0][0] = T[0][0] * a;  T[1][0] = T[1][0] * b; T[2][0] = T[2][0] * c;
 	T[0][1] = T[0][1] * a;  T[1][1] = T[1][1] * b; T[2][1] = T[2][1] * c;
 	T[0][2] = T[0][2] * a;  T[1][2] = T[1][2] * b; T[2][2] = T[2][2] * c;
-
-	//if (a == 0) a = 1.0;
-	//if (b == 0) b = 1.0;
-	//if (c == 0) c = 1.0;
-
-	//invT[0][0] = invT[0][0] * (1.0 / a); invT[0][1] = invT[0][1] * (1.0 / b); invT[0][2] = invT[0][2] * (1.0 / c);
-	//invT[1][0] = invT[1][0] * (1.0 / a); invT[1][1] = invT[1][1] * (1.0 / b); invT[1][2] = invT[1][2] * (1.0 / c);
-	//invT[2][0] = invT[2][0] * (1.0 / a); invT[2][1] = invT[2][1] * (1.0 / b); invT[2][2] = invT[2][2] * (1.0 / c);
-	//invT[3][0] = invT[3][0] * (1.0 / a); invT[3][1] = invT[3][1] * (1.0 / b); invT[3][2] = invT[3][2] * (1.0 / c);
 }
 
 void Transform::scale(const glm::vec3& scale) {
 	T[0][0] = T[0][0] * scale[0];  T[1][0] = T[1][0] * scale[1]; T[2][0] = T[2][0] * scale[2];
 	T[0][1] = T[0][1] * scale[0];  T[1][1] = T[1][1] * scale[1]; T[2][1] = T[2][1] * scale[2];
 	T[0][2] = T[0][2] * scale[0];  T[1][2] = T[1][2] * scale[1]; T[2][2] = T[2][2] * scale[2];
-
-	//if (scale[0] == 0) scale[0] = 1.0;
-	//if (scale[1] == 0) scale[1] = 1.0;
-	//if (scale[2] == 0) scale[2] = 1.0;
-
-	//invT[0][0] = invT[0][0] * (1.0 / scale[0]); invT[0][1] = invT[0][1] * (1.0 / scale[1]); invT[0][2] = invT[0][2] * (1.0 / scale[2]);
-	//invT[1][0] = invT[1][0] * (1.0 / scale[0]); invT[1][1] = invT[1][1] * (1.0 / scale[1]); invT[1][2] = invT[1][2] * (1.0 / scale[2]);
-	//invT[2][0] = invT[2][0] * (1.0 / scale[0]); invT[2][1] = invT[2][1] * (1.0 / scale[1]); invT[2][2] = invT[2][2] * (1.0 / scale[2]);
-	//invT[3][0] = invT[3][0] * (1.0 / scale[0]); invT[3][1] = invT[3][1] * (1.0 / scale[1]); invT[3][2] = invT[3][2] * (1.0 / scale[2]);
 }
 
 void Transform::scale(float s, const glm::vec3& centerOfScale) {
@@ -293,11 +137,6 @@ void Transform::scale(float s, const glm::vec3& centerOfScale) {
 }
 
 void Transform::scale(float a, float b, float c, const glm::vec3& centerOfScale) {
-	//glm::mat4 scale;
-	//scale.scale(a, b, c, centerOfScale);
-	//T =  T * scale;
-	//T.print();
-
 	T[3][0] = T[0][0] * centerOfScale[0] * (1.0f - a) + T[1][0] * centerOfScale[1] * (1.0f - b) + T[2][0] * centerOfScale[2] * (1.0f - c) + T[3][0];
 	T[3][1] = T[0][1] * centerOfScale[0] * (1.0f - a) + T[1][1] * centerOfScale[1] * (1.0f - b) + T[2][1] * centerOfScale[2] * (1.0f - c) + T[3][1];
 	T[3][2] = T[0][2] * centerOfScale[0] * (1.0f - a) + T[1][2] * centerOfScale[1] * (1.0f - b) + T[2][2] * centerOfScale[2] * (1.0f - c) + T[3][2];
@@ -305,20 +144,6 @@ void Transform::scale(float a, float b, float c, const glm::vec3& centerOfScale)
 	T[0][0] = T[0][0] * a;  T[1][0] = T[1][0] * b; T[2][0] = T[2][0] * c;
 	T[0][1] = T[0][1] * a;  T[1][1] = T[1][1] * b; T[2][1] = T[2][1] * c;
 	T[0][2] = T[0][2] * a;  T[1][2] = T[1][2] * b; T[2][2] = T[2][2] * c;
-
-	//if (a == 0) a = 1.0;
-	//if (b == 0) b = 1.0;
-	//if (c == 0) c = 1.0;
-
-	//invT[3][0] = invT[0][0] * centerOfScale[0] * (1.0f - a) + invT[1][0] * centerOfScale[1] * (1.0f - b) + invT[2][0] * centerOfScale[2] * (1.0f - c) + invT[3][0];
-	//invT[3][1] = invT[0][1] * centerOfScale[0] * (1.0f - a) + invT[1][1] * centerOfScale[1] * (1.0f - b) + invT[2][1] * centerOfScale[2] * (1.0f - c) + invT[3][1];
-	//invT[3][2] = invT[0][2] * centerOfScale[0] * (1.0f - a) + invT[1][2] * centerOfScale[1] * (1.0f - b) + invT[2][2] * centerOfScale[2] * (1.0f - c) + invT[3][2];
-	/**invT[3][3] = invT[0][3] * centerOfScale[0] * (1.0f - a) + invT[1][3] * centerOfScale[1] * (1.0f - b) + invT[2][3] * centerOfScale[2] * (1.0f - c) + invT[3][3];*/
-
-	//invT[0][0] = invT[0][0] * (1.0 / a); invT[0][1] = invT[0][1] * (1.0 / b); invT[0][2] = invT[0][2] * (1.0 / c);
-	//invT[1][0] = invT[1][0] * (1.0 / a); invT[1][1] = invT[1][1] * (1.0 / b); invT[1][2] = invT[1][2] * (1.0 / c);
-	//invT[2][0] = invT[2][0] * (1.0 / a); invT[2][1] = invT[2][1] * (1.0 / b); invT[2][2] = invT[2][2] * (1.0 / c);
-	//invT[3][0] = invT[3][0] * (1.0 / a); invT[3][1] = invT[3][1] * (1.0 / b); invT[3][2] = invT[3][2] * (1.0 / c);
 }
 
 void Transform::scale(const glm::vec3& scale, const glm::vec3& centerOfScale) {
@@ -329,20 +154,6 @@ void Transform::scale(const glm::vec3& scale, const glm::vec3& centerOfScale) {
 	T[0][0] = T[0][0] * scale[0];  T[1][0] = T[1][0] * scale[1]; T[2][0] = T[2][0] * scale[2];
 	T[0][1] = T[0][1] * scale[0];  T[1][1] = T[1][1] * scale[1]; T[2][1] = T[2][1] * scale[2];
 	T[0][2] = T[0][2] * scale[0];  T[1][2] = T[1][2] * scale[1]; T[2][2] = T[2][2] * scale[2];
-
-	//if (scale[0] == 0) scale[0] = 1.0;
-	//if (scale[1] == 0) scale[1] = 1.0;
-	//if (scale[2] == 0) scale[2] = 1.0;
-
-	//invT[3][0] = invT[0][0] * centerOfScale[0] * (1.0f - scale[0]) + invT[1][0] * centerOfScale[1] * (1.0f - scale[1]) + invT[2][0] * centerOfScale[2] * (1.0f - scale[2]) + invT[3][0];
-	//invT[3][1] = invT[0][1] * centerOfScale[0] * (1.0f - scale[0]) + invT[1][1] * centerOfScale[1] * (1.0f - scale[1]) + invT[2][1] * centerOfScale[2] * (1.0f - scale[2]) + invT[3][1];
-	//invT[3][2] = invT[0][2] * centerOfScale[0] * (1.0f - scale[0]) + invT[1][2] * centerOfScale[1] * (1.0f - scale[1]) + invT[2][2] * centerOfScale[2] * (1.0f - scale[2]) + invT[3][2];
-	/**invT[3][3] = invT[0][3] * centerOfScale[0] * (1.0f - scale[0]) + invT[1][3] * centerOfScale[1] * (1.0f - scale[1]) + invT[2][3] * centerOfScale[2] * (1.0f - scale[2]) + invT[3][3];*/
-
-	//invT[0][0] = invT[0][0] * (1.0 / scale[0]); invT[0][1] = invT[0][1] * (1.0 / scale[1]); invT[0][2] = invT[0][2] * (1.0 / scale[2]);
-	//invT[1][0] = invT[1][0] * (1.0 / scale[0]); invT[1][1] = invT[1][1] * (1.0 / scale[1]); invT[1][2] = invT[1][2] * (1.0 / scale[2]);
-	//invT[2][0] = invT[2][0] * (1.0 / scale[0]); invT[2][1] = invT[2][1] * (1.0 / scale[1]); invT[2][2] = invT[2][2] * (1.0 / scale[2]);
-	//invT[3][0] = invT[3][0] * (1.0 / scale[0]); invT[3][1] = invT[3][1] * (1.0 / scale[1]); invT[3][2] = invT[3][2] * (1.0 / scale[2]);
 }
 
 const glm::mat4& Transform::getTransformationMatrix() const {
@@ -350,7 +161,7 @@ const glm::mat4& Transform::getTransformationMatrix() const {
 }
 
 //this just works with uniform scaling
-const glm::mat4& Transform::getInvTransformationMatrix() {
+const glm::mat4& Transform::getInvTransformationMatrix() const {
 	float sx =  glm::length(glm::vec3(T[0][0], T[1][0], T[2][0]));
 	float sy =  glm::length(glm::vec3(T[0][1], T[1][1], T[2][1]));
 	float sz =  glm::length(glm::vec3(T[0][2], T[1][2], T[2][2]));
@@ -404,38 +215,22 @@ void Transform::getOrientation(glm::quat& orientation) {
 	float sy = glm::length(glm::vec3(T[0][1], T[1][1], T[2][1]));
 	float sz = glm::length(glm::vec3(T[0][2], T[1][2], T[2][2]));
 
-	glm::mat4 rot;
-	rot[0][0] = T[0][0] * (1.0f / sx); rot[0][1] = T[0][1] * (1.0f / sx); rot[0][2] = T[0][2] * (1.0f / sx); rot[0][3] = 0.0f;
-	rot[1][0] = T[1][0] * (1.0f / sy); rot[1][1] = T[1][1] * (1.0f / sy); rot[1][2] = T[1][2] * (1.0f / sy); rot[1][3] = 0.0f;
-	rot[2][0] = T[2][0] * (1.0f / sz); rot[2][1] = T[2][1] * (1.0f / sz); rot[2][2] = T[2][2] * (1.0f / sz); rot[2][3] = 0.0f;
-	rot[3][0] = 0.0f;				   rot[3][1] = 0.0f;				  rot[3][2] = 0.0f;					 rot[3][3] = 1.0f;
+	glm::mat3 rot;
+	rot[0][0] = T[0][0] * (1.0f / sx); rot[0][1] = T[0][1] * (1.0f / sx); rot[0][2] = T[0][2] * (1.0f / sx);
+	rot[1][0] = T[1][0] * (1.0f / sy); rot[1][1] = T[1][1] * (1.0f / sy); rot[1][2] = T[1][2] * (1.0f / sy);
+	rot[2][0] = T[2][0] * (1.0f / sz); rot[2][1] = T[2][1] * (1.0f / sz); rot[2][2] = T[2][2] * (1.0f / sz);
 
-	//orientation.fromMatrix(rot);
+
+	orientation = glm::quat_cast(rot);
 }
 
 void Transform::fromMatrix(const glm::mat4& m) {
-
 	T[0][0] = m[0][0]; T[0][1] = m[0][1]; T[0][2] = m[0][2]; T[0][3] = m[0][3];
 	T[1][0] = m[1][0]; T[1][1] = m[1][1]; T[1][2] = m[1][2]; T[1][3] = m[1][3];
 	T[2][0] = m[2][0]; T[2][1] = m[2][1]; T[2][2] = m[2][2]; T[2][3] = m[2][3];
-	T[3][0] = m[3][0]; T[3][1] = m[3][1]; T[3][2] = m[3][2]; T[3][3] = m[3][3];
-	
-	//float sx = glm::length(glm::vec3(T[0][0], T[1][0], T[2][0]));
-	//float sy = glm::length(glm::vec3(T[0][1], T[1][1], T[2][1]));
-	//float sz = glm::length(glm::vec3(T[0][2], T[1][2], T[2][2]));
+	T[3][0] = m[3][0]; T[3][1] = m[3][1]; T[3][2] = m[3][2]; T[3][3] = m[3][3];	
+}
 
-	//float sxx = sx * sx;
-	//float sxy = sx * sy;
-	//float sxz = sx * sz;
-
-	//float syy = sy * sy;
-	//float syz = sy * sz;
-
-	//float szz = sz * sz;
-
-	//invT[0][0] = T[0][0] * (1.0f / sxx); invT[1][0] = T[0][1] * (1.0f / sxy); invT[2][0] = T[0][2] * (1.0f / sxz); invT[3][0] = -(T[3][0] * T[0][0] * (1.0f / sxx) + T[3][1] * T[0][1] * (1.0f / sxy) + T[3][2] * T[0][2] * (1.0f / sxz));
-	//invT[0][1] = T[1][0] * (1.0f / sxy); invT[1][1] = T[1][1] * (1.0f / syy); invT[2][1] = T[1][2] * (1.0f / syz); invT[3][1] = -(T[3][0] * T[1][0] * (1.0f / sxy) + T[3][1] * T[1][1] * (1.0f / syy) + T[3][2] * T[1][2] * (1.0f / syz));
-	//invT[0][2] = T[2][0] * (1.0f / sxz); invT[1][2] = T[2][1] * (1.0f / syz); invT[2][2] = T[2][2] * (1.0f / szz); invT[3][2] = -(T[3][0] * T[2][0] * (1.0f / sxz) + T[3][1] * T[2][1] * (1.0f / syz) + T[3][2] * T[2][2] * (1.0f / szz));
-	//invT[0][3] = 0.0f;					 invT[1][3] = 0.0f;					  invT[2][3] = 0.0f;				   invT[3][3] = 1.0f;
-	
+void Transform::apply(const glm::mat4& m) {
+	T = m * T;
 }

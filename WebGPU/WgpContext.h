@@ -61,6 +61,7 @@ extern "C" {
 	void wgpConfigureSurface();
 	void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange = NULL);
 	void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& onSurfaceChange = NULL);
+	WGPURenderPassDepthStencilAttachment wgpCopyDepthStencilAttachment(const WGPURenderPassDepthStencilAttachment* src);
 }
 
 enum SamplerSlot {
@@ -86,6 +87,12 @@ enum BlendMode {
 	ADDITIVE_BLENDING_ONE
 };
 
+enum StencilMode {
+	DEFAULT,
+	SET,
+	MASK	
+};
+
 struct WgpContext {
 
 	struct PipelineConfiguration {
@@ -93,6 +100,7 @@ struct WgpContext {
 		BlendMode blendMode;
 		WGPUTextureFormat colorTextureFormat;
 		WGPUCullMode cullMode;
+		StencilMode stencilMode;
 	};
 	
 	friend bool wgpCreateDevice(void* window);
@@ -115,7 +123,7 @@ struct WgpContext {
 	                          WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 							  WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 							  WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,
-							  const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined });
+							  const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, StencilMode::DEFAULT });
 	
     void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
     void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
@@ -142,7 +150,7 @@ struct WgpContext {
 
 	WGPUSurfaceConfiguration config = {};
 	WGPUSurfaceCapabilities surfaceCapabilities;
-	WGPUTextureFormat depthformat = WGPUTextureFormat::WGPUTextureFormat_Depth24Plus;
+	WGPUTextureFormat depthformat = WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8;
 	WGPUTextureFormat colorformat = WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm;
 
 	std::unordered_map<std::string, WGPUComputePipeline> computePipelines;

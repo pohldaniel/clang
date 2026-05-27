@@ -29,7 +29,6 @@ public:
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
 
-	
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
 	void OnScroll(double xoffset, double yoffset) override;
 	void OnMouseButtonDown(const Event::MouseButtonEvent& event) override;

@@ -1,6 +1,5 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <float.h>
 #include "Sphere.h"
 
 Sphere::Sphere(unsigned int uResolution, unsigned int vResolution) : Sphere({ 0.0f, 0.0f, 0.0f }, 1.0f, true, true, false, uResolution, vResolution) {}
@@ -19,9 +18,6 @@ Sphere::Sphere(const std::array<float, 3>& position, float radius, bool generate
 	m_vResolution = vResolution;
 
 	m_stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
-
-	m_min = { FLT_MAX, FLT_MAX, FLT_MAX };
-	m_max = { FLT_MIN, FLT_MIN, FLT_MIN };
 
 	BuildMesh(m_position, m_radius, m_uResolution, m_vResolution, m_generateTexels, m_generateNormals, m_generateTangents, m_vertexBuffer, m_indexBuffer);
 }

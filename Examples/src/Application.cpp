@@ -12,6 +12,7 @@
 #include <States/SkinnedMesh.h>
 #include <States/ComputeParticleLogo.h>
 #include <States/PrimitivePicking.h>
+#include <States/StencilMask.h>
 
 #include "Mouse.h"
 #include "Application.h"
@@ -98,12 +99,13 @@ void Application::initImGUI() {
 
 void Application::initStates(){
   Machine = new StateMachine(dt, fdt);
-	Machine->addStateAtTop(new Wireframe(*Machine));
+	//Machine->addStateAtTop(new Wireframe(*Machine));
   //Machine->addStateAtTop(new ImageBasedLighting(*Machine));
   //Machine->addStateAtTop(new ShadowMapping(*Machine));
   //Machine->addStateAtTop(new SkinnedMesh(*Machine));
   //Machine->addStateAtTop(new ComputeParticleLogo(*Machine));
   //Machine->addStateAtTop(new PrimitivePicking(*Machine));
+  Machine->addStateAtTop(new StencilMask(*Machine));
 }
 
 bool Application::isRunning(){

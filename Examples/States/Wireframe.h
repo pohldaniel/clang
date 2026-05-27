@@ -9,7 +9,6 @@
 #include "TrackBall.h"
 #include "ObjModel.h"
 
-
 class Wireframe : public State {
 	enum SelectedModel {
 		MAMMOTH,

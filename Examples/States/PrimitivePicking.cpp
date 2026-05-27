@@ -162,7 +162,7 @@ void PrimitivePicking::update() {
 	}
 	
     if (move || dx != 0.0f || dy != 0.0f) {
-		if (dx || dy) {			
+		if (dx || dy) {		
 			m_camera.rotate(dx, dy);
 		}
 
