@@ -361,6 +361,18 @@ void DefferedRendering::OnKeyUp(const Event::KeyboardEvent& event) {
 void DefferedRendering::resize(int deltaW, int deltaH) {
 	m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 1.0f, 2000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
+	m_trackball.reshape(Application::Width, Application::Height);
+
+	m_normalTexture.resize(Application::Width, Application::Height);
+	m_albedoTexture.resize(Application::Width, Application::Height);
+	m_depthTexture.resize(Application::Width, Application::Height);
+
+	wgpuBindGroupRelease(m_defferedBindGroup);
+	m_defferedBindGroup = createDefferedBindGroup();
+
+	renderPassColorAttachments[0].view = m_normalTexture.getTextureView();
+	renderPassColorAttachments[1].view = m_albedoTexture.getTextureView();
+	renderPassDepthStencilAttachment.view = m_depthTexture.getTextureView();
 }
 
 void DefferedRendering::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
