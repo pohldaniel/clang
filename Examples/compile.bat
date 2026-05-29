@@ -29,6 +29,7 @@ clang++^
  states/ComputeParticleLogo.cpp^
  states/PrimitivePicking.cpp^
  states/StencilMask.cpp^
+ states/DefferedRendering.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^

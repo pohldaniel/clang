@@ -9,6 +9,7 @@
 #endif // __EMSCRIPTEN__
 
 #define WGPU_STR(str) { str, sizeof(str) - 1 }
+#define STRVIEW(str) WGPUStringView{ str, sizeof(str) - 1 }
 
 enum VertexLayoutSlot {
 	VL_NONE,
@@ -37,7 +38,7 @@ extern "C" {
 	void wgpRequestAdapterSync(WGPUInstance instance, const WGPURequestAdapterOptions* requestAdapterOptions);
 	void wgpRequestDeviceSync(WGPUAdapter adapter, const WGPUDeviceDescriptor* deviceDescriptor);
 
-	WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage);
+	WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage, bool mappedAtCreation = false);
 	WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage);
 	WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount = 1u, uint32_t sampleCount = 1u, WGPUTextureFormat viewFormat = WGPUTextureFormat_Undefined);
 	WGPUTextureView wgpCreateTextureView(const WGPUTexture& texture, WGPUTextureAspect aspect);
@@ -60,6 +61,7 @@ extern "C" {
 	void wgpToggleVerticalSync();
 	void wgpConfigureSurface();
 	void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange = NULL);
+	void wgpSetSurfaceDepthFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange = NULL);
 	void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& onSurfaceChange = NULL);
 	WGPURenderPassDepthStencilAttachment wgpCopyDepthStencilAttachment(const WGPURenderPassDepthStencilAttachment* src);
 }
@@ -101,6 +103,7 @@ struct WgpContext {
 		WGPUTextureFormat colorTextureFormat;
 		WGPUCullMode cullMode;
 		StencilMode stencilMode;
+		std::vector<WGPUConstantEntry> constantEntries;
 	};
 	
 	friend bool wgpCreateDevice(void* window);
@@ -123,7 +126,7 @@ struct WgpContext {
 	                          WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 							  WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 							  WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,
-							  const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, StencilMode::DEFAULT });
+							  const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, StencilMode::DEFAULT, {} });
 	
     void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
     void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);

@@ -60,9 +60,30 @@ Camera::Camera(const glm::vec3 &eye, const glm::vec3& target, const glm::vec3& u
 Camera::~Camera() {}
 
 void Camera::perspective(float fovx, float aspect, float znear, float zfar){
-    m_persMatrix = glm::perspective(fovx, aspect, znear, zfar);
-
     float e = tanf(fovx * 0.5f);
+	float xScale = (1.0f / (e * aspect));
+	float yScale = (1.0f / e);
+
+	m_persMatrix[0][0] = xScale;
+	m_persMatrix[0][1] = 0.0f;
+	m_persMatrix[0][2] = 0.0f;
+	m_persMatrix[0][3] = 0.0f;
+
+	m_persMatrix[1][0] = 0.0f;
+	m_persMatrix[1][1] = yScale;
+	m_persMatrix[1][2] = 0.0f;
+	m_persMatrix[1][3] = 0.0f;
+
+	m_persMatrix[2][0] = 0.0f;
+	m_persMatrix[2][1] = 0.0f;
+	m_persMatrix[2][2] = zfar / (znear - zfar);
+	m_persMatrix[2][3] = -1.0f;
+
+	m_persMatrix[3][0] = 0.0f;
+	m_persMatrix[3][1] = 0.0f;
+	m_persMatrix[3][2] = (zfar * znear) / (znear - zfar);
+	m_persMatrix[3][3] = 0.0f;	
+
 	m_invPersMatrix[0][0] = e * aspect;
 	m_invPersMatrix[0][1] = 0.0f;
 	m_invPersMatrix[0][2] = 0.0f;
@@ -76,12 +97,12 @@ void Camera::perspective(float fovx, float aspect, float znear, float zfar){
 	m_invPersMatrix[2][0] = 0.0f;
 	m_invPersMatrix[2][1] = 0.0f;
 	m_invPersMatrix[2][2] = 0.0;
-	m_invPersMatrix[2][3] = (znear - zfar) / (2 * zfar * znear);
+	m_invPersMatrix[2][3] = (znear - zfar) / (zfar * znear);
 
 	m_invPersMatrix[3][0] = 0.0f;
 	m_invPersMatrix[3][1] = 0.0f;
 	m_invPersMatrix[3][2] = -1.0f;
-	m_invPersMatrix[3][3] = (znear + zfar) / (2 * zfar * znear);
+	m_invPersMatrix[3][3] = 1.0 / znear;
 }
 
 void Camera::orthographic(float left, float right, float bottom, float top, float znear, float zfar){

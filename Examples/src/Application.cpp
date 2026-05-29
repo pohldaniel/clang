@@ -13,6 +13,7 @@
 #include <States/ComputeParticleLogo.h>
 #include <States/PrimitivePicking.h>
 #include <States/StencilMask.h>
+#include <States/DefferedRendering.h>
 
 #include "Mouse.h"
 #include "Application.h"
@@ -105,7 +106,8 @@ void Application::initStates(){
   //Machine->addStateAtTop(new SkinnedMesh(*Machine));
   //Machine->addStateAtTop(new ComputeParticleLogo(*Machine));
   //Machine->addStateAtTop(new PrimitivePicking(*Machine));
-  Machine->addStateAtTop(new StencilMask(*Machine));
+  //Machine->addStateAtTop(new StencilMask(*Machine));
+  Machine->addStateAtTop(new DefferedRendering(*Machine));
 }
 
 bool Application::isRunning(){

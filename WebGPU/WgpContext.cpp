@@ -240,6 +240,29 @@ void wgpConfigureSurface() {
 	wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
 }
 
+WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage, bool mappedAtCreation) {
+	const WGPUDevice& device = wgpContext.device;
+	WGPUBufferDescriptor bufferDesc = {};
+	bufferDesc.label = WGPU_STR("buf");
+
+	if (bufferUsage & WGPUBufferUsage_Uniform)
+		bufferDesc.label = WGPU_STR("uniform_buf");
+
+	if (bufferUsage & WGPUBufferUsage_Vertex)
+		bufferDesc.label = WGPU_STR("vertex_buf");
+
+	if (bufferUsage & WGPUBufferUsage_Index)
+		bufferDesc.label = WGPU_STR("index_buf");
+
+	if (bufferUsage & WGPUBufferUsage_Storage)
+		bufferDesc.label = WGPU_STR("storage_buf");
+
+	bufferDesc.size = size;
+	bufferDesc.usage = bufferUsage;
+	bufferDesc.mappedAtCreation = mappedAtCreation;
+	return wgpuDeviceCreateBuffer(device, &bufferDesc);
+}
+
 WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage bufferUsage) {
 	const WGPUDevice& device = wgpContext.device;
     WGPUBufferDescriptor bufferDesc = {};
@@ -266,29 +289,6 @@ WGPUBuffer wgpCreateBuffer(const void* data, uint32_t size, WGPUBufferUsage buff
 	memcpy(mapping, data, size);
 	wgpuBufferUnmap(buffer);
 	return buffer;
-}
-
-WGPUBuffer wgpCreateEmptyBuffer(uint32_t size, WGPUBufferUsage bufferUsage) {
-	const WGPUDevice& device = wgpContext.device;
-	WGPUBufferDescriptor bufferDesc = {};
-	bufferDesc.label = WGPU_STR("buf");
-
-	if (bufferUsage & WGPUBufferUsage_Uniform)
-		bufferDesc.label = WGPU_STR("uniform_buf");
-
-	if (bufferUsage & WGPUBufferUsage_Vertex)
-		bufferDesc.label = WGPU_STR("vertex_buf");
-
-	if (bufferUsage & WGPUBufferUsage_Index)
-		bufferDesc.label = WGPU_STR("index_buf");
-
-	if (bufferUsage & WGPUBufferUsage_Storage)
-		bufferDesc.label = WGPU_STR("storage_buf");
-
-	bufferDesc.size = size;
-	bufferDesc.usage = bufferUsage;
-	bufferDesc.mappedAtCreation = false;
-	return wgpuDeviceCreateBuffer(device, &bufferDesc);
 }
 
 WGPUTexture wgpCreateTexture(uint32_t width, uint32_t height, uint32_t depth, WGPUTextureUsage textureUsage, WGPUTextureFormat textureFormat, uint32_t mipLevelCount, uint32_t sampleCount, WGPUTextureFormat viewFormat) {
@@ -715,6 +715,26 @@ void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::functi
 	}
 }
 
+void wgpSetSurfaceDepthFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange) {
+	if (wgpContext.surface) {
+		wgpContext.depthformat = textureFormat;
+
+		uint32_t width = wgpuTextureGetWidth(wgpContext.depthTexture);
+		uint32_t height = wgpuTextureGetHeight(wgpContext.depthTexture);
+
+		wgpuTextureViewRelease(wgpContext.depthTextureView);
+		wgpuTextureDestroy(wgpContext.depthTexture);
+		wgpuTextureRelease(wgpContext.depthTexture);
+
+		wgpContext.depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthformat, 1u, wgpContext.msaaSampleCount, wgpContext.depthformat);
+		wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
+
+		if (onSurfaceChange)
+			onSurfaceChange();
+
+	}
+}
+
 void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& onSurfaceChange) {
 	if(wgpContext.msaaSampleCount != count){
 		wgpContext.msaaSampleCount = count;
@@ -722,8 +742,15 @@ void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& on
 		uint32_t width = wgpuTextureGetWidth(wgpContext.depthTexture);
 		uint32_t height = wgpuTextureGetHeight(wgpContext.depthTexture);
 
-		wgpContext.msaaTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
-		wgpContext.msaaTextureView = wgpCreateTextureView(wgpContext.msaaTexture, WGPUTextureAspect::WGPUTextureAspect_All);
+		if (wgpContext.msaaTexture) {
+			wgpuTextureViewRelease(wgpContext.msaaTextureView);
+			wgpuTextureDestroy(wgpContext.msaaTexture);
+			wgpuTextureRelease(wgpContext.msaaTexture);
+		}
+
+		wgpContext.msaaTexture = count == 1u ? NULL : wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorformat, 1u, wgpContext.msaaSampleCount, wgpContext.colorformat);
+		wgpContext.msaaTextureView = count == 1u ? NULL : wgpCreateTextureView(wgpContext.msaaTexture, WGPUTextureAspect::WGPUTextureAspect_All);
+
 
 		wgpuTextureViewRelease(wgpContext.depthTextureView);
 		wgpuTextureDestroy(wgpContext.depthTexture);
@@ -954,8 +981,8 @@ void WgpContext::createRenderPipeline(std::string shaderModuleName,
 	WGPUFragmentState fragmentState = {};
 	fragmentState.module = shaderModules.at(shaderModuleName);
 	fragmentState.entryPoint = WGPU_STR("fs_main");
-	fragmentState.constantCount = 0u;
-	fragmentState.constants = NULL;
+	fragmentState.constantCount = configuration.constantEntries.size();
+	fragmentState.constants = configuration.constantEntries.empty() ? NULL : configuration.constantEntries.data();
 	fragmentState.targetCount = colorTargetStates.size();
 	fragmentState.targets = colorTargetStates.data();
 
