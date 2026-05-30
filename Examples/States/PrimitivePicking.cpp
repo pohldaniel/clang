@@ -111,6 +111,9 @@ PrimitivePicking::~PrimitivePicking() {
 	m_computeBuffer.markForDelete();
 	m_vertexBuffer.markForDelete();
 	m_indexBuffer.markForDelete();
+
+	wgpuBindGroupRelease(m_computeBindGroup);
+	wgpuBindGroupRelease(m_debugBindGroup);
 }
 
 void PrimitivePicking::fixedUpdate() {
@@ -309,6 +312,9 @@ void PrimitivePicking::resize(int deltaW, int deltaH) {
 	wgpuBindGroupLayoutRelease(wgpuRenderPipelineGetBindGroupLayout(wgpContext.renderPipelines.at("RP_PICK_DEBUG"), 0u));
 
 	renderPassColorAttachments[0].view = m_indexTexture.getTextureView();
+
+	wgpuBindGroupRelease(m_computeBindGroup);
+	wgpuBindGroupRelease(m_debugBindGroup);
 
 	m_computeBindGroup = createComputeBindGroup();
 	m_debugBindGroup = createDebugBindGroup();
