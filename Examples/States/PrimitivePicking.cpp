@@ -315,7 +315,7 @@ void PrimitivePicking::resize(int deltaW, int deltaH) {
 
 	wgpuBindGroupRelease(m_computeBindGroup);
 	wgpuBindGroupRelease(m_debugBindGroup);
-
+	
 	m_computeBindGroup = createComputeBindGroup();
 	m_debugBindGroup = createDebugBindGroup();
 }

@@ -30,6 +30,7 @@ clang++^
  states/PrimitivePicking.cpp^
  states/StencilMask.cpp^
  states/DefferedRendering.cpp^
+ states/VolumeRendering.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^
