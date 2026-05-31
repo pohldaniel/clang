@@ -12,7 +12,6 @@
 #include "TrackBall.h"
 #include "Transform.h"
 
-
 class VolumeRendering : public State {
 
 public:

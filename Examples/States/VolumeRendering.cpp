@@ -11,7 +11,6 @@
 #include "Mouse.h"
 #include "VolumeRendering.h"
 
-
 VolumeRendering::VolumeRendering(StateMachine& machine) : State(machine, States::VOLUME_RENDERING) {
 	Mouse::instance().attach(Application::Window, false, true);
 
