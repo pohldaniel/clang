@@ -39,6 +39,7 @@ public:
 	void setBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups);
 	void addBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups);
 	void addBindGroup(std::string bindGroupsName, WGPUBindGroup bindGroup) const;
+	void addColor(std::array<float, 4> color);
 
 	std::vector<WGPUBindGroup>& getBindGroups(std::string bindGroupsName) const;
 	std::vector<WGPUBindGroup>& getBindGroups() const;
@@ -58,4 +59,7 @@ private:
 	uint32_t m_drawCount;
 	std::string m_bindGroupsSlot;
 	bool m_markForDelete;
+
+	static void OnMapColorToBuffer(WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2);
+	static void OnMapIndexBuffer(WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2);
 };

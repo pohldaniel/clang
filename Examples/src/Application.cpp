@@ -15,6 +15,7 @@
 #include <States/StencilMask.h>
 #include <States/DefferedRendering.h>
 #include <States/VolumeRendering.h>
+#include <States/OcclusionQuery.h>
 
 #include "Mouse.h"
 #include "Application.h"
@@ -109,7 +110,8 @@ void Application::initStates(){
   //Machine->addStateAtTop(new PrimitivePicking(*Machine));
   //Machine->addStateAtTop(new StencilMask(*Machine));
   //Machine->addStateAtTop(new DefferedRendering(*Machine));
-  Machine->addStateAtTop(new VolumeRendering(*Machine));
+  //Machine->addStateAtTop(new VolumeRendering(*Machine));
+  Machine->addStateAtTop(new OcclusionQuery(*Machine));
 }
 
 bool Application::isRunning(){

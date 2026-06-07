@@ -16,6 +16,7 @@ enum VertexLayoutSlot {
 	VL_P,
 	VL_PT,
 	VL_PN,
+	VL_PNC,
 	VL_PTN,
 	VL_PTNC,
 	VL_PTNTB,
@@ -128,7 +129,6 @@ struct WgpContext {
 							  WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Less,
 							  const PipelineConfiguration configuration = { WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, StencilMode::DEFAULT, {} });
 	
-    void createVertexBufferLayout(VertexLayoutSlot slot = VL_PTN);
     void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
     const WGPUSampler& getSampler(SamplerSlot samplerSlot) const;
     void addSahderModule(const std::string& shaderModuleName, const std::string& stringPath, bool fromString = false);
@@ -159,6 +159,7 @@ struct WgpContext {
 	std::unordered_map<std::string, WGPUComputePipeline> computePipelines;
 	std::unordered_map<std::string, WGPURenderPipeline> renderPipelines;
 	std::function<void(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor)> OnDraw = NULL;
+	std::function<void()> OnPostDraw = NULL;
 
 private:
 
