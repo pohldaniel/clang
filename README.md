@@ -23,3 +23,5 @@ I also had to tweak the CMakeLists.txt file for building Assimp static without z
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Build configured with -DASSIMP_BUILD_ZLIB=OFF but unable to find zlib"  
 &nbsp;&nbsp;&nbsp;&nbsp;)  
 &nbsp;&nbsp;ENDIF()  
+
+./configure --cc=clang-cl --toolchain=msvc --target-os=win64 --arch=x86_64 --ld=lld-link --enable-gpl --enable-stripping --disable-shared --disable-debug --enable-static --extra-cflags="-fuse-ld=lld -march=native"
