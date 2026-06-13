@@ -24,4 +24,4 @@ I also had to tweak the CMakeLists.txt file for building Assimp static without z
 &nbsp;&nbsp;&nbsp;&nbsp;)  
 &nbsp;&nbsp;ENDIF()  
 
-./configure --cc=clang-cl --toolchain=msvc --target-os=win64 --arch=x86_64 --ld=lld-link --disable-doc --disable-shared --disable-debug --enable-gpl --enable-static --extra-cxxflags="-D_MD -D_DLL -O1 -flto -fuse-ld=lld -march=native" --extra-cflags="-D_MD -D_DLL -O1 -flto -fuse-ld=lld -march=native"
+./configure --prefix=installed --cc=clang-cl --toolchain=msvc --target-os=win64 --arch=x86_64 --ld=lld-link --disable-doc --enable-stripping --disable-shared --disable-debug --enable-gpl --enable-static --extra-cxxflags="-MD -O1 -Z7" --extra-cflags="-MD -O1 -Z7"
