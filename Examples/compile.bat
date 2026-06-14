@@ -1,13 +1,14 @@
 clang++^
- -I "./" -I "./include/" -I "./include/animation/" -I "../" -I "../include/" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../SDKs/wgpu-dawn/include/"^
- -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/"^
- -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt^
- -llibglfw3 -llibimgui -llibassimp -lwgpu -llibfreeimage -llibzlib^
+ -I "./" -I "./include/" -I "./include/animation/" -I "../" -I "../include/" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/"^
+ -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/" -L "../SDKs/ffmpeg/lib/"^
+ -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt -lstrmiids -lmfuuid^
+ -llibglfw3 -llibimgui -llibassimp -lwgpu -llibfreeimage -llibzlib -llibavutil -llibavcodec -llibswresample -llibavformat -llibswscale^
  src/animation/BoneDescription.cpp^
  src/animation/Bone.cpp^
  src/animation/Animation.cpp^
  src/animation/AnimationState.cpp^
  src/animation/AnimatedModel.cpp^
+ src/VideoReader.cpp^
  src/BinaryIO.cpp^
  src/Fade.cpp^
  src/Mouse.cpp^
@@ -32,6 +33,7 @@ clang++^
  states/DefferedRendering.cpp^
  states/VolumeRendering.cpp^
  states/OcclusionQuery.cpp^
+ states/VideoDecode.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^
