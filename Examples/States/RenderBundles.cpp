@@ -145,7 +145,7 @@ void RenderBundles::update() {
 	}
 	m_trackball.idle();
 
-	m_camera.rotateY(m_dt * 2.0f);
+	m_camera.rotateY(-m_dt * 2.0f);
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();

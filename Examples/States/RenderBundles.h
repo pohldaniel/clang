@@ -16,6 +16,7 @@
 #define MAX_ASTEROID_COUNT (20000u)
 
 class RenderBundles : public State {
+	
 	struct Renderable {
 		uint32_t geometryIndex;
 		WgpBuffer uniformBuffer;
