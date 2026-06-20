@@ -150,7 +150,7 @@ void Camera::lookAt(float distance, float pitch, float yaw){
 	m_accumYawDegrees = yaw;
 
 	pitch = glm::radians(pitch);
-	yaw =  glm::radians(yaw);
+	yaw = glm::radians(yaw);
 
 	float cosY = cosf(yaw);
 	float cosP = cosf(pitch);
@@ -161,6 +161,33 @@ void Camera::lookAt(float distance, float pitch, float yaw){
 	m_yAxis[0] = sinP * sinY; m_yAxis[1] = cosP; m_yAxis[2] = -sinP * cosY;
 	m_zAxis[0] = -cosP * sinY; m_zAxis[1] = sinP; m_zAxis[2] = cosP * cosY;
 	m_viewDir = -m_zAxis;
+	m_eye = m_zAxis * distance;
+
+	fillRotationPart();
+	fillTranslationPart();
+}
+
+void Camera::lookAt(float distance, float pitch, float yaw, float roll) {
+	m_accumPitchDegrees = pitch;
+	m_accumYawDegrees = yaw;
+	m_distance = distance;
+
+	pitch = glm::radians(pitch);
+	yaw = glm::radians(yaw);
+	roll = glm::radians(roll);
+
+	float cosY = cosf(yaw);
+	float cosP = cosf(pitch);
+	float cosR = cosf(roll);
+	float sinY = sinf(yaw);
+	float sinP = sinf(pitch);
+	float sinR = sinf(roll);
+
+	m_xAxis[0] = cosR * cosY - sinR * sinP * sinY; m_xAxis[1] = -sinR * cosP; m_xAxis[2] = cosR * sinY + sinR * sinP * cosY;
+	m_yAxis[0] = sinR * cosY + cosR * sinP * sinY; m_yAxis[1] = cosR * cosP; m_yAxis[2] = sinR * sinY - cosR * sinP * cosY;
+	m_zAxis[0] = -cosP * sinY; m_zAxis[1] = sinP; m_zAxis[2] = cosP * cosY;
+	m_viewDir = -m_zAxis;
+
 	m_eye = m_zAxis * distance;
 
 	fillRotationPart();
@@ -209,6 +236,19 @@ void Camera::fillTranslationPart() {
 	m_invViewMatrix[3][1] = m_eye[1];
 	m_invViewMatrix[3][2] = m_eye[2];
 	m_invViewMatrix[3][3] = 1.0f;
+}
+
+void Camera::rotateY(float degrees) {
+	glm::mat4 rotMtx = glm::rotate(glm::radians(degrees), WORLD_YAXIS);
+
+	m_accumYawDegrees += degrees;
+	m_xAxis = rotMtx * glm::vec4(m_xAxis, 0.0f);
+	m_yAxis = rotMtx * glm::vec4(m_yAxis, 0.0f);
+	m_zAxis = rotMtx * glm::vec4(m_zAxis, 0.0f);
+	fillRotationPart();
+	
+	m_eye = rotMtx * glm::vec4(m_eye, 0.0f);
+	fillTranslationPart();
 }
 
 void Camera::rotate(float yaw, float pitch) {

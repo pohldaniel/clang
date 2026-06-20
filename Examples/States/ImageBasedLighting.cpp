@@ -29,7 +29,7 @@ ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, S
 
 	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, false, false);
 	m_cube.rewind();
-	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 49u, 49u, true, true);
+	m_sphere.buildSphere({ 0.0f, 0.0f, 0.0f }, 1.0f, 0.0f, 49u, 49u, true, true);
 	m_quad.buildQuadXY({ -1.0f, -1.0f, 0.0f }, { 2.0f, 2.0f }, 1u, 1u, true, false);
 	m_helmet.loadModel("res/models/helmet/helmet.obj", false, false, true);
 

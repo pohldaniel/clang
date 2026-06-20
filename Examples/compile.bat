@@ -34,6 +34,7 @@ clang++^
  states/VolumeRendering.cpp^
  states/OcclusionQuery.cpp^
  states/VideoDecode.cpp^
+ states/RenderBundles.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^

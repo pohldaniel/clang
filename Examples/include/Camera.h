@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 class Camera {
 
@@ -19,11 +20,14 @@ public:
 	void orthographic(float left, float right, float bottom, float top, float znear, float zfar);
 	void lookAt(const glm::vec3& eye, const glm::vec3& target, const glm::vec3& up);
 	void lookAt(float distance, float pitch, float yaw);
-
+	void lookAt(float distance, float pitch, float yaw, float roll);
+	
 	void move(const glm::vec3& direction);
 	void move(float distance);
-	virtual void rotate(float yaw, float pitch);
 
+	void rotateY(float degrees);
+	virtual void rotate(float yaw, float pitch);
+	
     void setPosition(float x, float y, float z, bool observe = false);
     void setPosition(const glm::vec3& position, bool observe = false);
     void setRotationSpeed(float rotationSpeed);

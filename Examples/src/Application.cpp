@@ -17,6 +17,7 @@
 #include <States/VolumeRendering.h>
 #include <States/OcclusionQuery.h>
 #include <States/VideoDecode.h>
+#include <States/RenderBundles.h>
 
 #include "Mouse.h"
 #include "Application.h"
@@ -120,7 +121,8 @@ void Application::initStates(){
   //Machine->addStateAtTop(new DefferedRendering(*Machine));
   //Machine->addStateAtTop(new VolumeRendering(*Machine));
   //Machine->addStateAtTop(new OcclusionQuery(*Machine));
-  Machine->addStateAtTop(new VideoDecode(*Machine));
+  //Machine->addStateAtTop(new VideoDecode(*Machine));
+  Machine->addStateAtTop(new RenderBundles(*Machine));
 }
 
 bool Application::isRunning(){
