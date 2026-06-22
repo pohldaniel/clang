@@ -221,10 +221,10 @@ void VolumeRendering::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Checkbox("Rotate Camera", &m_rotate);
 	if (ImGui::SliderFloat("Near", &m_near, 2.0f, 7.0f, "%.1f")) {
-		m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), m_near, m_far);
+		m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), m_near, m_far);
 	}
 	if (ImGui::SliderFloat("Far", &m_far, 2.0f, 7.0f, "%.1f")) {
-		m_camera.perspective(72.0f, static_cast<float>(Application::Width) / static_cast<float>(Application::Height), m_near, m_far);
+		m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), m_near, m_far);
 	}
 	ImGui::End();
 
