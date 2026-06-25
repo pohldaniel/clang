@@ -143,10 +143,10 @@ void wgpInit(void* window) {
 bool wgpCreateDevice(void* window) {
 
 	const WGPUInstanceFeatureName ckTimedWaitAny = WGPUInstanceFeatureName::WGPUInstanceFeatureName_TimedWaitAny;
-	WGPUInstanceDescriptor cinstanceDesc = {};
-	cinstanceDesc.requiredFeatureCount = 1;
-	cinstanceDesc.requiredFeatures = &ckTimedWaitAny;
-	wgpContext.instance = wgpuCreateInstance(&cinstanceDesc);
+	WGPUInstanceDescriptor instanceDesc = {};
+	instanceDesc.requiredFeatureCount = 1;
+	instanceDesc.requiredFeatures = &ckTimedWaitAny;
+	wgpContext.instance = wgpuCreateInstance(&instanceDesc);
 
 	WGPUSurfaceSourceWindowsHWND surfaceSourceWindowsHWND = {};
 	surfaceSourceWindowsHWND.chain.sType = WGPUSType_SurfaceSourceWindowsHWND;
