@@ -13,7 +13,7 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	wgpSetMSAASampleCount(4u, Application::OnSurfaceChange);
 
 	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
-	wgpContext.createRenderPipeline("PTN", "RP_PTNC", VL_PTNC, std::bind(&Wireframe::OnBindGroupLayoutsPTN, this), 4u);
+	wgpContext.createRenderPipeline("PTN", "RP_PTNC", VL_PTNC, std::bind(&Wireframe::OnBindGroupLayouts, this), 4u);
 
 	wgpContext.addSahderModule("WF", "res/shader/wireframe.wgsl");
 	wgpContext.createRenderPipeline("WF", "RP_WF", VL_NONE, std::bind(&Wireframe::OnBindGroupLayoutsWF, this), 4u, WGPUPrimitiveTopology::WGPUPrimitiveTopology_LineList);
@@ -263,7 +263,7 @@ void Wireframe::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
 }
 
-std::vector <WGPUBindGroupLayout> Wireframe::OnBindGroupLayoutsPTN() {
+std::vector <WGPUBindGroupLayout> Wireframe::OnBindGroupLayouts() {
 	std::vector<WGPUBindGroupLayout> bindingLayouts(2);
 
 	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries0(2);

@@ -33,7 +33,7 @@ public:
 	
 private:
 
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsPTN();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWF();
 
 	std::vector<WGPUBindGroup> OnBindGroups();

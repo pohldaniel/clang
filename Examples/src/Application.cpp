@@ -111,7 +111,7 @@ void Application::initImGUI() {
 
 void Application::initStates(){
   Machine = new StateMachine(dt, fdt);
-	//Machine->addStateAtTop(new Wireframe(*Machine));
+	Machine->addStateAtTop(new Wireframe(*Machine));
   //Machine->addStateAtTop(new ImageBasedLighting(*Machine));
   //Machine->addStateAtTop(new ShadowMapping(*Machine));
   //Machine->addStateAtTop(new SkinnedMesh(*Machine));
@@ -122,7 +122,7 @@ void Application::initStates(){
   //Machine->addStateAtTop(new VolumeRendering(*Machine));
   //Machine->addStateAtTop(new OcclusionQuery(*Machine));
   //Machine->addStateAtTop(new VideoDecode(*Machine));
-  Machine->addStateAtTop(new RenderBundles(*Machine));
+  //Machine->addStateAtTop(new RenderBundles(*Machine));
 }
 
 bool Application::isRunning(){
