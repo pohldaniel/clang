@@ -101,8 +101,8 @@ void Application::initImGUI() {
 
 	ImGui_ImplWGPU_InitInfo initInfo = {};
 	initInfo.Device = wgpContext.device;
-	initInfo.RenderTargetFormat = wgpContext.colorformat;
-	initInfo.DepthStencilFormat = wgpContext.depthformat;
+	initInfo.RenderTargetFormat = wgpContext.colorFormat;
+	initInfo.DepthStencilFormat = wgpContext.depthFormat;
   initInfo.PipelineMultisampleState.count = wgpContext.msaaSampleCount;
 
   ImGui_ImplGlfw_InitForOther(Window, true);
@@ -157,8 +157,8 @@ void Application::OnSurfaceChange(){
 
   ImGui_ImplWGPU_InitInfo initInfo = {};
   initInfo.Device = wgpContext.device;
-  initInfo.RenderTargetFormat = wgpContext.colorformat;
-  initInfo.DepthStencilFormat = wgpContext.depthformat;
+  initInfo.RenderTargetFormat = wgpContext.colorFormat;
+  initInfo.DepthStencilFormat = wgpContext.depthFormat;
   initInfo.PipelineMultisampleState.count = wgpContext.msaaSampleCount;
   
   ImGui_ImplWGPU_Init(&initInfo);
