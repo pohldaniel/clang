@@ -341,7 +341,7 @@ WGPUSampler wgpCreateSampler(WGPUFilterMode filterMode, WGPUAddressMode addressM
 	return wgpuDeviceCreateSampler(device, &samplerDescriptor);
 }
 
-WGPUShaderModule wgpCreateShaderFromFile(std::string path) {
+WGPUShaderModule wgpCreateShaderFromFile(const std::string& path) {
 	std::ifstream file(path);
 	if (!file.is_open()) {
 		return NULL;
@@ -365,7 +365,7 @@ WGPUShaderModule wgpCreateShaderFromFile(std::string path) {
 	return wgpuDeviceCreateShaderModule(wgpContext.device, &shaderModuleDescriptor);
 }
 
-WGPUShaderModule wgpCreateShaderFromString(std::string strng) {
+WGPUShaderModule wgpCreateShaderFromString(const std::string& strng) {
 	WGPUShaderSourceWGSL shaderSourceWGSL = {};
 	shaderSourceWGSL.chain.next = NULL;
 	shaderSourceWGSL.chain.sType = WGPUSType_ShaderSourceWGSL;
@@ -677,8 +677,33 @@ void wgpCleanState() {
 		wgpContext.samplers.erase(SS_2);
 	}
 
+	if (wgpVertexAttributes.count(VL_0)) {
+		wgpVertexAttributes.erase(VL_0);
+	}
+
+	if (wgpVertexAttributes.count(VL_1)) {
+		wgpVertexAttributes.erase(VL_1);
+	}
+
+	if (wgpVertexAttributes.count(VL_2)) {
+		wgpVertexAttributes.erase(VL_2);
+	}
+
+	if (wgpVertexBufferLayouts.count(VL_0)) {
+		wgpVertexBufferLayouts.erase(VL_0);
+	}
+
+	if (wgpVertexBufferLayouts.count(VL_1)) {
+		wgpVertexBufferLayouts.erase(VL_1);
+	}
+
+	if (wgpVertexBufferLayouts.count(VL_2)) {
+		wgpVertexBufferLayouts.erase(VL_2);
+	}
+
 	wgpContext.clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
+	wgpSetMSAASampleCount(1u, Application::OnSurfaceChange);
 }
 
 void wgpShutDown() {
@@ -756,7 +781,7 @@ void wgpToggleVerticalSync() {
 
 void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange) {
 	if (wgpContext.surface) {
-		wgpContext.colorformat = textureFormat;
+		wgpContext.colorFormat = textureFormat;
 		wgpContext.config.format = wgpContext.colorFormat;
 		wgpuSurfaceConfigure(wgpContext.surface, &wgpContext.config);
 
@@ -939,11 +964,11 @@ void WgpContext::addSahderModule(const std::string& shaderModuleName, const std:
 	shaderModules[shaderModuleName] = fromString ? wgpCreateShaderFromString(stringPath) : wgpCreateShaderFromFile(stringPath);
 }
 
-const WGPUShaderModule& WgpContext::getShaderModule(std::string shaderModuleName) const {
+const WGPUShaderModule& WgpContext::getShaderModule(const std::string& shaderModuleName) const {
 	return shaderModules.at(shaderModuleName);
 }
 
-const WGPUPipelineLayout& WgpContext::getPipelineLayout(std::string pipelineLayoutName) const {
+const WGPUPipelineLayout& WgpContext::getPipelineLayout(const std::string& pipelineLayoutName) const {
 	return pipelineLayouts.at(pipelineLayoutName);
 }
 
@@ -955,9 +980,9 @@ bool WgpContext::isBlendAble(WGPUTextureFormat textureFormat) {
 	return textureFormat != WGPUTextureFormat_R32Uint && textureFormat != WGPUTextureFormat_R32Sint;
 }
 
-void WgpContext::createComputePipeline(std::string shaderModuleName, 
-                                       std::string entrypoint,
-                                       std::string pipelineLayoutName, 
+void WgpContext::createComputePipeline(const std::string& shaderModuleName, 
+                                       const std::string& entrypoint,
+                                       const std::string& pipelineLayoutName, 
                                        const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts) {
 	if (onBindGroupLayouts) {							
 		std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();
@@ -977,8 +1002,8 @@ void WgpContext::createComputePipeline(std::string shaderModuleName,
 	wgpContext.computePipelines[pipelineLayoutName] = wgpuDeviceCreateComputePipeline(wgpContext.device, &computePipelineDesc);
 }
 
-void WgpContext::createRenderPipeline(std::string shaderModuleName, 
-                                      std::string pipelineLayoutName, 
+void WgpContext::createRenderPipeline(const std::string& shaderModuleName, 
+                                      const std::string& pipelineLayoutName, 
                                       const VertexLayoutSlot vertexLayoutSlot, 
                                       const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts, 
                                       uint32_t msaaSampleCount, 

@@ -30,7 +30,7 @@ clang++^
  states/ComputeParticleLogo.cpp^
  states/PrimitivePicking.cpp^
  states/StencilMask.cpp^
- states/DefferedRendering.cpp^
+ states/DeferredRendering.cpp^
  states/VolumeRendering.cpp^
  states/OcclusionQuery.cpp^
  states/VideoDecode.cpp^

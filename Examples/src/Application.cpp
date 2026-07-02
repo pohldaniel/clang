@@ -13,7 +13,7 @@
 #include <States/ComputeParticleLogo.h>
 #include <States/PrimitivePicking.h>
 #include <States/StencilMask.h>
-#include <States/DefferedRendering.h>
+#include <States/DeferredRendering.h>
 #include <States/VolumeRendering.h>
 #include <States/OcclusionQuery.h>
 #include <States/VideoDecode.h>
@@ -111,18 +111,18 @@ void Application::initImGUI() {
 
 void Application::initStates(){
   Machine = new StateMachine(dt, fdt);
-	Machine->addStateAtTop(new Wireframe(*Machine));
+	//Machine->addStateAtTop(new Wireframe(*Machine));
   //Machine->addStateAtTop(new ImageBasedLighting(*Machine));
   //Machine->addStateAtTop(new ShadowMapping(*Machine));
   //Machine->addStateAtTop(new SkinnedMesh(*Machine));
   //Machine->addStateAtTop(new ComputeParticleLogo(*Machine));
   //Machine->addStateAtTop(new PrimitivePicking(*Machine));
   //Machine->addStateAtTop(new StencilMask(*Machine));
-  //Machine->addStateAtTop(new DefferedRendering(*Machine));
+  //Machine->addStateAtTop(new DeferredRendering(*Machine));
   //Machine->addStateAtTop(new VolumeRendering(*Machine));
   //Machine->addStateAtTop(new OcclusionQuery(*Machine));
   //Machine->addStateAtTop(new VideoDecode(*Machine));
-  //Machine->addStateAtTop(new RenderBundles(*Machine));
+  Machine->addStateAtTop(new RenderBundles(*Machine));
 }
 
 bool Application::isRunning(){

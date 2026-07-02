@@ -75,19 +75,19 @@ void WgpModel::setBindGroupsSlot(const std::string& bindGroupsSlot) {
 	}
 }
 
-void WgpModel::setBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups) {
+void WgpModel::setBindGroups(const std::string& bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups) {
 	for (WgpMesh& mesh : m_meshes) {
 		mesh.setBindGroups(bindGroupsName, onBindGroups);
 	}
 }
 
-void WgpModel::addBindGroups(std::string bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups) {
+void WgpModel::addBindGroups(const std::string& bindGroupsName, const std::function <std::vector<WGPUBindGroup>()>& onBindGroups) {
 	for (WgpMesh& mesh : m_meshes) {
 		mesh.addBindGroups(bindGroupsName, onBindGroups);
 	}
 }
 
-void WgpModel::addBindGroup(std::string bindGroupsName, WGPUBindGroup bindGroup) const {
+void WgpModel::addBindGroup(const std::string& bindGroupsName, WGPUBindGroup bindGroup) const {
 	for (WgpMesh& mesh : m_meshes) {
 		mesh.addBindGroup(bindGroupsName, bindGroup);
 	}

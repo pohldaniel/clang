@@ -123,16 +123,16 @@ void WgpMesh::setBindGroupsSlot(const std::string& bindGroupsSlot) {
 	m_bindGroupsSlot = bindGroupsSlot;
 }
 
-void WgpMesh::setBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
+void WgpMesh::setBindGroups(const std::string& bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
 	m_bindGroups[bindGroupsName] = onBindGroups();
 	m_bindGroupsSlot = bindGroupsName;
 }
 
-void WgpMesh::addBindGroups(std::string bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
+void WgpMesh::addBindGroups(const std::string& bindGroupsName, const std::function<std::vector<WGPUBindGroup>()>& onBindGroups) {
 	m_bindGroups[bindGroupsName] = onBindGroups();
 }
 
-void WgpMesh::addBindGroup(std::string bindGroupsName, WGPUBindGroup bindGroup) const {
+void WgpMesh::addBindGroup(const std::string& bindGroupsName, WGPUBindGroup bindGroup) const {
 	m_bindGroups[bindGroupsName].push_back(bindGroup);
 }
 
@@ -200,7 +200,7 @@ void WgpMesh::addColor(std::array<float, 4> color) {
 	}
 }
 
-std::vector<WGPUBindGroup>& WgpMesh::getBindGroups(std::string bindGroupsName) const {
+std::vector<WGPUBindGroup>& WgpMesh::getBindGroups(const std::string& bindGroupsName) const {
 	return m_bindGroups.at(bindGroupsName);
 }
 
