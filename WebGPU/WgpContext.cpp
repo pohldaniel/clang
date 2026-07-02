@@ -678,7 +678,7 @@ void wgpCleanState() {
 	}
 
 	wgpContext.clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
-	wgpContext.colorFormat = WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm;
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 }
 
 void wgpShutDown() {
