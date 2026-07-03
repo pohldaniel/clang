@@ -707,6 +707,14 @@ void wgpCleanState() {
 }
 
 void wgpShutDown() {
+	wgpContext.clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
+	wgpContext.colorFormat = WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm;
+	wgpContext.depthFormat = WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8;
+	wgpContext.msaaSampleCount = 1u;
+
+	wgpVertexAttributes.clear();
+    wgpVertexBufferLayouts.clear();
+
 	wgpPipelineLayoutsRelease();
 	wgpPipelinesRelease();
 	wgpSamplersRelease();
@@ -888,10 +896,10 @@ void wgpDraw() {
 			break;
 	}
 
-	WGPUTextureView texureView = wgpuTextureCreateView(surfaceTexture.texture, NULL);
+	WGPUTextureView textureView = wgpuTextureCreateView(surfaceTexture.texture, NULL);
 	WGPURenderPassColorAttachment renderPassColorAttachment = {};
-	renderPassColorAttachment.view = (wgpContext.msaaSampleCount == 1u) ? texureView  : wgpContext.msaaTextureView;
-	renderPassColorAttachment.resolveTarget = (wgpContext.msaaSampleCount == 1u) ? NULL : texureView;
+	renderPassColorAttachment.view = (wgpContext.msaaSampleCount == 1u) ? textureView  : wgpContext.msaaTextureView;
+	renderPassColorAttachment.resolveTarget = (wgpContext.msaaSampleCount == 1u) ? NULL : textureView;
 	renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Clear;
 	renderPassColorAttachment.storeOp = WGPUStoreOp::WGPUStoreOp_Store;
 	renderPassColorAttachment.clearValue = wgpContext.clearColor;
@@ -920,7 +928,7 @@ void wgpDraw() {
 
 	wgpContext.OnDraw(wgpContext.commandEncoder, renderPassDescriptor);
 
-	wgpuTextureViewRelease(texureView);
+	wgpuTextureViewRelease(textureView);
 
 	WGPUCommandBufferDescriptor commandBufferDescriptor = {};
 	commandBufferDescriptor.label = WGPU_STR("command_buffer");
