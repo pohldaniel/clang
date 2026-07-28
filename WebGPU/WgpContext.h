@@ -3,6 +3,7 @@
 #include <functional>
 #include <fstream>
 #include <utility>
+#include <unordered_map>
 #include <webgpu/webgpu.h>
 #ifdef __EMSCRIPTEN__
 #  include <emscripten.h>

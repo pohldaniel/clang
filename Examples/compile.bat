@@ -13,6 +13,7 @@ clang++^
  src/BinaryIO.cpp^
  src/Fade.cpp^
  src/Mouse.cpp^
+ src/Keyboard.cpp^
  src/Material.cpp^
  src/Transform.cpp^
  src/Mesh.cpp^
@@ -36,6 +37,8 @@ clang++^
  states/OcclusionQuery.cpp^
  states/VideoDecode.cpp^
  states/RenderBundles.cpp^
+ states/NuklearGui.cpp^
+ states/Isometric.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^
@@ -54,6 +57,7 @@ clang++^
  ../WebGPU/WgpBatchRenderer.cpp^
  ../WebGPU/WgpFontRenderer.cpp^
  ../WebGPU/WgpRenderer.cpp^
+ ../Nuklear/NkContext.cpp^
  -D_MD -D_DLL -O3 -flto -fuse-ld=lld -std=c++17 -D_CRT_SECURE_NO_WARNINGS^
  -Wno-return-type-c-linkage^
  -DNWASM -DNDEBUG -DFREEIMAGE_LIB -DWEBGPU_DAWN^

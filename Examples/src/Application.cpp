@@ -18,8 +18,11 @@
 #include <States/OcclusionQuery.h>
 #include <States/VideoDecode.h>
 #include <States/RenderBundles.h>
+#include <States/NuklearGui.h>
+#include <States/Isometric.h>
 
 #include "Mouse.h"
+#include "Keyboard.h"
 #include "Application.h"
 
 GLFWwindow* Application::Window = nullptr;
@@ -67,6 +70,7 @@ Application::Application(float& dt, float& fdt) : fdt(fdt), dt(dt), last(0.0), a
   glfwSetCursorPosCallback(Window, glfwMouseMoveCallback);
   glfwSetMouseButtonCallback(Window, glfwMouseButtonCallback);
   glfwSetScrollCallback(Window, glfwWindowScroll);
+  glfwSetInputMode(Window, GLFW_STICKY_KEYS, GLFW_FALSE);
 
   Application::Init = true;
   last = glfwGetTime();
@@ -122,7 +126,9 @@ void Application::initStates(){
   //Machine->addStateAtTop(new VolumeRendering(*Machine));
   //Machine->addStateAtTop(new OcclusionQuery(*Machine));
   //Machine->addStateAtTop(new VideoDecode(*Machine));
-  Machine->addStateAtTop(new RenderBundles(*Machine));
+  //Machine->addStateAtTop(new RenderBundles(*Machine));
+  //Machine->addStateAtTop(new NuklearGui(*Machine));
+  Machine->addStateAtTop(new Isometric(*Machine));
 }
 
 bool Application::isRunning(){
@@ -137,6 +143,7 @@ void Application::fixedUpdate(){
 void Application::update(){
     glfwPollEvents();
     Mouse::instance().update();
+    Keyboard::instance().update();
     Machine->update();
     Machine->render();
 }
