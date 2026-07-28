@@ -35,14 +35,17 @@ public:
 	void setTransformSilent(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 	void setTransform(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& scale);
 	const bool isRootBone() const;
-
+	void setHasParent(bool hasParent);
 	void rotate(const float pitch, const float yaw, const float roll);
+
+	const glm::mat4& getWorldTransformation() const;
+	const glm::mat4& getTransformationSOP() const;
 
 protected:
 
 	void OnTransformChanged();
-	const glm::mat4& getWorldTransformation() const;
-	const glm::mat4& getTransformationSOP() const;
+	const std::string& getName() const;
+	const glm::vec3& getScale() const;
 
 private:
 	
@@ -51,10 +54,13 @@ private:
 	void eraseAllChildren(size_t offset = 0u);
 	Bone* findChild(const std::string& name, bool recursive) const;
 
-	std::list<std::unique_ptr<Bone>> m_children;
 	Bone* m_parent;
+	std::list<std::unique_ptr<Bone>> m_children;
+
 	size_t m_numChildBones;
 	bool m_isRootBone;
+	bool m_hasParent;
+
 	mutable bool m_isDirty;
 	bool m_animationEnabled;
 	

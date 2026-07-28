@@ -74,7 +74,7 @@ private:
     Shape m_cube;
     Fade m_fade;
 
-    SelectedAnimation m_animation = SelectedAnimation::ATTACK;
+    SelectedAnimation m_animation = SelectedAnimation::PROCEDURAL;
     SelectedModel m_model = SelectedModel::WHALE;
 	SelectedMode m_mode = SelectedMode::NORMAL;
 

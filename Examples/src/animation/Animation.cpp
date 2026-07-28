@@ -8,8 +8,6 @@
 #include "Animation.h"
 
 void AnimationTrack::findKeyFrameIndex(float time, size_t& index) const {
-	//std::cout << "INDEX1: " << index << "  " << time << std::endl;
-	
 	if (time < 0.0f)
 		time = 0.0f;
 
@@ -21,8 +19,6 @@ void AnimationTrack::findKeyFrameIndex(float time, size_t& index) const {
 
 	while (index < m_keyFrames.size() - 1 && time >= m_keyFrames[index + 1].m_time)
 		++index;
-
-	//std::cout << "INDEX2: " << index << "  " << time << std::endl;
 } 
 
 Animation::Animation() : m_length(0.0f) {
@@ -38,12 +34,12 @@ void Animation::loadAnimation(const std::string& filename) {
 	mdlcIO.anicToBuffer(filename.c_str(), m_animationName, m_length, m_tracks);
 }
 
-void Animation::loadAnimationAssimp(const std::string& filename, const std::string& sourceName, const std::string& destName) {
-	Assimp::Importer Importer;
-	const aiScene* aiScene = Importer.ReadFile(filename, NULL);
+void Animation::loadAnimationAssimp(const std::string& filename, const std::string& sourceName, const std::string& destName, unsigned int startTick, unsigned int endTick) {
+	Assimp::Importer importer;
+	const aiScene* aiScene = importer.ReadFile(filename, NULL);
 
 	if (!aiScene) {
-		std::cout << filename << "  " << Importer.GetErrorString() << std::endl;
+		std::cout << filename << "  " << importer.GetErrorString() << std::endl;
 		return;
 	}
 
@@ -55,7 +51,7 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 		}
 
 		m_animationName = destName;
-		m_length = aiAnimation->mDuration / 1000.0f;
+		m_length = (startTick != 0u || endTick != 0u) ? (endTick- startTick) / aiAnimation->mTicksPerSecond : aiAnimation->mDuration / aiAnimation->mTicksPerSecond;
 		m_tracks.clear();
 
 		for (unsigned int c = 0; c < aiAnimation->mNumChannels; c++) {
@@ -63,17 +59,30 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 
 			newTrack->m_channelMask = CHANNEL_POSITION + CHANNEL_ROTATION + CHANNEL_SCALE;
 			size_t numKeyFrames = std::max(aiAnimation->mChannels[c]->mNumPositionKeys, std::max(aiAnimation->mChannels[c]->mNumRotationKeys, aiAnimation->mChannels[c]->mNumScalingKeys));		
-			newTrack->m_keyFrames.resize(numKeyFrames);
 
 			glm::vec3 prevPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 			glm::vec3 prevScale = glm::vec3(1.0f, 1.0f, 1.0f);
 			glm::quat prevRot = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+			float timeOffset = 0.0f;
 
 			for (size_t j = 0; j < numKeyFrames; ++j) {
-				AnimationKeyFrame& newKeyFrame = newTrack->m_keyFrames[j];
-				newKeyFrame.m_time = numKeyFrames == aiAnimation->mChannels[c]->mNumPositionKeys ? aiAnimation->mChannels[c]->mPositionKeys[j].mTime / 1000.0f : 
-					                 numKeyFrames == aiAnimation->mChannels[c]->mNumRotationKeys ? aiAnimation->mChannels[c]->mRotationKeys[j].mTime / 1000.0f :
-					                 aiAnimation->mChannels[c]->mScalingKeys[j].mTime / 1000.0f;
+				float time = numKeyFrames == aiAnimation->mChannels[c]->mNumPositionKeys ? aiAnimation->mChannels[c]->mPositionKeys[j].mTime :
+				numKeyFrames == aiAnimation->mChannels[c]->mNumRotationKeys ? aiAnimation->mChannels[c]->mRotationKeys[j].mTime :
+				aiAnimation->mChannels[c]->mScalingKeys[j].mTime;
+
+				if (j == 0) 					
+					timeOffset = time;
+
+				time -= timeOffset;
+							
+				if ((startTick != 0u || endTick != 0u) && (time <= startTick || endTick <= time))
+					continue;
+
+				newTrack->m_keyFrames.emplace_back();
+				AnimationKeyFrame& newKeyFrame = newTrack->m_keyFrames.back();
+				newKeyFrame.m_time = time - startTick;
+
+				newKeyFrame.m_time /= aiAnimation->mTicksPerSecond;
 
 				if (j < aiAnimation->mChannels[c]->mNumPositionKeys) {
 					newKeyFrame.m_position = glm::vec3(aiAnimation->mChannels[c]->mPositionKeys[j].mValue.x, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.y, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.z);
@@ -94,7 +103,6 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 				}else
 					newKeyFrame.m_rotation = prevRot;
 			}
-
 		}
 	}
 }
@@ -128,6 +136,18 @@ const std::map<std::string, AnimationTrack>& Animation::getTracks() const {
 
 size_t Animation::getNumTracks() const {
 	return m_tracks.size();
+}
+
+std::string& Animation::animationName() const {
+	return m_animationName;
+}
+
+float& Animation::length() const {
+	return m_length;
+}
+
+std::map<std::string, AnimationTrack>& Animation::tracks() const {
+	return m_tracks;
 }
 
 void Animation::setPositionOfTrack(const std::string& name, const float x, const float y, const float z) {

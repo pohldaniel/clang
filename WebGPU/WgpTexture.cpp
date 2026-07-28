@@ -612,7 +612,7 @@ unsigned char* WgpTexture::LoadFromMemory(unsigned char* data, uint32_t size, ui
     return pixels;
 }
 
-void WgpTexture::Safe(const std::string& fileOut, const nsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels) {
+void WgpTexture::Safe(const std::string& fileOut, const unsigned char* bytes, uint32_t width, uint32_t height, uint32_t channels) {
     FreeImage_Initialise();    
     FIBITMAP* sourceBitmap = FreeImage_Allocate(width, height, channels * 8u, 0u, 0u, 0u);
     memcpy(FreeImage_GetBits(sourceBitmap), bytes, width * height * channels);

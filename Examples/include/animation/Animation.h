@@ -23,8 +23,8 @@ struct AnimationKeyFrame {
 };
 
 struct AnimationTrack {
-
 	void findKeyFrameIndex(float time, size_t& index) const;
+	
 	std::string m_name;
 	unsigned char m_channelMask;
 	std::vector<AnimationKeyFrame> m_keyFrames;
@@ -33,14 +33,14 @@ struct AnimationTrack {
 class Animation {
 
 	friend class AnimatedModel;
-
+	friend class AnimationController;
 
 public:
 
 	Animation();
 	~Animation();
 
-	void loadAnimationAssimp(const std::string& filename, const std::string& sourceName, const std::string& destName);
+	void loadAnimationAssimp(const std::string& filename, const std::string& sourceName, const std::string& destName, unsigned int startTick = 0u, unsigned int endTick = 0u);
 	void loadAnimation(const std::string& filename);
 
 	AnimationTrack* createTrack(const std::string& name);
@@ -49,7 +49,6 @@ public:
 	const std::string& getAnimationName() const;
 	float getLength() const;
 	const std::map<std::string, AnimationTrack>& getTracks() const;
-	const std::vector<AnimationTrack> getAnimationTracks() const;
 	size_t getNumTracks() const;
 
 	std::string& animationName() const;
