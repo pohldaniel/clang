@@ -127,8 +127,8 @@ void Application::initStates(){
   //Machine->addStateAtTop(new OcclusionQuery(*Machine));
   //Machine->addStateAtTop(new VideoDecode(*Machine));
   //Machine->addStateAtTop(new RenderBundles(*Machine));
-  //Machine->addStateAtTop(new NuklearGui(*Machine));
-  Machine->addStateAtTop(new Isometric(*Machine));
+  Machine->addStateAtTop(new NuklearGui(*Machine));
+  //Machine->addStateAtTop(new Isometric(*Machine));
 }
 
 bool Application::isRunning(){
@@ -248,6 +248,10 @@ void glfwMouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
 }
 
 void glfwWindowScroll(GLFWwindow* window, double xoffset, double yoffset) {
+  Event event;
+  event.type = Event::MOUSEWHEEL;
+  event.data.mouseWheel.delta = yoffset;
+  event.data.mouseWheel.direction = event.data.mouseWheel.delta > 0 ? Event::MouseWheelEvent::WheelDirection::UP : Event::MouseWheelEvent::WheelDirection::DOWN;
 	Application::Machine->getStates().top()->OnScroll(xoffset, yoffset);
 }
 

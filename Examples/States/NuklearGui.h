@@ -14,12 +14,7 @@
 #include "Transform.h"
 
 class NuklearGui : public State {
-	struct JoystickResult {
-		float x = 0.0f;
-		float y = 0.0f;
-		bool is_active = false;
-	};
-
+	
 public:
 
 	NuklearGui(StateMachine& machine);
@@ -45,17 +40,18 @@ private:
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
+	bool m_isHovered = false;
+	float m_uiScale = 1.0f;
 	float m_scrollDelta = 0.0f;
+	bool m_wasHovered = false;
 
 	Camera m_camera;
 	Uniforms m_uniforms;
 	TrackBall m_trackball;
 
-	JoystickResult nk_virtual_joystick(struct nk_context* ctx, float size_px);
-	bool nk_circular_action_button(struct nk_context* ctx, const char* label, float size_px);
-
 	struct nk_image playIcon;
 	struct nk_vec2 current_pos;
 
-	WgpBuffer m_uniformBuffer;
+	const float BASE_ROW_DYN = 30.0f;
+	const float BASE_ROW_STAT = 32.0f;
 };
