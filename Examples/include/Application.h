@@ -31,6 +31,7 @@ public:
 	
 	static int Width;
 	static int Height;
+	static float ScrollDelta;
 	static GLFWwindow* Window;
     
 private:

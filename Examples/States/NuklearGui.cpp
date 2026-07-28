@@ -17,7 +17,7 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
-	nkInit();
+	nkInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	nkInitFont("res/fonts/upheavtt.ttf");
 	nkInitIcon("res/textures/ui-icons-buttons-set-blue.png");
 	playIcon = nk_subimage_ptr(nkContext.bindgroupIcon, 960, 560, nk_rect(30.0f, 25.0f, 120.0f, 122.0f));
@@ -99,8 +99,7 @@ void NuklearGui::update() {
 	}
 	m_trackball.idle();
 
-	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT), m_scrollDelta);
-	m_scrollDelta = 0.0f;
+	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT), Application::ScrollDelta);
 }
 
 void NuklearGui::render() {
@@ -210,8 +209,6 @@ void NuklearGui::OnScroll(double xoffset, double yoffset) {
 		m_uiScale = m_uiScale - 0.05f;
 		m_uiScale = glm::clamp(m_uiScale, 0.0f, 3.0f);
 	}
-
-	m_scrollDelta = yoffset;
 }
 
 void NuklearGui::OnKeyDown(const Event::KeyboardEvent& event) {
