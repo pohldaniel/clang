@@ -12,6 +12,7 @@
 	#define NK_IMPLEMENTATION
 #endif
 
+#include <functional>
 #include <nuklear/nuklear.h>
 #include <webgpu/webgpu.h>
 
@@ -52,8 +53,8 @@
                                 return in.color * textureSample(t, s, in.uv);                           \n \
                             }"
 
-#define MAX_VERTEX_MEMORY (1024u * 1024u)
-#define MAX_INDEX_MEMORY (256u * 1024u)
+#define MAX_VERTEX_MEMORY (100u * 1024u * 1024u)
+#define MAX_INDEX_MEMORY (100u * 256u * 1024u)
 #define BASE_FONT_SIZE 16.0f
 
 struct NkContext;

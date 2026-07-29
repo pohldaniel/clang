@@ -8,6 +8,9 @@
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
 
+#include <Nuklear/NkContext.h>
+#include <Nuklear/NkStyle.h>
+
 #include "Isometric.h"
 #include "Mouse.h"
 #include "Keyboard.h"
@@ -32,6 +35,9 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	Mouse::instance().attach(Application::Window, false, true);
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
+
+	nkInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
+	nkInitFont("res/fonts/upheavtt.ttf");
 
 	m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
@@ -99,11 +105,13 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
 	wgpContext.OnDraw = std::bind(&Isometric::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+	nkContext.OnFillBuffer = std::bind(&Isometric::OnFillBuffer, this, std::placeholders::_1);
 
 	m_animationController.play("forward", true, 0.2f);
 }
 
 Isometric::~Isometric() {
+	nkShutDown();
 	m_uniformBuffer.markForDelete();
 	m_skinBuffer.markForDelete();
 }
@@ -170,27 +178,48 @@ void Isometric::update() {
 	}
 	m_trackball.idle();
 
-	if (keyboard.keyDown(GLFW_KEY_UP)) {
+	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT), mouse.buttonDown(GLFW_MOUSE_BUTTON_RIGHT), Application::ScrollDelta);
+
+	float moveX = 0.0f;
+	float moveY = 0.0f;
+
+	float magnitude = m_joystickResult.x * m_joystickResult.x + m_joystickResult.y * m_joystickResult.y;
+	float deadzone = 0.25f;
+
+	if (magnitude > deadzone * deadzone) {
+		if (fabsf(m_joystickResult.x) > fabsf(m_joystickResult.y)) {
+			moveX = (m_joystickResult.x > 0.0f) ? 1.0f : -1.0f;
+			moveY = 0.0f;
+		}else {
+			moveX = 0.0f;
+			moveY = (m_joystickResult.y > 0.0f) ? 1.0f : -1.0f; // Falls Y-Achse oben positiv ist
+		}
+	}else {
+		moveX = 0.0f;
+		moveY = 0.0f;
+	}
+
+	if (keyboard.keyDown(GLFW_KEY_UP) || moveY > 0.0f) {
 		m_animationController.fadeAndPlay("backward", 0.25f);
 		playerMove |= true;
 	}
 
-	if (keyboard.keyDown(GLFW_KEY_DOWN)) {
+	if (keyboard.keyDown(GLFW_KEY_DOWN) || moveY < 0.0f) {
 		m_animationController.fadeAndPlay("forward", 0.25f);
 		playerMove |= true;
 	}
 
-	if (keyboard.keyDown(GLFW_KEY_LEFT)) {
+	if (keyboard.keyDown(GLFW_KEY_LEFT) || moveX < 0.0f) {
 		m_animationController.fadeAndPlay("left", 0.25f);
 		playerMove |= true;
 	}
 
-	if (keyboard.keyDown(GLFW_KEY_RIGHT)) {
+	if (keyboard.keyDown(GLFW_KEY_RIGHT) || moveX > 0.0f) {
 		m_animationController.fadeAndPlay("right", 0.25f);
 		playerMove |= true;
 	}
 
-	if(keyboard.keyPressed(GLFW_KEY_T)) {
+	if(keyboard.keyPressed(GLFW_KEY_T) || m_isPressed) {
 		m_isDeath = true;
 	}
 
@@ -202,6 +231,10 @@ void Isometric::update() {
 		m_animationController.play("death", false, 2.0f);
 	}
 
+	m_animationController.update(m_dt);
+	m_player.update(m_dt);
+	m_player.updateSkinning();
+
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
 	m_uniforms.env = m_camera.getRotationMatrix();
@@ -211,10 +244,6 @@ void Isometric::update() {
 	m_uniforms.lightVP = glm::mat4(1.0f);
 	m_uniforms.shadow = Camera::BIAS * m_uniforms.lightVP;
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
-
-	m_animationController.update(m_dt);
-	m_player.update(m_dt);
-	m_player.updateSkinning();
 
 	const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_player.getMesh());
 	mesh->skinMatrices()[42] = mesh->getBone(43u).getWorldTransformation() * offset * pivot * mesh->skinMatrices()[42];
@@ -234,12 +263,26 @@ void Isometric::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
 		m_wgpPlayer.draw(renderPassEncoder);
 
-		if (m_drawUi)
-			renderUi(renderPassEncoder);
-
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}
+
+	{
+		WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
+		renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Load;
+
+		WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
+		rndrPssDscrptor.colorAttachments = &renderPassColorAttachment;
+
+		nkDraw(commandEncoder, rndrPssDscrptor);
+	}
+}
+
+void Isometric::OnFillBuffer(nk_context& nkCntxt) {
+	set_transparent_window_style();
+	virtual_joystick(nk_rect(20.0f, static_cast<float>(Application::Height) - 200.0f, 180.0f, 180.0f), m_joystickResult);
+	action_button(nk_rect(static_cast<float>(Application::Width) - 180.0f, static_cast<float>(Application::Height) - 180.0f, 140.0f, 140.0f), m_isPressed);
+	reset_transparent_window_style();
 }
 
 void Isometric::OnMouseMotion(const Event::MouseMoveEvent& event) {
@@ -249,7 +292,7 @@ void Isometric::OnMouseMotion(const Event::MouseMoveEvent& event) {
 void Isometric::OnMouseButtonDown(const Event::MouseButtonEvent& event) {	
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
-		Mouse::instance().detach();	
+		Mouse::instance().attach(Application::Window, false, true);
 	}
 
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT)

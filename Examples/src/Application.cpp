@@ -128,8 +128,8 @@ void Application::initStates(){
   //Machine->addStateAtTop(new OcclusionQuery(*Machine));
   //Machine->addStateAtTop(new VideoDecode(*Machine));
   //Machine->addStateAtTop(new RenderBundles(*Machine));
-  Machine->addStateAtTop(new NuklearGui(*Machine));
-  //Machine->addStateAtTop(new Isometric(*Machine));
+  //Machine->addStateAtTop(new NuklearGui(*Machine));
+  Machine->addStateAtTop(new Isometric(*Machine));
 }
 
 bool Application::isRunning(){

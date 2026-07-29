@@ -214,12 +214,12 @@ void nkUpdateInput(int x, int y, bool left, bool right, float scrollDelta) {
 	nk_input_button(&nkContext.context, NK_BUTTON_RIGHT, x, y, right);
 	nk_input_scroll(&nkContext.context, nk_vec2(0.0f, scrollDelta));
 	nk_input_end(&nkContext.context);
+
+	if (nkContext.OnFillBuffer)
+		nkContext.OnFillBuffer(nkContext.context);
 }
 
 void nkDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
-	if (nkContext.OnFillBuffer)
-		nkContext.OnFillBuffer(nkContext.context);
-
 	nk_buffer_clear(&nkContext.vertexBuffer);
 	nk_buffer_clear(&nkContext.indexBuffer);
 
@@ -263,7 +263,6 @@ void nkDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescri
 		wgpuRenderPassEncoderDrawIndexed(renderPassEncoder, nkContext.drawCommand->elem_count, 1, index_offset, 0, 0);
 		index_offset += nkContext.drawCommand->elem_count;
 	}
-
 	wgpuRenderPassEncoderEnd(renderPassEncoder);
 	wgpuRenderPassEncoderRelease(renderPassEncoder);
 	nk_clear(&nkContext.context);

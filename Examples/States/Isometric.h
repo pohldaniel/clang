@@ -5,11 +5,12 @@
 #include <WebGPU/WgpModel.h>
 #include <WebGPU/WgpData.h>
 
-#include <States/StateMachine.h>
 #include <animation/AnimationController.h>
 #include <animation/AnimatedModel.h>
 #include <animation/Animation.h>
-#include <Shape/Shape.h>
+
+#include <States/StateMachine.h>
+#include <Nuklear/NkJoystick.h>
 
 #include "Camera.h"
 #include "TrackBall.h"
@@ -26,7 +27,7 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
-
+	void OnFillBuffer(nk_context& nkCntxt);
 
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
 	void OnScroll(double xoffset, double yoffset) override;
@@ -40,7 +41,6 @@ private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
 	std::vector<WGPUBindGroup> OnBindGroups();
-
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 
 	bool m_initUi = true;
@@ -50,9 +50,12 @@ private:
 	Camera m_camera;
 	Uniforms m_uniforms;
 	TrackBall m_trackball;
+	JoystickResult m_joystickResult;
+	bool m_isPressed;
+
 	AnimatedModel m_player;
 	AnimationController m_animationController;
 
-	WgpBuffer m_uniformBuffer, m_skinBuffer, m_modeBuffer;
+	WgpBuffer m_uniformBuffer, m_skinBuffer;
 	WgpModel m_wgpPlayer;
 };
