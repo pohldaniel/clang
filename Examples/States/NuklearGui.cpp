@@ -99,7 +99,7 @@ void NuklearGui::update() {
 	}
 	m_trackball.idle();
 
-	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT), Application::ScrollDelta);
+	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT), mouse.buttonDown(GLFW_MOUSE_BUTTON_RIGHT), Application::ScrollDelta);
 }
 
 void NuklearGui::render() {
@@ -182,7 +182,7 @@ void NuklearGui::OnMouseMotion(const Event::MouseMoveEvent& event) {
 void NuklearGui::OnMouseButtonDown(const Event::MouseButtonEvent& event) {	
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT && !m_isHovered) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
-		Mouse::instance().detach();	
+		Mouse::instance().attach(Application::Window, false, true);
 	}
 
 	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT && !m_isHovered)

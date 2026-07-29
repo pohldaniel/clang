@@ -65,7 +65,7 @@ extern "C" {
 	void nkInitIcon(const char* path);	
 	void nkResize(float width, float height);
 	void nkShutDown();
-	void nkUpdateInput(int x, int y, bool button, float scrollDelta);
+	void nkUpdateInput(int x, int y, bool left, bool right, float scrollDelta);
 	void nkDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
 	
 	void nkCreateBindGroup(const WgpTexture& texture, WGPUBindGroup& bindgroup);
