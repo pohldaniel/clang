@@ -60,9 +60,9 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 			newTrack->m_channelMask = CHANNEL_POSITION + CHANNEL_ROTATION + CHANNEL_SCALE;
 			size_t numKeyFrames = std::max(aiAnimation->mChannels[c]->mNumPositionKeys, std::max(aiAnimation->mChannels[c]->mNumRotationKeys, aiAnimation->mChannels[c]->mNumScalingKeys));		
 
-			glm::vec3 prevPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-			glm::vec3 prevScale = glm::vec3(1.0f, 1.0f, 1.0f);
-			glm::quat prevRot = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+			glm::vec3 prevPosition;
+			glm::vec3 prevScale;
+			glm::quat prevRot;
 			float timeOffset = 0.0f;
 
 			for (size_t j = 0; j < numKeyFrames; ++j) {
@@ -74,7 +74,16 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 					timeOffset = time;
 
 				time -= timeOffset;
-							
+
+				if (j < aiAnimation->mChannels[c]->mNumPositionKeys)
+					prevPosition = glm::vec3(aiAnimation->mChannels[c]->mPositionKeys[j].mValue.x, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.y, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.z);			
+
+				if (j < aiAnimation->mChannels[c]->mNumScalingKeys)
+					prevScale = glm::vec3(aiAnimation->mChannels[c]->mScalingKeys[j].mValue.x, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.y, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.z);
+
+				if (j < aiAnimation->mChannels[c]->mNumRotationKeys)
+					prevRot =  glm::quat(aiAnimation->mChannels[c]->mRotationKeys[j].mValue.w, aiAnimation->mChannels[c]->mRotationKeys[j].mValue.x, aiAnimation->mChannels[c]->mRotationKeys[j].mValue.y, aiAnimation->mChannels[c]->mRotationKeys[j].mValue.z);
+
 				if ((startTick != 0u || endTick != 0u) && (time <= startTick || endTick <= time))
 					continue;
 
@@ -84,24 +93,9 @@ void Animation::loadAnimationAssimp(const std::string& filename, const std::stri
 
 				newKeyFrame.m_time /= aiAnimation->mTicksPerSecond;
 
-				if (j < aiAnimation->mChannels[c]->mNumPositionKeys) {
-					newKeyFrame.m_position = glm::vec3(aiAnimation->mChannels[c]->mPositionKeys[j].mValue.x, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.y, aiAnimation->mChannels[c]->mPositionKeys[j].mValue.z);
-					prevPosition = newKeyFrame.m_position;
-				}else
-					newKeyFrame.m_position = prevPosition;
-
-				if (j < aiAnimation->mChannels[c]->mNumScalingKeys) {
-					newKeyFrame.m_scale = glm::vec3(aiAnimation->mChannels[c]->mScalingKeys[j].mValue.x, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.y, aiAnimation->mChannels[c]->mScalingKeys[j].mValue.z);
-					prevScale = newKeyFrame.m_scale;
-				}else
-					newKeyFrame.m_scale = prevScale;
-
-				if (j < aiAnimation->mChannels[c]->mNumRotationKeys) {
-					aiQuaternion quat = aiAnimation->mChannels[c]->mRotationKeys[j].mValue;
-					newKeyFrame.m_rotation = glm::quat(quat.w, quat.x, quat.y, quat.z);
-					prevRot = newKeyFrame.m_rotation;
-				}else
-					newKeyFrame.m_rotation = prevRot;
+				newKeyFrame.m_position = prevPosition;
+				newKeyFrame.m_scale = prevScale;
+				newKeyFrame.m_rotation = prevRot;
 			}
 		}
 	}
