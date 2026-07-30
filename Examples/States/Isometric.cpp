@@ -47,15 +47,15 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 	m_trackball.reshape(Application::Width, Application::Height);
 
-	AnimationManager::Get().getAnimation("full").loadAnimationAssimp("res/models/player.fbx", "Player", "full", 0u, 245u);
-	AnimationManager::Get().getAnimation("idle").loadAnimationAssimp("res/models/player.fbx", "Player", "idle", 5u, 81u);
-	AnimationManager::Get().getAnimation("forward").loadAnimationAssimp("res/models/player.fbx", "Player", "forward", 85u, 105u);
-	AnimationManager::Get().getAnimation("backward").loadAnimationAssimp("res/models/player.fbx", "Player", "backward", 110u, 129u);
-	AnimationManager::Get().getAnimation("right").loadAnimationAssimp("res/models/player.fbx", "Player", "right", 135u, 155u);
-	AnimationManager::Get().getAnimation("left").loadAnimationAssimp("res/models/player.fbx", "Player", "left", 160u, 180u);
-	AnimationManager::Get().getAnimation("death").loadAnimationAssimp("res/models/player.fbx", "Player", "death", 185u, 244u);
+	AnimationManager::Get().getAnimation("full").loadAnimationAssimp("res/models/Player.fbx", "Player", "full", 0u, 245u);
+	AnimationManager::Get().getAnimation("idle").loadAnimationAssimp("res/models/Player.fbx", "Player", "idle", 5u, 81u);
+	AnimationManager::Get().getAnimation("forward").loadAnimationAssimp("res/models/Player.fbx", "Player", "forward", 85u, 105u);
+	AnimationManager::Get().getAnimation("backward").loadAnimationAssimp("res/models/Player.fbx", "Player", "backward", 110u, 129u);
+	AnimationManager::Get().getAnimation("right").loadAnimationAssimp("res/models/Player.fbx", "Player", "right", 135u, 155u);
+	AnimationManager::Get().getAnimation("left").loadAnimationAssimp("res/models/Player.fbx", "Player", "left", 160u, 180u);
+	AnimationManager::Get().getAnimation("death").loadAnimationAssimp("res/models/Player.fbx", "Player", "death", 185u, 244u);
 
-	m_player.loadModelAssimp("res/models/player.fbx", 1u);
+	m_player.loadModelAssimp("res/models/Player.fbx", 1u);
 
 
 	AnimatedMesh* mesh = static_cast<AnimatedMesh*>(m_player.mesh());
@@ -322,6 +322,7 @@ void Isometric::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void Isometric::resize(int deltaW, int deltaH) {
+	nkResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_trackball.reshape(Application::Width, Application::Height);
