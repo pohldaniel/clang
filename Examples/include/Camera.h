@@ -33,6 +33,10 @@ public:
     void setRotationSpeed(float rotationSpeed);
 	void setMovingSpeed(float movingSpeed);
 
+	const float getFar() const;
+	const float getNear() const;
+	const float getTanFov() const;
+
     const glm::mat4& getViewMatrix() const;
 	const glm::mat4& getInvViewMatrix() const;
 	const glm::mat4& getPerspectiveMatrix() const;
@@ -44,6 +48,7 @@ public:
 	const glm::vec3& getCamX() const;
 	const glm::vec3& getCamY() const;
 	const glm::vec3& getCamZ() const;
+	const glm::vec3& getViewDirection() const;
 	
 	static glm::mat4 GetNormalMatrix(const glm::mat4& m);
 	static glm::mat4 GetRotationMatrix(const glm::mat4& viewMatrix);

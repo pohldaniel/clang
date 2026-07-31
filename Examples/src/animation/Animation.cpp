@@ -176,3 +176,23 @@ void Animation::scaleTrack(const std::string& name, const float sx, const float 
 		}
 	}
 }
+
+void  Animation::shift(unsigned int ticks) {
+	for (std::map<std::string, AnimationTrack>::iterator it = m_tracks.begin(); it != m_tracks.end();) {
+		AnimationTrack& track = it->second;
+
+		std::vector<AnimationKeyFrame> keyFrames;
+		for (size_t frame = 0u; frame < track.m_keyFrames.size(); frame++) {			
+			size_t current = frame + ticks < track.m_keyFrames.size() ? frame + ticks :  (ticks + frame) - track.m_keyFrames.size();			
+			float time = track.m_keyFrames[frame].m_time;
+			keyFrames.emplace_back();
+			keyFrames.back().m_time = time;
+			keyFrames.back().m_position = track.m_keyFrames[current].m_position;
+			keyFrames.back().m_scale = track.m_keyFrames[current].m_scale;
+			keyFrames.back().m_rotation = track.m_keyFrames[current].m_rotation;
+
+		}
+		track.m_keyFrames.assign(keyFrames.begin(), keyFrames.end());
+		++it;
+	}
+}

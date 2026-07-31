@@ -335,6 +335,18 @@ void Camera::setMovingSpeed(float movingSpeed){
 	m_movingSpeed = movingSpeed;
 }
 
+const float Camera::getFar() const {
+	return m_persMatrix[3][2] / (m_persMatrix[2][2] + 1);
+}
+
+const float Camera::getNear() const {
+	return m_persMatrix[3][2] / (m_persMatrix[2][2] - 1);
+}
+
+const float Camera::getTanFov() const {
+	return 1.0f / m_persMatrix[1][1];
+}
+
 const glm::mat4& Camera::getPerspectiveMatrix() const{
 	return m_persMatrix;
 }
@@ -380,6 +392,10 @@ const glm::vec3& Camera::getCamY() const{
 
 const glm::vec3& Camera::getCamZ() const{
 	return m_zAxis;
+}
+
+const glm::vec3& Camera::getViewDirection() const {
+	return m_viewDir;
 }
 
 glm::mat4 Camera::GetNormalMatrix(const glm::mat4& m) {

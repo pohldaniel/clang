@@ -163,6 +163,14 @@ void Bone::setTransform(const glm::vec3& position, const glm::quat& rotation, co
 	OnTransformChanged();
 }
 
+const glm::vec3& Bone::getPosition() const {
+	return m_position;
+}
+
+const glm::quat& Bone::getOrientation() const {
+	return m_orientation;
+}
+
 void Bone::countChildBones() {
 	m_numChildBones = 0;
 	for (auto it = m_children.begin(); it != m_children.end(); ++it) {

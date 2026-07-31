@@ -340,9 +340,21 @@ void AnimatedModel::translate(const float dx, const float dy, const float dz) {
 	}
 }
 
+void AnimatedModel::translateRelative(const float dx, const float dy, const float dz) {
+	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
+		static_cast<AnimatedMesh*>(*mesh)->translateRelative(dx, dy, dz);
+	}
+}
+
 void AnimatedModel::setScale(const float sx, const float sy, const float sz) {
 	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
 		static_cast<AnimatedMesh*>(*mesh)->setScale(sx, sy, sz);
+	}
+}
+
+void AnimatedModel::setRotation(const float pitch, const float yaw, const float roll) {
+	for (std::vector<Mesh*>::iterator mesh = m_meshes.begin(); mesh != m_meshes.end(); mesh++) {
+		static_cast<AnimatedMesh*>(*mesh)->setRotation(pitch, yaw, roll);
 	}
 }
 
@@ -515,7 +527,7 @@ void AnimatedMesh::createBones() {
 		m_bones[i] = new Bone();
 		m_bones[i]->setName(boneDescription.name);
 		m_bones[i]->setPosition(boneDescription.initialPosition);
-		m_bones[i]->setOrientation({ boneDescription.initialRotation[0], boneDescription.initialRotation[1], boneDescription.initialRotation[2], boneDescription.initialRotation[3] });
+		m_bones[i]->setOrientation(boneDescription.initialRotation);
 		m_bones[i]->setScale(boneDescription.initialScale);
 		m_bones[i]->m_offsetMatrix = boneDescription.offsetMatrix;
 	}
@@ -571,7 +583,7 @@ void AnimatedMesh::rotate(const float pitch, const float yaw, const float roll) 
 	for (size_t i = 0; i < m_numBones; ++i) {
 		if (m_bones[i]->isRootBone()) {
 			m_boneDescriptions[i].initialRotation *= glm::quat(glm::vec3(glm::radians(pitch), glm::radians(yaw), glm::radians(roll)));
-			m_rootBone->OnTransformChanged();
+			m_rootBone->setOrientation(m_boneDescriptions[i].initialRotation);
 			break;
 		}
 	}
@@ -583,7 +595,7 @@ void AnimatedMesh::scale(const float sx, const float sy, const float sz) {
 			m_boneDescriptions[i].initialScale.x *= sx;
 			m_boneDescriptions[i].initialScale.y *= sy;
 			m_boneDescriptions[i].initialScale.z *= sz;
-			m_rootBone->OnTransformChanged();
+			m_rootBone->setScale(m_boneDescriptions[i].initialScale);
 			break;
 		}
 	}
@@ -595,7 +607,17 @@ void AnimatedMesh::translate(const float dx, const float dy, const float dz) {
 			m_boneDescriptions[i].initialPosition.x += dx;
 			m_boneDescriptions[i].initialPosition.y += dy;
 			m_boneDescriptions[i].initialPosition.z += dz;
-			m_rootBone->OnTransformChanged();
+			m_rootBone->setPosition(m_boneDescriptions[i].initialPosition);
+			break;
+		}
+	}
+}
+
+void AnimatedMesh::translateRelative(const float dx, const float dy, const float dz) {
+	for (size_t i = 0u; i < m_numBones; ++i) {
+		if (m_bones[i]->isRootBone()) {
+			m_boneDescriptions[i].initialPosition += m_bones[i]->getOrientation() * glm::vec3(dx, dy, dz);
+			m_rootBone->setPosition(m_boneDescriptions[i].initialPosition);
 			break;
 		}
 	}
@@ -607,7 +629,17 @@ void AnimatedMesh::setScale(const float sx, const float sy, const float sz) {
 			m_boneDescriptions[i].initialScale.x = sx;
 			m_boneDescriptions[i].initialScale.x = sy;
 			m_boneDescriptions[i].initialScale.x = sz;
-			m_rootBone->OnTransformChanged();
+			m_rootBone->setScale(m_boneDescriptions[i].initialScale);
+			break;
+		}
+	}
+}
+
+void AnimatedMesh::setRotation(const float pitch, const float yaw, const float roll) {
+	for (size_t i = 0u; i < m_numBones; ++i) {
+		if (m_bones[i]->isRootBone()) {
+			m_boneDescriptions[i].initialRotation = glm::quat(glm::vec3(glm::radians(pitch), glm::radians(yaw), glm::radians(roll)));
+			m_rootBone->setOrientation(m_boneDescriptions[i].initialRotation);
 			break;
 		}
 	}
