@@ -24,6 +24,7 @@ class Isometric : public State {
 		glm::vec3 nosePos;
 		float time;
 	};
+
 public:
 
 	Isometric(StateMachine& machine);
@@ -85,7 +86,7 @@ private:
 	float prev_leftWeight = 0.0f;
 	const float animTransitionTime = 0.2f;
 	float deathTime = -1.0f;
-	float aimTheta = glm::pi<float>() * 1.5f;
+	float aimTheta = 0.0f;
 	float lastFireTime = 0.0f;
 
 	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture);

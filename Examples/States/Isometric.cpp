@@ -63,7 +63,6 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 	m_player.loadModelAssimp("res/models/Player.fbx", 1u);
 	m_player.scale(0.0044f, 0.0044f, 0.0044f);
-	
 	m_rotationButtonResult.degrees = glm::degrees(aimTheta);
 
 	m_enemy.loadModel("res/models/EelDog/EelDog.fbx");
@@ -111,7 +110,6 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_instanceBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_wigglyBuffer.createBuffer(sizeof(glm::vec4), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_skinBuffer.createBuffer(sizeof(glm::mat4) * 96u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
-
 	m_rotationBuffer.createBuffer(sizeof(glm::vec4) * 4000u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	m_offsetBuffer.createBuffer(sizeof(glm::vec4) * 4000u, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 
@@ -217,7 +215,7 @@ void Isometric::update() {
 	}
 
 	if ((m_rotationButtonResult.buttonDown || (mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < glfwGetTime()) {
-		const glm::quat midOri = glm::quat(glm::vec3(0.0f, glm::radians(m_rotationButtonResult.degrees), 0.0f));
+		const glm::quat midOri = m_player.getOrientation();
 		const glm::mat4 playerModelTransform = m_player.getWorldTransformation();
 		const glm::vec3 projectileSpawnPoint = playerModelTransform * glm::vec4(-20.0f, 120.0f, 100.0f, 1.0f);
 
@@ -245,11 +243,11 @@ void Isometric::update() {
 	m_camera.lookAt(posistion + glm::vec3(0.0f, 4.3f, 4.0f), posistion, glm::vec3(0.0f, 1.0f, 0.0f));
 	if ((mouse.xDelta() || mouse.yDelta()) && !m_isDeath) {
 		glm::vec3 coords;	
-		if (getWorldPosition(mouse.xPos(), mouse.yPos(), glm::vec3(0.0f, 1.0f, 0.0f), coords)) {
+		if (getWorldPosition(mouse.xPos(), mouse.yPos(), glm::vec3(0.0f, 1.0f, 0.0f), coords)) {	
 			aimTheta = (!m_rotationButtonResult.isActive && !m_joystickResult.isActive) && mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT) ? getLookAtYRotation(posistion, coords) : m_rotationButtonResult.degrees;
 			m_rotationButtonResult.degrees = aimTheta;
 			if(m_rotationButtonResult.degrees)
-				m_player.setRotation(0.0f, m_rotationButtonResult.degrees + 90.0f, 0.0f);
+				m_player.setOrientation(0.0f, m_rotationButtonResult.degrees, 0.0f);
 		}
 	}
 
