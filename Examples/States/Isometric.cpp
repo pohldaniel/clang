@@ -303,7 +303,7 @@ void Isometric::update() {
 		movementTheta += glm::pi<float>() * 2.0f;
 
 	const float thetaDelta = movementTheta - glm::radians(aimTheta);
-	const glm::vec2 movementAnim = !playerMove ? glm::vec2(0.0f, 0.0f) : glm::vec2(sinf(thetaDelta), cosf(thetaDelta));
+	const glm::vec2 movementAnim = !playerMove ? glm::vec2(0.0f, 0.0f) : glm::vec2(cosf(thetaDelta), -sinf(thetaDelta));
 
 	prev_idleWeight = std::max(0.0f, prev_idleWeight - m_dt / animTransitionTime);
 	prev_rightWeight = std::max(0.0f, prev_rightWeight - m_dt / animTransitionTime);
