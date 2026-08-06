@@ -13,12 +13,16 @@
 #include <Nuklear/NkJoystick.h>
 #include <Shape/Shape.h>
 
+#include "AssimpModel.h"
 #include "Camera.h"
 #include "TrackBall.h"
 #include "Transform.h"
 
 class Isometric : public State {
-	
+	struct Wiggly {
+		glm::vec3 nosePos;
+		float time;
+	};
 public:
 
 	Isometric(StateMachine& machine);
@@ -41,9 +45,13 @@ public:
 private:
 
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayouts();
-	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsTexture();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsFloor();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWiggly();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsBullet();
+
 	std::vector<WGPUBindGroup> OnBindGroups();
-	std::vector<WGPUBindGroup> OnBindGroupsTexture();
+	std::vector<WGPUBindGroup> OnBindGroupsFloor();
+	std::vector<WGPUBindGroup> OnBindGroupsBullet();
 
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	bool getWorldPosition(int xPos, int yPos, const glm::vec3& planeNormal, glm::vec3& outIntersection);
@@ -57,13 +65,25 @@ private:
 	Uniforms m_uniforms;
 	TrackBall m_trackball;
 	JoystickResult m_joystickResult;
-	RotationButtonResult m_rotatioButtonResult;
+	RotationButtonResult m_rotationButtonResult;
+	Wiggly m_wiggly;
 
+	AssimpModel m_enemy;
 	AnimatedModel m_player;
-	AnimationController m_animationController;
-	Shape m_floor;
+	Shape m_floor, m_bullet;
+	Animation m_full;
+	WgpBuffer m_uniformBuffer, m_instanceBuffer, m_wigglyBuffer, m_skinBuffer, m_rotationBuffer, m_offsetBuffer;
+	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy, m_wgpBullet;
+	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture;
+	float prev_idleWeight = 0.0f;
+	float prev_rightWeight = 0.0f;
+	float prev_forwardWeight = 0.0f;
+	float prev_backWeight = 0.0f;
+	float prev_leftWeight = 0.0f;
+	const float animTransitionTime = 0.2f;
+	float deathTime = -1.0f;
+	float aimTheta = glm::pi<float>() * 1.5f;
+	float lastFireTime = 0.0f;
 
-	WgpBuffer m_uniformBuffer, m_skinBuffer;
-	WgpModel m_wgpPlayer, m_wgpFloor;
-	WgpTexture m_wgpFloorD;
+	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture);
 };

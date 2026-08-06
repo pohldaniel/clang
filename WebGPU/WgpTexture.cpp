@@ -455,7 +455,7 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, bool flipVertical
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
                              filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
                              filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileName.c_str(), TIFF_DEFAULT) :
-                             FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
+                                                              FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
 
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
@@ -496,7 +496,7 @@ void WgpTexture::loadCubeFromFiles(std::string* fileNames, bool flipVertical) {
                                  filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileNames[face].c_str(), HDR_DEFAULT) :
                                  filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileNames[face].c_str(), PSD_DEFAULT) :
                                  filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileNames[face].c_str(), TIFF_DEFAULT) :
-                                 FreeImage_Load(FIF_BMP, fileNames[face].c_str(), BMP_DEFAULT);
+                                                                  FreeImage_Load(FIF_BMP, fileNames[face].c_str(), BMP_DEFAULT);
 
         SwapRedBlue32(sourceBitmap);
         

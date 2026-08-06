@@ -156,13 +156,13 @@ bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs)
 	return i_lhs[9] < i_rhs[9];
 }
 
-void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
+void ObjModel::loadModelCpu(const char* filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
 
-	std::string filename(_filename);
-	const size_t index = filename.rfind('/');
+	std::string flnm(filename);
+	const size_t index = flnm.rfind('/');
 
 	if (std::string::npos != index) {
-		m_modelDirectory = filename.substr(0, index);
+		m_modelDirectory = flnm.substr(0, index);
 	}
 
 	std::vector<std::array<int, 10>> face;
@@ -183,7 +183,7 @@ void ObjModel::loadModelCpu(const char* _filename, bool isStacked, bool withoutN
 
 	char buffer[250];
 
-	FILE * pFile = fopen(_filename, "r");
+	FILE * pFile = fopen(filename, "r");
 	if (pFile == NULL) {
 		std::cout << "File not found" << std::endl;
 		return;
