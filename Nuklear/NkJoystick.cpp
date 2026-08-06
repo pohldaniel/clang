@@ -223,7 +223,7 @@ void nk_virtual_rotation(struct nk_context* ctx, float size_px, RotationResult& 
 	}
 }
 
-void virtual_rotation_button(struct nk_rect dimension, RotatioButtonResult& out) {
+void virtual_rotation_button(struct nk_rect dimension, RotationButtonResult& out) {
 	if (nk_begin(&nkContext.context, "nuclear_widget", dimension, NK_WINDOW_NO_INPUT | NK_WINDOW_NO_SCROLLBAR)) {
 		float widget_size = std::min(dimension.w, dimension.h);
 		nk_layout_row_static(&nkContext.context, widget_size, widget_size, 1);
@@ -232,7 +232,7 @@ void virtual_rotation_button(struct nk_rect dimension, RotatioButtonResult& out)
 	nk_end(&nkContext.context);
 }
 
-void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, RotatioButtonResult& out) {
+void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, RotationButtonResult& out) {
 	struct nk_rect bounds;
 	nk_widget(&bounds, ctx);
 
@@ -318,18 +318,5 @@ void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, RotatioBu
 			float line_end_y = center.y - inner_radius * std::sin(wing_angle);
 			nk_stroke_line(canvas, center.x, center.y, line_end_x, line_end_y, 3.0f, button_line_color);
 		}
-
-
-		/*const char* label = "A";
-		const struct nk_user_font* font = ctx->style.font;
-		float text_width = font->width(font->userdata, font->height, label, nk_strlen(label));
-
-		struct nk_vec2 text_pos;
-		text_pos.x = center.x - (text_width / 2.0f);
-		text_pos.y = center.y - (font->height / 2.0f);
-
-		struct nk_color text_color = out.buttonDown ? nk_rgb(255, 255, 255) : color_neon_green;
-		nk_draw_text(canvas, nk_rect(text_pos.x, text_pos.y, text_width, font->height),
-			label, nk_strlen(label), font, nk_rgba(0, 0, 0, 0), text_color);*/
 	}
 }

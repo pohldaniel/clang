@@ -60,6 +60,6 @@ const std::vector<unsigned int>& Mesh::getIndexBuffer() const {
 	return m_indexBuffer;
 }
 
-const unsigned int Mesh::getStride() const {
+unsigned int Mesh::getStride() const {
 	return m_stride;
 }

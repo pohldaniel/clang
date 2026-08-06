@@ -108,6 +108,11 @@ void Bone::setOrientation(const glm::quat& orientation) {
 	OnTransformChanged();
 }
 
+void Bone::setOrientation(float pitch, float yaw, float roll) {
+	m_orientation = glm::quat(glm::vec3(glm::radians(pitch), glm::radians(yaw), glm::radians(roll)));
+	OnTransformChanged();
+}
+
 void Bone::setScale(const glm::vec3& scale) {
 	m_scale = scale;
 	OnTransformChanged();
@@ -136,7 +141,7 @@ void Bone::setIsRootBone(bool rootBone) {
 	m_isRootBone = rootBone;
 }
 
-const bool Bone::isRootBone() const {
+bool Bone::isRootBone() const {
 	return m_isRootBone;
 }
 
@@ -179,7 +184,7 @@ void Bone::countChildBones() {
 	}
 }
 
-void Bone::rotate(const float pitch, const float yaw, const float roll) {
+void Bone::rotate(float pitch, float yaw, float roll) {
 	m_orientation *= glm::quat(glm::vec3(glm::radians(pitch), glm::radians(yaw), glm::radians(roll)));
 	OnTransformChanged();
 }

@@ -12,11 +12,11 @@ public:
     void attach(GLFWwindow* window, bool hideCursor = true, bool reset = false, bool reattach = false);
     void detach();
     void hideCursor(bool hideCursor);
-    const float xDelta() const;
-    const float yDelta() const;
-    const float xPos() const;
-    const float yPos() const;
-    const bool isAttached() const;
+    float xDelta() const;
+    float yDelta() const;
+    float xPos() const;
+    float yPos() const;
+    bool isAttached() const;
     bool isVisibile();
 
     bool buttonDown(unsigned int button) const;

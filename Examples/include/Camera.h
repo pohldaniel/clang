@@ -33,9 +33,9 @@ public:
     void setRotationSpeed(float rotationSpeed);
 	void setMovingSpeed(float movingSpeed);
 
-	const float getFar() const;
-	const float getNear() const;
-	const float getTanFov() const;
+	float getFar() const;
+	float getNear() const;
+	float getTanFov() const;
 
     const glm::mat4& getViewMatrix() const;
 	const glm::mat4& getInvViewMatrix() const;

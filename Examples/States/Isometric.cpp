@@ -15,7 +15,6 @@
 #include "Mouse.h"
 #include "Keyboard.h"
 #include "Application.h"
-#include <iostream>
 
 glm::mat4 offset = glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,

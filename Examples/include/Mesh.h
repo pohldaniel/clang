@@ -21,7 +21,7 @@ public:
 
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
-	const unsigned int getStride() const;
+	unsigned int getStride() const;
 
 protected:
 

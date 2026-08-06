@@ -17,9 +17,9 @@ void WgpModel::create(const ObjModel& model) {
 	for (const Mesh* _mesh : model.getMeshes()) {
 		const ObjMesh* mesh = static_cast<const ObjMesh*>(_mesh);
 		if (mesh->hasMaterial() &&  mesh->getMaterial().hasTexture(TextureSlot::TEXTURE_DIFFUSE))
-			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getMaterial().getTextures().at(TextureSlot::TEXTURE_DIFFUSE)));
+			m_meshes.emplace_back(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getMaterial().getTextures().at(TextureSlot::TEXTURE_DIFFUSE));
 		else
-			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer()));
+			m_meshes.emplace_back(mesh->getVertexBuffer(), mesh->getIndexBuffer());
 	}
 	markForDelete();
 }
@@ -28,12 +28,12 @@ void WgpModel::create(const AssimpModel& model) {
 	for (const Mesh* _mesh : model.getMeshes()) {
 		const AssimpMesh* mesh = static_cast<const AssimpMesh*>(_mesh);
 		if (mesh->getEmbeddedTextures().count(TextureSlot::TEXTURE_DIFFUSE)) {
-			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getEmbeddedTextures().at(TextureSlot::TEXTURE_DIFFUSE)));
+			m_meshes.emplace_back(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getEmbeddedTextures().at(TextureSlot::TEXTURE_DIFFUSE));
 			mesh->removeEmbeddedTexture(TextureSlot::TEXTURE_DIFFUSE);
 		}else if (mesh->hasMaterial() && mesh->getMaterial().hasTexture(TextureSlot::TEXTURE_DIFFUSE))
-			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getMaterial().getTextures().at(TextureSlot::TEXTURE_DIFFUSE)));
+			m_meshes.emplace_back(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getMaterial().getTextures().at(TextureSlot::TEXTURE_DIFFUSE));
 		else 
-			m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer()));
+			m_meshes.emplace_back(mesh->getVertexBuffer(), mesh->getIndexBuffer());
 	}
 	markForDelete();
 }
@@ -43,26 +43,26 @@ void WgpModel::create(const AnimatedModel& model) {
 		const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(_mesh);
 		if (mesh->getWeights().size() && mesh->getJoints().size()) {
 			if (mesh->hasMaterial() && mesh->getMaterial().hasTexture(TextureSlot::TEXTURE_DIFFUSE))
-				m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getWeights(), mesh->getJoints(), mesh->getStride(), mesh->getMaterial().getTextures().at(TextureSlot::TEXTURE_DIFFUSE)));
+				m_meshes.emplace_back(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getWeights(), mesh->getJoints(), mesh->getStride(), mesh->getMaterial().getTextures().at(TextureSlot::TEXTURE_DIFFUSE));
 			else
-				m_meshes.push_back(WgpMesh(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getWeights(), mesh->getJoints(), mesh->getStride()));
+				m_meshes.emplace_back(mesh->getVertexBuffer(), mesh->getIndexBuffer(), mesh->getWeights(), mesh->getJoints(), mesh->getStride());
 		}
 	}
 	markForDelete();
 }
 
 void WgpModel::create(const Shape& shape) {
-	m_meshes.push_back(WgpMesh(shape.getVertexBuffer(), shape.getIndexBuffer()));
+	m_meshes.emplace_back(shape.getVertexBuffer(), shape.getIndexBuffer());
 	markForDelete();
 }
 
 void WgpModel::create(const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer) {
-	m_meshes.push_back(WgpMesh(vertexBuffer, indexBuffer));
+	m_meshes.emplace_back(vertexBuffer, indexBuffer);
 	markForDelete();
 }
 
 void WgpModel::create(const WgpBuffer& vertexBuffer, const WgpBuffer& indexBuffer) {
-	m_meshes.push_back(WgpMesh(vertexBuffer, indexBuffer));
+	m_meshes.emplace_back(vertexBuffer, indexBuffer);
 }
 
 void WgpModel::markForDelete(){

@@ -18,7 +18,7 @@ Fade::Fade(float& fadeValue) :
 
 }
 
-void Fade::update(const float dt) {
+void Fade::update(float dt) {
 	if (m_fadeIn) {
 		m_fadeValue = m_fadeValue <= 1.0f ? m_fadeValue + m_transitionSpeed * dt : 1.01f;		
 		m_fadeIn = m_fadeValue <= 1.0f;
@@ -91,7 +91,7 @@ void Fade::fadeOut(bool activate) {
 	m_activateOut = activate;
 }
 
-void Fade::setTransitionSpeed(const float transitionSpeed) {
+void Fade::setTransitionSpeed(float transitionSpeed) {
 	m_transitionSpeed = transitionSpeed;
 }
 
@@ -115,10 +115,10 @@ void Fade::setFadeValue(float fadeValue) {
 	m_fadeValue = fadeValue;
 }
 
-const bool Fade::isActivated() const {
+bool Fade::isActivated() const {
 	return m_activate || m_activateIn || m_activateOut;
 }
 
-const float Fade::getTransitionSpeed() const {
+float Fade::getTransitionSpeed() const {
 	return m_transitionSpeed;
 }

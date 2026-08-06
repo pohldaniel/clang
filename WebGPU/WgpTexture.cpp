@@ -15,7 +15,8 @@ WgpTexture::WgpTexture() :
     m_height(0u),
     m_channels(0u),
     m_markForDelete(false),
-    m_textureUsage(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst) {
+    m_textureUsage(WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst),
+    m_flipHorizontal(false) {
 
 }
 
@@ -54,6 +55,10 @@ void WgpTexture::setTextureUsage(WGPUTextureUsage textureUsage) {
     m_textureUsage = textureUsage;
 }
 
+void WgpTexture::setFlipHorizontal(bool flipHorizontal) {
+    m_flipHorizontal = flipHorizontal;
+}
+
 const WGPUTexture& WgpTexture::getTexture() const {
     return m_texture;
 }
@@ -62,11 +67,11 @@ const WGPUTextureView& WgpTexture::getTextureView() const {
     return m_textureView;
 }
 
-const unsigned int WgpTexture::getWidth() const {
+unsigned int WgpTexture::getWidth() const {
     return m_width;
 }
 
-const unsigned int WgpTexture::getHeight() const {
+unsigned int WgpTexture::getHeight() const {
     return m_height;
 }
 
@@ -125,7 +130,7 @@ static uint16_t* GetFloat16(float* data, uint32_t width, uint32_t height, uint32
 }
 
 template<typename component_t>
-static void WriteMipMaps(WGPUTexture& texture, WGPUExtent3D textureSize, uint32_t mipLevelCount, component_t* pixelData, uint32_t layer = 0u, const bool halfBPP = false) {
+static void WriteMipMaps(WGPUTexture& texture, WGPUExtent3D textureSize, uint32_t mipLevelCount, component_t* pixelData, uint32_t layer = 0u, bool halfBPP = false) {
     uint32_t channels = 4u;
 
     WGPUTexelCopyTextureInfo destination = {};
@@ -258,7 +263,7 @@ static unsigned char* EquirectangularToCross(component_t* sourceInOut, uint32_t 
     return reinterpret_cast<unsigned char*>(bytesNew);
 }
 
-void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertical, const short alphaChannel) {
+void WgpTexture::loadFromFile(const std::string& fileName, bool flipVertical, short alphaChannel) {
     std::filesystem::path filePath = fileName;
     
     FreeImage_Initialise();
@@ -266,12 +271,16 @@ void WgpTexture::loadFromFile(const std::string& fileName, const bool flipVertic
                              filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
                              filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
+                             filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileName.c_str(), TIFF_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
 
     SwapRedBlue32(sourceBitmap);
     
     if(flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
+
+    if(m_flipHorizontal)
+        FreeImage_FlipHorizontal(sourceBitmap);    
 
     sourceBitmap = AddAlphaChannel(sourceBitmap, alphaChannel);
 
@@ -348,7 +357,7 @@ void WgpTexture::loadFromFile(const std::string& fileName, uint32_t width, uint3
     free(imageData);
 }
 
-void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, const bool flipVertical, const short alphaChannel) {
+void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, bool flipVertical, short alphaChannel) {
     FreeImage_Initialise();
     FIMEMORY* hmem = FreeImage_OpenMemory(data, size);
 
@@ -359,6 +368,9 @@ void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, const bool f
 
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
+
+    if (m_flipHorizontal)
+        FreeImage_FlipHorizontal(sourceBitmap);
 
     sourceBitmap = AddAlphaChannel(sourceBitmap, alphaChannel);
 
@@ -383,7 +395,7 @@ void WgpTexture::loadFromMemory(unsigned char* data, uint32_t size, const bool f
     m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
 }
 
-void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, const bool flipVertical, const bool halfBPP) {
+void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, bool flipVertical, bool halfBPP) {
     std::filesystem::path filePath = fileName;
 
     FreeImage_Initialise();
@@ -391,10 +403,14 @@ void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, const bool fl
                              filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
                              filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
+                             filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileName.c_str(), TIFF_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
 
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
+
+    if (m_flipHorizontal)
+        FreeImage_FlipHorizontal(sourceBitmap);
 
     sourceBitmap = AddAlphaChannel(sourceBitmap);
 
@@ -430,7 +446,7 @@ void WgpTexture::loadHDRICubeFromFile(const std::string& fileName, const bool fl
     m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
 }
 
-void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVertical, const bool halfBPP) {
+void WgpTexture::loadHDRIFromFile(const std::string& fileName, bool flipVertical, bool halfBPP) {
     std::filesystem::path filePath = fileName;
 
     FreeImage_Initialise();
@@ -438,10 +454,14 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
                              filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
                              filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
+                             filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileName.c_str(), TIFF_DEFAULT) :
                              FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
 
     if (flipVertical)
         FreeImage_FlipVertical(sourceBitmap);
+
+    if (m_flipHorizontal)
+        FreeImage_FlipHorizontal(sourceBitmap);
 
     sourceBitmap = AddAlphaChannel(sourceBitmap);
 
@@ -465,7 +485,7 @@ void WgpTexture::loadHDRIFromFile(const std::string& fileName, const bool flipVe
     m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
 }
 
-void WgpTexture::loadCubeFromFiles(std::string* fileNames, const bool flipVertical) {
+void WgpTexture::loadCubeFromFiles(std::string* fileNames, bool flipVertical) {
     FreeImage_Initialise();
 
     uint32_t mipLevelCount = 1u;
@@ -475,12 +495,16 @@ void WgpTexture::loadCubeFromFiles(std::string* fileNames, const bool flipVertic
                                  filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileNames[face].c_str(), JPEG_DEFAULT) :
                                  filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileNames[face].c_str(), HDR_DEFAULT) :
                                  filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileNames[face].c_str(), PSD_DEFAULT) :
+                                 filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileNames[face].c_str(), TIFF_DEFAULT) :
                                  FreeImage_Load(FIF_BMP, fileNames[face].c_str(), BMP_DEFAULT);
 
         SwapRedBlue32(sourceBitmap);
         
         if (flipVertical)
             FreeImage_FlipVertical(sourceBitmap);
+
+        if (m_flipHorizontal)
+            FreeImage_FlipHorizontal(sourceBitmap);
 
         sourceBitmap = AddAlphaChannel(sourceBitmap);
 
@@ -533,7 +557,7 @@ void WgpTexture::resize(uint32_t width, uint32_t height) {
     }
 }
 
-unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, const bool flipVertical, const short alphaChannel) {
+unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, bool flipVertical, short alphaChannel) {
     std::filesystem::path filePath = fileName;
 
     FreeImage_Initialise();
@@ -541,6 +565,7 @@ unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, const bool 
                              filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
                              filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
+                             filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileName.c_str(), TIFF_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
     SwapRedBlue32(sourceBitmap);
 
@@ -562,7 +587,7 @@ unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, const bool 
     return pixels;
 }
 
-unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, uint32_t& width, uint32_t& height, const bool flipVertical, const short alphaChannel) {
+unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, uint32_t& width, uint32_t& height, bool flipVertical, short alphaChannel) {
     std::filesystem::path filePath = fileName;
 
     FreeImage_Initialise();
@@ -570,6 +595,7 @@ unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, uint32_t& w
                              filePath.extension() == ".jpg" ? FreeImage_Load(FIF_JPEG, fileName.c_str(), JPEG_DEFAULT) :
                              filePath.extension() == ".hdr" ? FreeImage_Load(FIF_HDR, fileName.c_str(), HDR_DEFAULT) :
                              filePath.extension() == ".psd" ? FreeImage_Load(FIF_PSD, fileName.c_str(), PSD_DEFAULT) :
+                             filePath.extension() == ".tif" ? FreeImage_Load(FIF_TIFF, fileName.c_str(), TIFF_DEFAULT) :
                                                               FreeImage_Load(FIF_BMP, fileName.c_str(), BMP_DEFAULT);
     SwapRedBlue32(sourceBitmap);
 
@@ -591,7 +617,7 @@ unsigned char* WgpTexture::LoadFromFile(const std::string& fileName, uint32_t& w
     return pixels;
 }
 
-unsigned char* WgpTexture::LoadFromMemory(unsigned char* data, uint32_t size, uint32_t& width, uint32_t& height, const bool flipVertical, const short alphaChannel) {
+unsigned char* WgpTexture::LoadFromMemory(unsigned char* data, uint32_t size, uint32_t& width, uint32_t& height, bool flipVertical, short alphaChannel) {
     FreeImage_Initialise();
     FIMEMORY* hmem = FreeImage_OpenMemory(data, size);
 
@@ -648,7 +674,7 @@ void WgpTexture::SafeHDRI(const std::string& fileOut, const unsigned char* bytes
     FreeImage_DeInitialise();
 }
 
-FIBITMAP* WgpTexture::AddAlphaChannel(FIBITMAP* bitmap, const short alphaChannel) {
+FIBITMAP* WgpTexture::AddAlphaChannel(FIBITMAP* bitmap, short alphaChannel) {
     unsigned int bpp = FreeImage_GetBPP(bitmap);
 
     if (bpp == 24) {

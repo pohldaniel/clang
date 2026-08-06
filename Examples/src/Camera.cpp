@@ -335,15 +335,15 @@ void Camera::setMovingSpeed(float movingSpeed){
 	m_movingSpeed = movingSpeed;
 }
 
-const float Camera::getFar() const {
+float Camera::getFar() const {
 	return m_persMatrix[3][2] / (m_persMatrix[2][2] + 1);
 }
 
-const float Camera::getNear() const {
+float Camera::getNear() const {
 	return m_persMatrix[3][2] / (m_persMatrix[2][2] - 1);
 }
 
-const float Camera::getTanFov() const {
+float Camera::getTanFov() const {
 	return 1.0f / m_persMatrix[1][1];
 }
 

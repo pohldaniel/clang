@@ -33,19 +33,22 @@ public:
 	~AssimpModel();
 
 	void loadModel(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-	void loadModel(const char* filename, const glm::vec3& axis, float degrees, const glm::vec3& translate = glm::vec3(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
 	void loadModelCpu(const char* filename, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
-	void loadModelCpu(const char* filename, const glm::vec3& axis, float degrees, const glm::vec3& translate = glm::vec3(0.0f, 0.0f, 0.0f), float scale = 1.0f, bool isStacked = false, bool generateNormals = false, bool generateTangents = false, bool flipYZ = false, bool flipWinding = false);
+
+	void scale(float sx, float sy, float sz);
+	void scale(float s);
+	void rotate(float pitch, float yaw, float roll);
+	void translate(float dx, float dy, float dz);
 	
 	const glm::vec3& getCenter() const;
 
-	const unsigned int getStride() const override;
+	unsigned int getStride() const override;
 	const std::string& getModelDirectory();
 	const Mesh* getMesh(unsigned short index = 0u) const;
 	const std::vector<Mesh*>& getMeshes() const;
 	const std::vector<float>& getVertexBuffer() const;
 	const std::vector<unsigned int>& getIndexBuffer() const;
-	const unsigned int getNumberOfTriangles() const;
+	unsigned int getNumberOfTriangles() const;
 
 	void generateNormals();
 	void rewind();
@@ -96,7 +99,7 @@ public:
 
 	const std::unordered_map<TextureSlot, std::pair<unsigned char*, unsigned int>>& getEmbeddedTextures() const;
 	const void removeEmbeddedTexture(TextureSlot textureSlot) const;
-	const bool hasMaterial() const;
+	bool hasMaterial() const;
 
 private:
 

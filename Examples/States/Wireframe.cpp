@@ -34,7 +34,10 @@ Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) 
 	m_wgpMammoth.setBindGroups("BG", std::bind(&Wireframe::OnBindGroups, this));
 	AddBindgroups(m_wgpMammoth);
 
-	m_dragon.loadModel("res/models/dragon/dragon.obj", glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, glm::vec3(0.0f, -1.0f, 0.0f), 0.1f, false, false, false, false, false, true);
+	m_dragon.loadModel("res/models/dragon/dragon.obj", false, false, false, false, false, true);
+	m_dragon.scale(0.1f);
+	m_dragon.rotate(0.0f, 90.0f, 0.0f);
+	m_dragon.translate(0.0f, -1.0f, 0.0f);
 	m_dragon.rewind();
 	m_dragon.generateColors(ModelColor::MC_POSITION);
 

@@ -27,6 +27,7 @@ public:
 
 	void setPosition(const glm::vec3& position);
 	void setOrientation(const glm::quat& orientation);
+	void setOrientation(float pitch, float yaw, float roll);
 	void setScale(const glm::vec3& scale);
 	void setName(const std::string& name);
 	void setParent(Bone* node);
@@ -37,10 +38,11 @@ public:
 
 	const glm::vec3& getPosition() const; 
 	const glm::quat& getOrientation() const;
+	const glm::vec3& getScale() const;
 
-	const bool isRootBone() const;
+	bool isRootBone() const;
 	void setHasParent(bool hasParent);
-	void rotate(const float pitch, const float yaw, const float roll);
+	void rotate(float pitch, float yaw, float roll);
 
 	const glm::mat4& getWorldTransformation() const;
 	const glm::mat4& getTransformationSOP() const;
@@ -49,8 +51,7 @@ protected:
 
 	void OnTransformChanged();
 	const std::string& getName() const;
-	const glm::vec3& getScale() const;
-
+	
 private:
 	
 	Bone* addChild(Bone* node);

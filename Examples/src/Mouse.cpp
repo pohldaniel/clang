@@ -97,23 +97,23 @@ void Mouse::hideCursor(bool hideCursor){
     }
 }
 
-const float Mouse::xDelta() const {
+float Mouse::xDelta() const {
     return m_xDelta;
 }
 
-const float Mouse::yDelta() const {
+float Mouse::yDelta() const {
     return m_yDelta;
 }
 
-const float Mouse::xPos() const{
+float Mouse::xPos() const{
     return m_xPos;
 }
 
-const float Mouse::yPos() const{
+float Mouse::yPos() const{
     return m_yPos;
 }
 
-const bool Mouse::isAttached() const {
+bool Mouse::isAttached() const {
     return m_attached;
 }
 
