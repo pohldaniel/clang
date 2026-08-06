@@ -66,5 +66,5 @@ private:
 	unsigned short m_channels;
 	bool m_markForDelete;
 	WGPUTextureUsage m_textureUsage;
-	m_flipHorizontal;
+	bool m_flipHorizontal;
 };

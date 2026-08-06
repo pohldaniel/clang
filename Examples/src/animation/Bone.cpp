@@ -94,10 +94,6 @@ const std::string& Bone::getName() const {
 	return m_name;
 }
 
-const glm::vec3& Bone::getScale() const {
-	return m_scale;
-}
-
 void Bone::setPosition(const glm::vec3& position) {
 	m_position = position;
 	OnTransformChanged();
@@ -174,6 +170,10 @@ const glm::vec3& Bone::getPosition() const {
 
 const glm::quat& Bone::getOrientation() const {
 	return m_orientation;
+}
+
+const glm::vec3& Bone::getScale() const {
+	return m_scale;
 }
 
 void Bone::countChildBones() {

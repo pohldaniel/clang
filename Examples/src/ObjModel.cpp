@@ -101,8 +101,7 @@ void ObjModel::cleanup() {
 void ObjModel::scale(float sx, float sy, float sz) {
 	if (m_isStacked) {
 		Model::Scale(sx, sy, sz, m_vertexBuffer, m_stride);
-	}
-	else {
+	}else {
 		for (size_t j = 0; j < m_meshes.size(); j++) {
 			Model::Scale(sx, sy, sz, m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
 		}
@@ -115,11 +114,10 @@ void ObjModel::scale(float s) {
 
 void ObjModel::rotate(float pitch, float yaw, float roll) {
 	if (m_isStacked) {
-		Model::Rotate(pitch * PI_ON_180, yaw * PI_ON_180, roll * PI_ON_180, m_vertexBuffer, m_stride);
-	}
-	else {
+		Model::Rotate(glm::radians(pitch), glm::radians(yaw), glm::radians(roll), m_vertexBuffer, m_stride);
+	}else {
 		for (size_t j = 0; j < m_meshes.size(); j++) {
-			Model::Rotate(pitch * PI_ON_180, yaw * PI_ON_180, roll * PI_ON_180, m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
+			Model::Rotate(glm::radians(pitch), glm::radians(yaw), glm::radians(roll), m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
 		}
 	}
 }
@@ -127,8 +125,7 @@ void ObjModel::rotate(float pitch, float yaw, float roll) {
 void ObjModel::translate(float dx, float dy, float dz) {
 	if (m_isStacked) {
 		Model::Translate(dx, dy, dz, m_vertexBuffer, m_stride);
-	}
-	else {
+	}else {
 		for (size_t j = 0; j < m_meshes.size(); j++) {
 			Model::Translate(dx, dy, dz, m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);
 		}
@@ -154,15 +151,6 @@ const std::string& ObjModel::getModelDirectory() {
 void ObjModel::loadModel(const char* filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
 	loadModelCpu(filename, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, flipWinding, rescale);
 }
-
-void ObjModel::loadModel(const char* filename, const glm::vec3& axis, float degrees, const glm::vec3& translate, float scale, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
-	loadModelCpu(filename, axis, degrees, translate, scale, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, flipWinding, rescale);
-}
-
-void ObjModel::loadModel(const char* filename, bool isStacked, bool withoutNormals, bool generateSmoothNormals, bool generateFlatNormals, bool generateSmoothTangents, bool flipYZ, bool flipWinding, bool rescale) {
-	loadModelCpu(filename, isStacked, withoutNormals, generateSmoothNormals, generateFlatNormals, generateSmoothTangents, flipYZ, flipWinding, rescale);
-}
-
 
 bool compare(const std::array<int, 10> &i_lhs, const std::array<int, 10> &i_rhs) {
 	return i_lhs[9] < i_rhs[9];

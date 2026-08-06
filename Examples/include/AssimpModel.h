@@ -98,7 +98,7 @@ public:
 	void cleanup();
 
 	const std::unordered_map<TextureSlot, std::pair<unsigned char*, unsigned int>>& getEmbeddedTextures() const;
-	const void removeEmbeddedTexture(TextureSlot textureSlot) const;
+	void removeEmbeddedTexture(TextureSlot textureSlot) const;
 	bool hasMaterial() const;
 
 private:

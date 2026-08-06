@@ -51,6 +51,7 @@ public:
 
 	void setScale(float sx, float sy, float sz);
 	void setRotation(float pitch, float yaw, float roll);
+	void setHasAnimationController(bool hasAnimationController);
 
 	AnimationState* findAnimationState(const Animation& animation) const;
 	AnimationState* findAnimationState(const std::string& name) const;
@@ -109,7 +110,6 @@ public:
 
 	void setScale(float sx, float sy, float sz);
 	void setRotation(float pitch, float yaw, float roll);
-	void setHasAnimationController(bool hasAnimationController);
 
     const std::vector<BoneDescription>& getBoneDescriptions() const;
 	const std::vector<std::array<float, 4>>& getWeights() const;
@@ -141,7 +141,6 @@ private:
 
 	Bone* m_rootBone;
 	mutable Bone** m_bones;
-	
 	
 	std::vector<std::string> m_boneList;
 	mutable std::vector<std::array<float, 4>> m_weights;

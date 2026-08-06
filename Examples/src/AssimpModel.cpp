@@ -116,10 +116,10 @@ void AssimpModel::scale(float s) {
 
 void AssimpModel::rotate(float pitch, float yaw, float roll) {
 	if (m_isStacked) {
-		Model::Rotate(pitch * PI_ON_180, yaw * PI_ON_180, roll * PI_ON_180, m_vertexBuffer, m_stride);
+		Model::Rotate(glm::radians(pitch), glm::radians(yaw), glm::radians(roll), m_vertexBuffer, m_stride);
 	}else {
 		for (size_t j = 0; j < m_meshes.size(); j++) {		
-			Model::Rotate(pitch * PI_ON_180, yaw * PI_ON_180, roll * PI_ON_180, m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);			
+			Model::Rotate(glm::radians(pitch), glm::radians(yaw), glm::radians(roll), m_meshes[j]->m_vertexBuffer, m_meshes[j]->m_stride);			
 		}
 	}
 }
@@ -308,7 +308,7 @@ void AssimpModel::loadModelCpu(const char* _filename, bool isStacked, bool gener
 				float bitangY = flipYZ ? aiMesh->mBitangents[i].z : aiMesh->mBitangents[i].y;
 				float bitangZ = flipYZ ? aiMesh->mBitangents[i].y : aiMesh->mBitangents[i].z;
 				
-				vertexBuffer.push_back(iMesh->mTangents[i].x); vertexBuffer.push_back(tangY); vertexBuffer.push_back(tangZ);
+				vertexBuffer.push_back(aiMesh->mTangents[i].x); vertexBuffer.push_back(tangY); vertexBuffer.push_back(tangZ);
 				vertexBuffer.push_back(aiMesh->mBitangents[i].x); vertexBuffer.push_back(bitangY); vertexBuffer.push_back(bitangZ);
 			}
 
@@ -597,7 +597,7 @@ const std::unordered_map<TextureSlot, std::pair<unsigned char*, unsigned int>>& 
 	return m_embeddedTextures;
 }
 
-const void AssimpMesh::removeEmbeddedTexture(TextureSlot textureSlot) const {
+void AssimpMesh::removeEmbeddedTexture(TextureSlot textureSlot) const {
 	if (m_embeddedTextures.count(textureSlot)) {
 		std::pair<unsigned char*, unsigned int>& texture = m_embeddedTextures.at(textureSlot);
 		free(texture.first);
