@@ -15,7 +15,6 @@
 #include "Mouse.h"
 #include "Keyboard.h"
 #include "Application.h"
-#include <iostream>
 
 glm::mat4 offset = glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
@@ -32,7 +31,9 @@ glm::mat4 invPivot = glm::mat4(1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
 	-130.762f, -70.4033f, 3.52485f, 1.0f);
 
-Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC) {
+ThreadPool threadPool(4);
+
+Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&threadPool) {
 	Mouse::instance().attach(Application::Window, false, true);
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
@@ -174,9 +175,9 @@ void Isometric::fixedUpdate() {
 }
 
 void Isometric::update() {
-
 	Mouse &mouse = Mouse::instance();
 	Keyboard& keyboard = Keyboard::instance();
+	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT), mouse.buttonDown(GLFW_MOUSE_BUTTON_RIGHT), Application::ScrollDelta);
 
 	glm::vec3 direction = glm::vec3();
 
@@ -215,6 +216,15 @@ void Isometric::update() {
 		move |= true;
 	}
 
+	if ((m_rotationButtonResult.buttonDown || (mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < glfwGetTime()) {
+		const glm::quat midOri = glm::quat(glm::vec3(0.0f, glm::radians(m_rotationButtonResult.degrees), 0.0f));
+		const glm::mat4 playerModelTransform = m_player.getWorldTransformation();
+		const glm::vec3 projectileSpawnPoint = playerModelTransform * glm::vec4(-20.0f, 120.0f, 100.0f, 1.0f);
+
+		m_bulletStore.createBullets(projectileSpawnPoint, midOri, 10);
+		lastFireTime = static_cast<float>(glfwGetTime());
+	}
+
     if (mouse.buttonDownInvisible(GLFW_MOUSE_BUTTON_RIGHT)) {	
 		dx = mouse.xDelta();
 		dy = mouse.yDelta();
@@ -230,8 +240,6 @@ void Isometric::update() {
 		}
 	}
 	m_trackball.idle();
-
-	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT), mouse.buttonDown(GLFW_MOUSE_BUTTON_RIGHT), Application::ScrollDelta);
 
 	const glm::vec3 posistion = static_cast<const AnimatedMesh*>(m_player.getMesh())->getBone(0u).getPosition();
 	m_camera.lookAt(posistion + glm::vec3(0.0f, 4.3f, 4.0f), posistion, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -336,6 +344,7 @@ void Isometric::update() {
 
 	m_player.update(m_dt);
 	m_player.updateSkinning();
+	m_bulletStore.updateBullets(m_dt);
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
@@ -359,8 +368,10 @@ void Isometric::update() {
 	m_wiggly.nosePos[1] = 120.0f * 0.0044f ;
 	m_wiggly.nosePos[2] = -2.0f ;
 	m_wiggly.time = static_cast<float>(glfwGetTime());
-
 	wgpuQueueWriteBuffer(wgpContext.queue, m_wigglyBuffer.getBuffer(), 0, &m_wiggly, sizeof(Wiggly));
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_rotationBuffer.getBuffer(), 0u, m_bulletStore.m_rots.data(), m_bulletStore.m_rots.size() * sizeof(glm::vec4));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_offsetBuffer.getBuffer(), 0u, m_bulletStore.m_offsets.data(), m_bulletStore.m_offsets.size() * sizeof(glm::vec4));
 }
 
 void Isometric::render() {
@@ -380,6 +391,9 @@ void Isometric::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURende
 
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_ANIMATION"));
 		m_wgpPlayer.draw(renderPassEncoder);
+
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_BULLET"));
+		m_wgpBullet.draw(renderPassEncoder, m_bulletStore.m_rots.size());
 
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);

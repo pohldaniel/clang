@@ -23,6 +23,7 @@ clang++^
  src/Camera.cpp^
  src/CharacterSet.cpp^
  src/Application.cpp^
+ src/bullet_store.cpp^
  src/main.cpp^
  states/StateMachine.cpp^
  states/Wireframe.cpp^

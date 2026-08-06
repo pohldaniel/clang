@@ -17,6 +17,7 @@
 #include "Camera.h"
 #include "TrackBall.h"
 #include "Transform.h"
+#include "bullet_store.h"
 
 class Isometric : public State {
 	struct Wiggly {
@@ -67,6 +68,7 @@ private:
 	JoystickResult m_joystickResult;
 	RotationButtonResult m_rotationButtonResult;
 	Wiggly m_wiggly;
+	BulletStore m_bulletStore;
 
 	AssimpModel m_enemy;
 	AnimatedModel m_player;
@@ -75,6 +77,7 @@ private:
 	WgpBuffer m_uniformBuffer, m_instanceBuffer, m_wigglyBuffer, m_skinBuffer, m_rotationBuffer, m_offsetBuffer;
 	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy, m_wgpBullet;
 	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture;
+
 	float prev_idleWeight = 0.0f;
 	float prev_rightWeight = 0.0f;
 	float prev_forwardWeight = 0.0f;
