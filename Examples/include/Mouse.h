@@ -21,6 +21,7 @@ public:
 
     bool buttonDown(unsigned int button) const;
     bool buttonDownInvisible(unsigned int button) const;
+    bool buttonPressed(unsigned int button) const;
 
 private:
 
@@ -30,6 +31,9 @@ private:
     void setCursorToMiddle();
     
     GLFWwindow* m_window;
+    bool *m_currentStates;
+    bool *m_prevStates;
+    bool m_buttonStates[2][3];
 	double m_xPos, m_yPos, m_xPrevPos, m_yPrevPos;
 	double m_xLastPos, m_yLastPos;
 	int m_wheelDelta;

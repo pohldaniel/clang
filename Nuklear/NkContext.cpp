@@ -196,6 +196,10 @@ void nkShutDown() {
 		nkContext.pipelineLayout = NULL;
 	}
 
+	if (nkContext.renderPipeline) {
+		wgpuRenderPipelineRelease(nkContext.renderPipeline);
+	}
+
 	nk_free(&nkContext.context);
 	nk_font_atlas_clear(&nkContext.fontAtlas);
 	nk_buffer_free(&nkContext.vertexBuffer);

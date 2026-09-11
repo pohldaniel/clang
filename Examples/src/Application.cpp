@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include <WebGPU/WgpContext.h>
+#include <Physics/Physics.h>
 #include <States/StateMachine.h>
 #include <States/Wireframe.h>
 #include <States/ImageBasedLighting.h>
@@ -19,6 +20,7 @@
 #include <States/VideoDecode.h>
 #include <States/RenderBundles.h>
 #include <States/NuklearGui.h>
+#include <States/Cubes.h>
 #include <States/Isometric.h>
 
 #include "Mouse.h"
@@ -27,6 +29,7 @@
 
 GLFWwindow* Application::Window = nullptr;
 StateMachine* Application::Machine = nullptr;
+std::unique_ptr<Physics> Application::physics = nullptr;
 int Application::Width;
 int Application::Height;
 double Application::Time;
@@ -60,6 +63,7 @@ void Application::MessageLoop(void *arg) {
 Application::Application(float& dt, float& fdt) : fdt(fdt), dt(dt), last(0.0), accumulator(0.0) {
   Application::Width = 1260;
   Application::Height = 720;
+  Application::physics = std::make_unique<Physics>();
 
   initWindow();
   initWebGPU();
@@ -129,7 +133,8 @@ void Application::initStates(){
   //Machine->addStateAtTop(new VideoDecode(*Machine));
   //Machine->addStateAtTop(new RenderBundles(*Machine));
   //Machine->addStateAtTop(new NuklearGui(*Machine));
-  Machine->addStateAtTop(new Isometric(*Machine));
+  Machine->addStateAtTop(new Cubes(*Machine));
+  //Machine->addStateAtTop(new Isometric(*Machine));
 }
 
 bool Application::isRunning(){

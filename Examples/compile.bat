@@ -1,14 +1,19 @@
 clang++^
- -I "./" -I "./include/" -I "./include/animation/" -I "../" -I "../include/" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/"^
+ -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/"^
  -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/" -L "../SDKs/ffmpeg/lib/"^
  -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt -lstrmiids -lmfuuid^
- -llibglfw3 -llibimgui -llibassimp -lwgpu -llibfreeimage -llibzlib -llibavutil -llibavcodec -llibswresample -llibavformat -llibswscale^
+ -llibglfw3 -llibimgui -llibassimp -lwgpu -llibfreeimage -llibzlib -llibavutil -llibavcodec -llibswresample -llibavformat -llibswscale -lliblinearmath -llibbulletcollision -llibbulletdynamics^
+ src/scene/Node.cpp^
+ src/scene/BaseNode.cpp^
+ src/scene/SceneNode.cpp^
+ src/scene/CollisionNode.cpp^
  src/animation/BoneDescription.cpp^
  src/animation/Bone.cpp^
  src/animation/Animation.cpp^
  src/animation/AnimationState.cpp^
  src/animation/AnimatedModel.cpp^
  src/animation/AnimationController.cpp^
+ src/Object.cpp^
  src/VideoReader.cpp^
  src/BinaryIO.cpp^
  src/Fade.cpp^
@@ -39,6 +44,7 @@ clang++^
  states/VideoDecode.cpp^
  states/RenderBundles.cpp^
  states/NuklearGui.cpp^
+ states/Cubes.cpp^
  states/Isometric.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
@@ -63,6 +69,8 @@ clang++^
  ../Nuklear/NkCalculator.cpp^
  ../Nuklear/NkNodeEditor.cpp^
  ../Nuklear/NkJoystick.cpp^
+ ../Physics/Physics.cpp^
+ ../Physics/DebugDrawer.cpp^
  -D_MD -D_DLL -O3 -flto -fuse-ld=lld -std=c++17 -D_CRT_SECURE_NO_WARNINGS^
  -Wno-return-type-c-linkage^
  -DNWASM -DNDEBUG -DFREEIMAGE_LIB -DWEBGPU_DAWN^
