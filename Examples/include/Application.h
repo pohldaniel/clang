@@ -33,6 +33,10 @@ public:
 	
 	static int Width;
 	static int Height;
+	static int PosX;
+	static int PosY;
+	static int PrevWidth;
+	static int PrevHeight;
 	static float ScrollDelta;
 	static GLFWwindow* Window;
     static std::unique_ptr<Physics> physics;
@@ -51,6 +55,8 @@ private:
 	float& dt;
 	double last;
 	double accumulator;
+
+	static void ToggleFullscreen(GLFWwindow* window);
 
 	static StateMachine* Machine;
 	static double Time;

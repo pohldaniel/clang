@@ -17,9 +17,10 @@
 #include <States/DeferredRendering.h>
 #include <States/VolumeRendering.h>
 #include <States/OcclusionQuery.h>
-#include <States/VideoDecode.h>
 #include <States/RenderBundles.h>
 #include <States/NuklearGui.h>
+#include <States/AudioDecode.h>
+#include <States/VideoDecode.h>
 #include <States/Cubes.h>
 #include <States/Isometric.h>
 
@@ -32,6 +33,10 @@ StateMachine* Application::Machine = nullptr;
 std::unique_ptr<Physics> Application::physics = nullptr;
 int Application::Width;
 int Application::Height;
+int Application::PrevWidth;
+int Application::PrevHeight;
+int Application::PosX;
+int Application::PosY;
 double Application::Time;
 bool Application::Init = false;
 float Application::ScrollDelta = 0.0f;
@@ -75,6 +80,7 @@ Application::Application(float& dt, float& fdt) : fdt(fdt), dt(dt), last(0.0), a
   glfwSetCursorPosCallback(Window, glfwMouseMoveCallback);
   glfwSetMouseButtonCallback(Window, glfwMouseButtonCallback);
   glfwSetScrollCallback(Window, glfwWindowScroll);
+  glfwSetKeyCallback(Window, glfwKeyCallback);
   glfwSetInputMode(Window, GLFW_STICKY_KEYS, GLFW_FALSE);
 
   Application::Init = true;
@@ -95,6 +101,7 @@ void Application::initWindow() {
   glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_FALSE);
   glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
   Window = glfwCreateWindow(Width, Height, "WebGPU window", nullptr, nullptr);
+  glfwGetWindowPos(Window, &PosX, &PosY);
 }
 
 void Application::initWebGPU(){
@@ -130,10 +137,11 @@ void Application::initStates(){
   //Machine->addStateAtTop(new DeferredRendering(*Machine));
   //Machine->addStateAtTop(new VolumeRendering(*Machine));
   //Machine->addStateAtTop(new OcclusionQuery(*Machine));
-  //Machine->addStateAtTop(new VideoDecode(*Machine));
   //Machine->addStateAtTop(new RenderBundles(*Machine));
   //Machine->addStateAtTop(new NuklearGui(*Machine));
-  Machine->addStateAtTop(new Cubes(*Machine));
+  //Machine->addStateAtTop(new AudioDecode(*Machine));
+  Machine->addStateAtTop(new VideoDecode(*Machine));
+  //Machine->addStateAtTop(new Cubes(*Machine));
   //Machine->addStateAtTop(new Isometric(*Machine));
 }
 
@@ -187,21 +195,40 @@ void Application::Cleanup(){
   glfwTerminate();
 }
 
+void Application::ToggleFullscreen(GLFWwindow* window) {
+    if (glfwGetWindowMonitor(Window) == nullptr) {
+      PrevWidth = Width;
+      PrevHeight = Height;
+      GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+      const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+      glfwSetWindowMonitor(Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+    } else {
+      glfwSetWindowMonitor(Window, nullptr, PosX, PosY, PrevWidth, PrevHeight, GLFW_DONT_CARE);
+    }
+}
+
 void glfwKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods){
   if(ImGui::GetIO().WantCaptureMouse){  
     ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
     return;
   }
 
+  if (action == GLFW_PRESS) {
+    if (key == GLFW_KEY_ENTER && (mods & GLFW_MOD_ALT)) {
+      Application::ToggleFullscreen(window);
+      return;
+    }
+  }
+
   switch(key){
     case (GLFW_KEY_Z - 1):
       if(action == GLFW_PRESS)
         Application::Machine->ToggleWireframe();
-    return;
+      return;
     case GLFW_KEY_V:
       if(action == GLFW_PRESS)
         wgpToggleVerticalSync();
-    return;
+      return;
     default:{
       Event event;
       event.data.keyboard.keyCode = key;

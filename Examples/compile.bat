@@ -1,8 +1,8 @@
 clang++^
- -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/"^
- -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/" -L "../SDKs/ffmpeg/lib/"^
- -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt -lstrmiids -lmfuuid^
- -llibglfw3 -llibimgui -llibassimp -lwgpu -llibfreeimage -llibzlib -llibavutil -llibavcodec -llibswresample -llibavformat -llibswscale -lliblinearmath -llibbulletcollision -llibbulletdynamics^
+ -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/" -I "../SDKs/RtAudio/include/" -I "../SDKs/OpenAl/include/" -I "../SDKs/Bullet/include/"^
+ -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/" -L "../SDKs/ffmpeg/lib/" -L "../SDKs/RtAudio/lib/x64/" -L "../SDKs/OpenAl/lib/x64/" -L "../SDKs/Bullet/lib/x64/"^
+ -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt -lstrmiids -lmfuuid -lavrt^
+ -llibglfw3 -llibimgui -llibassimp -lwgpu -llibfreeimage -llibzlib -llibavutil -llibavcodec -llibswresample -llibavformat -llibswscale -llibopenal -llibrtaudio -lliblinearmath -llibbulletcollision -llibbulletdynamics^
  src/scene/Node.cpp^
  src/scene/BaseNode.cpp^
  src/scene/SceneNode.cpp^
@@ -41,9 +41,10 @@ clang++^
  states/DeferredRendering.cpp^
  states/VolumeRendering.cpp^
  states/OcclusionQuery.cpp^
- states/VideoDecode.cpp^
  states/RenderBundles.cpp^
  states/NuklearGui.cpp^
+ states/AudioDecode.cpp^
+ states/VideoDecode.cpp^
  states/Cubes.cpp^
  states/Isometric.cpp^
  ../Shape/Capsule.cpp^
@@ -69,9 +70,17 @@ clang++^
  ../Nuklear/NkCalculator.cpp^
  ../Nuklear/NkNodeEditor.cpp^
  ../Nuklear/NkJoystick.cpp^
+ ../Sound/SoftwareMixer.cpp^
+ ../Sound/RtAudioPlayer.cpp^
+ ../Sound/OpenALPlayer.cpp^
+ ../Sound/SoundDevice.cpp^
+ ../Sound/AudioDecoder.cpp^
+ ../Video/RGBADecoder.cpp^
+ ../Video/YUVDecoder.cpp^
+ ../Video/VideoDecoder.cpp^
  ../Physics/Physics.cpp^
  ../Physics/DebugDrawer.cpp^
  -D_MD -D_DLL -O3 -flto -fuse-ld=lld -std=c++17 -D_CRT_SECURE_NO_WARNINGS^
  -Wno-return-type-c-linkage^
- -DNWASM -DNDEBUG -DFREEIMAGE_LIB -DWEBGPU_DAWN^
+ -DNWASM -DNDEBUG -DFREEIMAGE_LIB -DWEBGPU_DAWN -DAL_LIBTYPE_STATIC^
  -o Examples.exe

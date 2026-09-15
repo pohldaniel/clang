@@ -34,4 +34,7 @@ extern "C" {
 
 	void virtual_rotation_button(struct nk_rect dimension, RotationButtonResult& out);
 	void nk_virtual_rotation_button(struct nk_context* ctx, float size_px, RotationButtonResult& out);
+
+	bool rounded_button(struct nk_rect dimension, const char* label, bool& isPressed);
+	void nk_rounded_button(struct nk_context* ctx, const char* label, bool& isPressed);
 }

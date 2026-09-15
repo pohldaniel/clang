@@ -102,6 +102,7 @@ Cubes::~Cubes() {
 	nkShutDown();
 	Physics::DebugDrawer.shutDown();
 	m_uniformBuffer.markForDelete();
+	m_storageBuffer.markForDelete();
 }
 
 void Cubes::fixedUpdate() {
