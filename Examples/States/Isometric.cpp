@@ -13,11 +13,11 @@
 #include <Nuklear/NkContext.h>
 #include <Nuklear/NkStyle.h>
 
+#include <scene/CollisionNode.h>
+
 #include <entities/CollisionEntity.h>
 #include <entities/Enemy.h>
 #include <entities/Player.h>
-
-#include <scene/CollisionNode.h>
 
 #include "Isometric.h"
 #include "Mouse.h"
