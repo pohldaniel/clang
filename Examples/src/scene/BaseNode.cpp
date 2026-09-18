@@ -17,11 +17,11 @@ BaseNode& BaseNode::operator=(const BaseNode& rhs) {
 	return *this;
 }
 
-BaseNode::BaseNode(BaseNode&& rhs) : Node(rhs), Object(rhs) {
+BaseNode::BaseNode(BaseNode&& rhs) noexcept : Node(rhs), Object(rhs) {
 	m_isDirty = rhs.m_isDirty;
 }
 
-BaseNode& BaseNode::operator=(BaseNode&& rhs) {
+BaseNode& BaseNode::operator=(BaseNode&& rhs) noexcept {
 	Node::operator=(rhs);
 	Object::operator=(rhs);
 	m_isDirty = rhs.m_isDirty;

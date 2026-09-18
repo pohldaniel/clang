@@ -1,5 +1,5 @@
 clang++^
- -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/" -I "../SDKs/RtAudio/include/" -I "../SDKs/OpenAl/include/" -I "../SDKs/Bullet/include/"^
+ -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "./include/entities/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/" -I "../SDKs/RtAudio/include/" -I "../SDKs/OpenAl/include/" -I "../SDKs/Bullet/include/"^
  -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/" -L "../SDKs/ffmpeg/lib/" -L "../SDKs/RtAudio/lib/x64/" -L "../SDKs/OpenAl/lib/x64/" -L "../SDKs/Bullet/lib/x64/"^
  -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt -lstrmiids -lmfuuid -lavrt^
  -llibglfw3 -llibimgui -llibassimp -lwgpu -llibfreeimage -llibzlib -llibavutil -llibavcodec -llibswresample -llibavformat -llibswscale -llibopenal -llibrtaudio -lliblinearmath -llibbulletcollision -llibbulletdynamics^
@@ -29,24 +29,29 @@ clang++^
  src/CharacterSet.cpp^
  src/Application.cpp^
  src/bullet_store.cpp^
+ src/enemy_spawner.cpp^
+ src/entities/Entity.cpp^
+ src/entities/CollisionEntity.cpp^
+ src/entities/Enemy.cpp^
+ src/entities/Player.cpp^
  src/main.cpp^
- states/StateMachine.cpp^
- states/Wireframe.cpp^
- states/ImageBasedLighting.cpp^
- states/ShadowMapping.cpp^
- states/SkinnedMesh.cpp^
- states/ComputeParticleLogo.cpp^
- states/PrimitivePicking.cpp^
- states/StencilMask.cpp^
- states/DeferredRendering.cpp^
- states/VolumeRendering.cpp^
- states/OcclusionQuery.cpp^
- states/RenderBundles.cpp^
- states/NuklearGui.cpp^
- states/AudioDecode.cpp^
- states/VideoDecode.cpp^
- states/Cubes.cpp^
- states/Isometric.cpp^
+ States/StateMachine.cpp^
+ States/Wireframe.cpp^
+ States/ImageBasedLighting.cpp^
+ States/ShadowMapping.cpp^
+ States/SkinnedMesh.cpp^
+ States/ComputeParticleLogo.cpp^
+ States/PrimitivePicking.cpp^
+ States/StencilMask.cpp^
+ States/DeferredRendering.cpp^
+ States/VolumeRendering.cpp^
+ States/OcclusionQuery.cpp^
+ States/RenderBundles.cpp^
+ States/NuklearGui.cpp^
+ States/AudioDecode.cpp^
+ States/VideoDecode.cpp^
+ States/Cubes.cpp^
+ States/Isometric.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^
@@ -75,6 +80,9 @@ clang++^
  ../Sound/OpenALPlayer.cpp^
  ../Sound/SoundDevice.cpp^
  ../Sound/AudioDecoder.cpp^
+ ../Sound/RtAudioEffect.cpp^
+ ../Sound/OpenALEffect.cpp^
+ ../Sound/SoundEffect.cpp^
  ../Video/RGBADecoder.cpp^
  ../Video/YUVDecoder.cpp^
  ../Video/VideoDecoder.cpp^
