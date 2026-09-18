@@ -1,8 +1,6 @@
-#include <iostream>
 #include "BaseNode.h"
-#include "SceneNode.h"
 
-BaseNode::BaseNode() : Object(), Node(), m_isDirty(true){
+BaseNode::BaseNode() : Node(), Object(), m_isDirty(true){
 
 }
 

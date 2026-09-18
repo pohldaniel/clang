@@ -174,7 +174,7 @@ std::vector<T*> Node::getChildren() const {
 	std::vector<T*> filteredChildren;
 	for (const auto& child : m_children) {
 		if (auto* castedChild = dynamic_cast<T*>(child.get())) {
-			castedChildren.push_back(castedChild);
+			filteredChildren.push_back(castedChild);
 		}
 	}
 	return filteredChildren;
