@@ -40,7 +40,7 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
     m_videoDecoder.open<YUVDecoder, OpenALPlayer>("res/videos/big_buck_bunny.mp4");
     m_videoDecoder.getDecoder<YUVDecoder>()->setBindGroup(createBindGroup());
     m_videoDecoder.queryFirstFrame();
-	//m_videoDecoder.pause();
+	m_videoDecoder.pause();
 
     wgpContext.OnDraw = std::bind(&VideoDecode::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
     nkContext.OnFillBuffer = std::bind(&VideoDecode::OnFillBuffer, this, std::placeholders::_1);
