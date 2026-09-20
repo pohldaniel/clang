@@ -465,6 +465,7 @@ void Isometric::update() {
 
 	if (playerMove) {
 		m_playerEnitity->translate(playerDirection[0] * 2.0f * m_dt, playerDirection[1] * 2.0f * m_dt, playerDirection[2] * 2.0f * m_dt);
+		m_lightView = glm::lookAt(m_playerEnitity->getPosition() - 20.0f * m_lightDir, m_playerEnitity->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
 	float movementTheta = std::atan2(playerDirection[0], playerDirection[2]);
@@ -515,7 +516,6 @@ void Isometric::update() {
 		enemy->update(m_dt);
 	}
 	updateBillboards(m_dt);
-
 	updateMuzzle(m_dt);
 
 	const AnimatedMesh* mesh = static_cast<const AnimatedMesh*>(m_player.getMesh());
@@ -531,7 +531,7 @@ void Isometric::update() {
 	float finalCorrectionAngle = 90.0f * std::abs(std::cos(radians));
 	float sign = (angle > 0.0f && angle < 180.0f) ? -1.0f : 1.0f;
 
-	muzzleTransform = muzzleTransform * glm::rotate(glm::radians(sign * finalCorrectionAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+	muzzleTransform = muzzleTransform * glm::rotate(glm::radians(sign * finalCorrectionAngle), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	m_uniforms.projection = m_camera.getPerspectiveMatrix();
 	m_uniforms.view = m_camera.getViewMatrix();
@@ -1267,17 +1267,17 @@ CollisionEntity* Isometric::createNewBulletToPool() {
 }
 
 void Isometric::spawnBillboard(const glm::vec3& position) {
-	SpriteInstance newSprite;
-	newSprite.position[0] = position[0];
-	newSprite.position[1] = 120.0f * 0.0044f;
-	newSprite.position[2] = position[2];
+	SpriteInstance billboard;
+	billboard.position[0] = position[0];
+	billboard.position[1] = 120.0f * 0.0044f;
+	billboard.position[2] = position[2];
 
-	newSprite.scale[0] = 0.25f;
-	newSprite.scale[1] = 0.25f;
+	billboard.scale[0] = 0.25f;
+	billboard.scale[1] = 0.25f;
+	billboard.age = 0.0f;
+	billboard.currentFrame = 0u;
 
-	newSprite.currentFrame = 0u;
-
-	m_activeBillboards.push_back(newSprite);
+	m_activeBillboards.push_back(billboard);
 }
 
 void Isometric::resetMuzzle() {
