@@ -11,7 +11,6 @@
 #include <animation/Animation.h>
 #include <scene/SceneNode.h>
 
-#include <Sound/AudioDecoder.h>
 #include <Sound/SoundEffect.h>
 
 #include <States/StateMachine.h>
@@ -85,6 +84,19 @@ class Isometric : public State {
 		float time;
 	};
 
+	struct SpriteInstance {
+		float position[3];
+		float age;
+		float scale[2];
+		float currentFrame;
+		uint32_t padding2;
+	};
+
+	struct FrameInfo {
+		uint32_t colRow[2];
+		float frameSize[2];
+	};
+
 public:
 
 	Isometric(StateMachine& machine);
@@ -94,6 +106,7 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
+	void OnDrawShadow(const WGPURenderPassEncoder& renderPassEncoder);
 	void OnFillBuffer(nk_context& nkCntxt);
 
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
@@ -110,15 +123,26 @@ private:
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsFloor();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWiggly();
 	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsBullet();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsBillboard();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsShadow();
+	std::vector<WGPUBindGroupLayout> OnBindGroupLayoutsWigglyShadow();
 
 	std::vector<WGPUBindGroup> OnBindGroups();
 	std::vector<WGPUBindGroup> OnBindGroupsFloor();
 	std::vector<WGPUBindGroup> OnBindGroupsBullet();
-
+	std::vector<WGPUBindGroup> OnBindGroupsShadow();
+	WGPUBindGroup createBindGroupBillboard();
+	WGPUBindGroup createBindGroupMuzzle();
+	WGPUBindGroup createBindGroupWiggly();
+	
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	bool getWorldPosition(int xPos, int yPos, const glm::vec3& planeNormal, glm::vec3& outIntersection);
 	float getLookAtYRotation(const glm::vec3& objectPos, const glm::vec3& targetPos);
 	CollisionEntity* createNewBulletToPool();
+	void spawnBillboard(const glm::vec3& position);
+	void resetMuzzle();
+	void updateBillboards(float dt);
+	void updateMuzzle(float dt);
 
 	bool m_initUi = true;
 	bool m_drawUi = false;
@@ -139,9 +163,10 @@ private:
 	AnimatedModel m_player;
 	Shape m_floor, m_bullet;
 	Animation m_full;
-	WgpBuffer m_uniformBuffer, m_storageBuffer, m_wigglyBuffer, m_skinBuffer, m_rotationBuffer, m_offsetBuffer;
+	WgpBuffer m_uniformBuffer, m_infoBufferBillboard, m_infoBufferMuzzle, m_storageBuffer, m_wigglyBuffer, m_skinBuffer, m_rotationBuffer, m_offsetBuffer, m_spriteBuffer, m_muzzleBuffer;
 	WgpModel m_wgpPlayer, m_wgpFloor, m_wgpEnemy, m_wgpBullet;
-	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture;
+	WgpTexture m_wgpFloorD, m_wgpEnemyD, m_wgpBulletTexture, m_sprite, m_muzzle, m_wgpTextureShadow;
+	WGPUBindGroup m_bindGroupBillboard, m_bindGroupMuzzle;
 
 	float prev_idleWeight = 0.0f;
 	float prev_rightWeight = 0.0f;
@@ -159,6 +184,10 @@ private:
 	Player* m_playerEnitity;
 	std::vector<Enemy*> m_enemies;
 	std::vector<glm::mat4> m_cpuInstanceBuffer;
+	std::vector<SpriteInstance> m_activeBillboards;
+	SpriteInstance m_muzzleInstance;
+	glm::mat4 m_lightProjection, m_lightView;
+	glm::vec3 m_lightDir;
 
-	static WGPUBindGroup CreateBindGroup(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpTexture& texture, const WgpBuffer& storageBuffer);
+	static WGPUBindGroup CreateBindGroupShadow(const WgpBuffer& uniformBuffer, const WgpBuffer& wigglyBuffer, const WgpBuffer& storageBuffer);
 };
