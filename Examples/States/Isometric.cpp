@@ -262,11 +262,25 @@ Isometric::~Isometric() {
 	nkShutDown();
 	Physics::DebugDrawer.shutDown();
 	m_uniformBuffer.markForDelete();
-	m_storageBuffer.markForDelete();
-	m_wigglyBuffer.markForDelete();
-	m_skinBuffer.markForDelete();
-	m_rotationBuffer.markForDelete();
-	m_offsetBuffer.markForDelete();
+    m_infoBufferBillboard.markForDelete();
+    m_infoBufferMuzzle.markForDelete();
+    m_storageBuffer.markForDelete();
+    m_wigglyBuffer.markForDelete();
+    m_skinBuffer.markForDelete();
+    m_rotationBuffer.markForDelete();
+    m_offsetBuffer.markForDelete();
+    m_spriteBuffer.markForDelete();
+    m_muzzleBuffer.markForDelete();
+
+    m_wgpFloorD.markForDelete();
+    m_wgpEnemyD.markForDelete();
+    m_wgpBulletTexture.markForDelete();
+    m_sprite.markForDelete();
+    m_muzzle.markForDelete();
+    m_wgpTextureShadow.markForDelete();
+
+    wgpuBindGroupRelease(m_bindGroupBillboard);
+    wgpuBindGroupRelease(m_bindGroupMuzzle);
 }
 
 void Isometric::fixedUpdate() {
