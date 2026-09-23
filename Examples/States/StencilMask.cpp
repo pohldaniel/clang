@@ -43,7 +43,7 @@ StencilMask::StencilMask(StateMachine& machine) : State(machine, States::STENCIL
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined , WGPUCullMode_Undefined, MASK }
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::MASK }
 	);
 
 	wgpContext.createRenderPipeline("STENCIL", "RP_STENCIL_SET", VL_PTN, std::bind(&StencilMask::OnBindGroupLayoutsStencil, this),
@@ -52,7 +52,7 @@ StencilMask::StencilMask(StateMachine& machine) : State(machine, States::STENCIL
 		WGPUTextureFormat_Undefined,
 		WGPUTextureFormat_Undefined,
 		WGPUCompareFunction_Less,
-		{ WRITE_DEPTH | DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined , WGPUCullMode_Undefined, SET }
+		{ DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::SET }
 	);
 
 	m_wgpModels.resize(8u);

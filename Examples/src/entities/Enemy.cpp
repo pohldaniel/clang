@@ -1,7 +1,7 @@
 #include <glm/gtx/norm.hpp>
 #include "Enemy.h"
 
-Enemy::Enemy(btCollisionObject* collisionObject, const glm::vec3& target) : CollisionNode(collisionObject), target(target){
+Enemy::Enemy(btCollisionObject* collisionObject, const glm::vec3& target) : CollisionNode(collisionObject), target(target), m_isDeath(false){
     m_collisionObject->setUserPointer(this);
 }
 
@@ -16,8 +16,7 @@ void Enemy::update(const float dt) {
     if (distanceSq < 0.35f)
         return;
 
-    glm::quat rot = glm::quat(glm::vec3(0.0f, getLookAtYRotation(getPosition(), target), 0.0f));
-    setOrientation(rot);
+    setOrientation(glm::quat(glm::vec3(0.0f, getLookAtYRotation(getPosition(), target), 0.0f)));
     translateRelative(glm::vec3(0.0f, 0.0f, 1.0f) * dt * monsterSpeed);
 }
 
@@ -38,4 +37,16 @@ float Enemy::getLookAtYRotation(const glm::vec3& objectPos, const glm::vec3& tar
 		return 0.0f;
 
 	return std::atan2(dx, dz);
+}
+
+const glm::vec3 Enemy::getDirection() const {
+    return getOrientation() * glm::vec3(0.0f, 0.0f, 1.0f);
+}
+
+void Enemy::setIsDeath(bool isDeath) {
+    m_isDeath = true;
+}
+
+bool Enemy::isDeath() {
+    return m_isDeath;
 }
