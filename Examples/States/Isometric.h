@@ -194,10 +194,11 @@ private:
 	float aimTheta = 0.0f;
 	float lastFireTime = 0.0f;
 	size_t m_targetPoolSize;
+	int m_spreadAmount = 20;
 
 	EnemySpawner m_enemySpawner;
 	std::vector<CollisionEntity*> m_entities;
-	Player* m_playerEnitity;
+	Player* m_playerEntity;
 	std::vector<Enemy*> m_enemies;
 	std::vector<glm::mat4> m_cpuInstanceBuffer;
 	std::vector<SpriteInstance> m_activeBillboards;

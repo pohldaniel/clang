@@ -546,7 +546,7 @@ void WgpTexture::createEmpty(uint32_t width, uint32_t height, uint32_t depth, WG
 void WgpTexture::resize(uint32_t width, uint32_t height) {
     if (m_texture) {
         uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(m_texture);
-        uint32_t smapleCount = wgpuTextureGetSampleCount(m_texture);
+        uint32_t sampleCount = wgpuTextureGetSampleCount(m_texture);
         uint32_t depth = wgpuTextureGetDepthOrArrayLayers(m_texture);
         WGPUTextureUsage textureUsage = wgpuTextureGetUsage(m_texture);
 
@@ -557,7 +557,7 @@ void WgpTexture::resize(uint32_t width, uint32_t height) {
         m_width = width;
         m_height = height;
 
-        m_texture = wgpCreateTexture(m_width, m_height, depth, textureUsage, m_format, mipLevelCount, smapleCount);
+        m_texture = wgpCreateTexture(m_width, m_height, depth, textureUsage, m_format, mipLevelCount, sampleCount);
         m_textureView = wgpCreateTextureView(m_texture, WGPUTextureAspect::WGPUTextureAspect_All);
     }
 }

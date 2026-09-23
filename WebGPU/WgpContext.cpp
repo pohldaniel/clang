@@ -1047,7 +1047,7 @@ void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
                                       WGPUTextureFormat colorTextureFormat,
 									  WGPUTextureFormat depthTextureFormat,
 									  WGPUCompareFunction depthCompareFunction,
-									  const PipelineConfiguration configuration) {
+									  PipelineConfiguration configuration) {
 
 	if (onBindGroupLayouts) {
 		std::vector<WGPUBindGroupLayout> bindGroupLayouts = onBindGroupLayouts();

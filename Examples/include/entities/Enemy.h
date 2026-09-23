@@ -11,7 +11,7 @@ public:
 	Enemy(btCollisionObject* collisionObject, const glm::vec3& target);
 	~Enemy();
 
-	void update(const float dt) override;
+	void update(float dt) override;
 	void fixedUpdate(float fdt) override;
 
 	const glm::vec3 getDirection() const;

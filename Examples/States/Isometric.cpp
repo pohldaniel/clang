@@ -320,7 +320,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 	m_targetPoolSize = 100;
 
 	btCollisionObject* body = Physics::AddKinematicObject(Physics::BtTransform(glm::vec3(0.0f, 0.4f, 0.0f)), new btCylinderShape(btVector3(0.35f * 0.5f, 0.4f, 0.35f * 0.5f)), Physics::collisiontypes::CHARACTER, Physics::collisiontypes::ENEMY);
-	m_playerEnitity = m_scene->addChild<Player>(body, m_player);
+	m_playerEntity = m_scene->addChild<Player>(body, m_player);
 
 	m_bindGroupBillboard = createBindGroupBillboard();
 	m_bindGroupMuzzle = createBindGroupMuzzle();
@@ -387,14 +387,14 @@ void Isometric::fixedUpdate() {
 		enemy->fixedUpdate(m_fdt);
 	}
 
-	m_playerEnitity->fixedUpdate(m_fdt);
+	m_playerEntity->fixedUpdate(m_fdt);
 
 	Application::physics->stepSimulation(FIXED_STEP);
 
 	BulletCollisionCallback callback;
-	Physics::GetDynamicsWorld()->contactTest(m_playerEnitity->getCollisionObject(), callback);
+	Physics::GetDynamicsWorld()->contactTest(m_playerEntity->getCollisionObject(), callback);
 	if (callback.m_hasCollided && callback.m_hitTarget) {
-		m_playerEnitity->setActive(false);
+		m_playerEntity->setActive(false);
 		m_isDeath = true;
 	}
 }
@@ -450,7 +450,7 @@ void Isometric::update() {
 		const glm::mat4 playerModelTransform = m_player.getWorldTransformation();
 		const glm::vec3 projectileSpawnPoint = playerModelTransform * glm::vec4(-20.0f, 120.0f, 140.0f, 1.0f);
 
-		m_bulletStore.createBullets(projectileSpawnPoint, midOri, 20);
+		m_bulletStore.createBullets(projectileSpawnPoint, midOri, m_spreadAmount);
 		lastFireTime = static_cast<float>(glfwGetTime());
 		m_fire.play("res/sounds/shooting_one.wav");
 		resetMuzzle();
@@ -524,8 +524,8 @@ void Isometric::update() {
 	playerMove = glm::length2(playerDirection) > 0.01f && !m_isDeath;
 
 	if (playerMove) {
-		m_playerEnitity->translate(playerDirection[0] * 2.0f * m_dt, playerDirection[1] * 2.0f * m_dt, playerDirection[2] * 2.0f * m_dt);
-		m_lightView = glm::lookAt(m_playerEnitity->getPosition() - 20.0f * m_lightDir, m_playerEnitity->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_playerEntity->translate(playerDirection[0] * 2.0f * m_dt, playerDirection[1] * 2.0f * m_dt, playerDirection[2] * 2.0f * m_dt);
+		m_lightView = glm::lookAt(m_playerEntity->getPosition() - 20.0f * m_lightDir, m_playerEntity->getPosition(), glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 
 	float movementTheta = std::atan2(playerDirection[0], playerDirection[2]);
@@ -601,7 +601,7 @@ void Isometric::update() {
 	m_uniforms.camPosition = m_camera.getPosition();
 	m_uniforms.lightVP = m_lightProjection * m_lightView;
 	m_uniforms.shadow = Camera::BIAS * m_uniforms.lightVP;
-	m_uniforms.lightPosition = m_playerEnitity->getPosition() - 20.0f * m_lightDir;
+	m_uniforms.lightPosition = m_playerEntity->getPosition() - 20.0f * m_lightDir;
 
 	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
 
