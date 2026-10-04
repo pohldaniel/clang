@@ -212,7 +212,7 @@ void ComputeParticleLogo::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 }
 
-void ComputeParticleLogo::OnScroll(double xoffset, double yoffset) {
+void ComputeParticleLogo::OnScroll(const Event::MouseWheelEvent& event) {
 
 }
 

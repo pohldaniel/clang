@@ -99,7 +99,7 @@ void State::OnMouseButtonUp(const Event::MouseButtonEvent& event){
 
 }
 
-void State::OnScroll(double xoffset, double yoffset){
+void State::OnScroll(const Event::MouseWheelEvent& event){
 
 }
 

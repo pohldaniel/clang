@@ -292,7 +292,7 @@ void PrimitivePicking::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 }
 
-void PrimitivePicking::OnScroll(double xoffset, double yoffset) {
+void PrimitivePicking::OnScroll(const Event::MouseWheelEvent& event) {
 
 }
 

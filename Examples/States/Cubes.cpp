@@ -272,7 +272,7 @@ void Cubes::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 		Mouse::instance().attach(Application::Window, false, false, true);
 }
 
-void Cubes::OnScroll(double xoffset, double yoffset) {
+void Cubes::OnScroll(const Event::MouseWheelEvent& event) {
 	
 }
 

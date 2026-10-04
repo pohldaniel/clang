@@ -323,12 +323,12 @@ void ImageBasedLighting::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	applyTransformation(m_trackball);
 }
 
-void ImageBasedLighting::OnScroll(double xoffset, double yoffset) {
-	if (yoffset > 0) {
+void ImageBasedLighting::OnScroll(const Event::MouseWheelEvent& event) {
+	if (event.delta > 0) {
 		m_camera.move(-0.5f);
 	}
 
-	if (yoffset < 0) {
+	if (event.delta < 0) {
 		m_camera.move(0.5f);
 	}
 }

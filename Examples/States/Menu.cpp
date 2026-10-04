@@ -469,8 +469,8 @@ void Menu::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 		Mouse::instance().attach(Application::Window, false, false, true);
 }
 
-void Menu::OnScroll(double xoffset, double yoffset) {
-	
+void Menu::OnScroll(const Event::MouseWheelEvent& event) {
+	m_uiScene->wheelInput(event.x, event.y, event.delta);
 }
 
 void Menu::OnKeyDown(const Event::KeyboardEvent& event) {

@@ -166,7 +166,7 @@ void VolumeRendering::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 }
 
-void VolumeRendering::OnScroll(double xoffset, double yoffset) {
+void VolumeRendering::OnScroll(const Event::MouseWheelEvent& event) {
 
 }
 

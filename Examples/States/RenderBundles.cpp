@@ -222,7 +222,7 @@ void RenderBundles::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 }
 
-void RenderBundles::OnScroll(double xoffset, double yoffset) {
+void RenderBundles::OnScroll(const Event::MouseWheelEvent& event) {
 
 }
 

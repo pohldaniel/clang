@@ -34,7 +34,7 @@ public:
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
 	void OnMouseButtonDown(const Event::MouseButtonEvent& event) override;
 	void OnMouseButtonUp(const Event::MouseButtonEvent& event) override;
-	void OnScroll(double xoffset, double yoffset) override;
+	void OnScroll(const Event::MouseWheelEvent& event) override;
 	void OnKeyDown(const Event::KeyboardEvent& event) override;
 	void OnKeyUp(const Event::KeyboardEvent& event) override;
     void resize(int deltaW, int deltaH) override;

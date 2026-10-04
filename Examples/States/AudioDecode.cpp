@@ -195,7 +195,7 @@ void AudioDecode::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 		Mouse::instance().attach(Application::Window, false, false, true);
 }
 
-void AudioDecode::OnScroll(double xoffset, double yoffset) {
+void AudioDecode::OnScroll(const Event::MouseWheelEvent& event) {
 	
 }
 

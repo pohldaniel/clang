@@ -195,7 +195,7 @@ void VideoDecode::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 		Mouse::instance().attach(Application::Window, false, false, true);
 }
 
-void VideoDecode::OnScroll(double xoffset, double yoffset) {
+void VideoDecode::OnScroll(const Event::MouseWheelEvent& event) {
 
 }
 

@@ -36,8 +36,11 @@ public:
 			UP = 0,
 			DOWN = 1
 		};
+
+		int x; 
+		int y;
 		WheelDirection direction;
-		short delta;
+		float delta;
 	};
 
 	struct KeyboardEvent {

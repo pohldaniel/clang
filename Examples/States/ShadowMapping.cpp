@@ -205,7 +205,7 @@ void ShadowMapping::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 }
 
-void ShadowMapping::OnScroll(double xoffset, double yoffset) {
+void ShadowMapping::OnScroll(const Event::MouseWheelEvent& event) {
 
 }
 

@@ -284,12 +284,17 @@ void glfwMouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
 }
 
 void glfwWindowScroll(GLFWwindow* window, double xoffset, double yoffset) {
+  double xpos, ypos;
+  glfwGetCursorPos(window, &xpos, &ypos);
+  
   Event event;
   event.type = Event::MOUSEWHEEL;
-  event.data.mouseWheel.delta = yoffset;
+  event.data.mouseWheel.x = static_cast<int>(xpos);
+  event.data.mouseWheel.y = static_cast<int>(ypos);
+  event.data.mouseWheel.delta = static_cast<float>(yoffset);
   event.data.mouseWheel.direction = event.data.mouseWheel.delta > 0 ? Event::MouseWheelEvent::WheelDirection::UP : Event::MouseWheelEvent::WheelDirection::DOWN;
 	Application::ScrollDelta = event.data.mouseWheel.delta;
-  Application::Machine->getStates().top()->OnScroll(xoffset, yoffset);
+  Application::Machine->getStates().top()->OnScroll(event.data.mouseWheel);
 }
 
 void glfwWindowResizeCallback(GLFWwindow* window, int width, int height){

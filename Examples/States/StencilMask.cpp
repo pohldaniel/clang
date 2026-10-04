@@ -274,7 +274,7 @@ void StencilMask::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 }
 
-void StencilMask::OnScroll(double xoffset, double yoffset) {
+void StencilMask::OnScroll(const Event::MouseWheelEvent& event) {
 
 }
 

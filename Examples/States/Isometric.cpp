@@ -773,7 +773,7 @@ void Isometric::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 		Mouse::instance().attach(Application::Window, false, false, true);
 }
 
-void Isometric::OnScroll(double xoffset, double yoffset) {
+void Isometric::OnScroll(const Event::MouseWheelEvent& event) {
 	
 }
 

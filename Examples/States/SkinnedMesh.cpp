@@ -247,7 +247,7 @@ void SkinnedMesh::OnMouseMotion(const Event::MouseMoveEvent& event) {
 
 }
 
-void SkinnedMesh::OnScroll(double xoffset, double yoffset) {
+void SkinnedMesh::OnScroll(const Event::MouseWheelEvent& event) {
 
 }
 

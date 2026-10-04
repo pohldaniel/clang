@@ -348,7 +348,7 @@ void DeferredRendering::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 }
 
-void DeferredRendering::OnScroll(double xoffset, double yoffset) {
+void DeferredRendering::OnScroll(const Event::MouseWheelEvent& event) {
 
 }
 
