@@ -19,7 +19,8 @@ enum States {
 	AUDIO_DECODE,
 	VIDEO_DECODE,
 	CUBES,
-	ISOMETRIC
+	ISOMETRIC,
+	MENU
 };
 
 class State;

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <animation/AnimatedModel.h>
-#include <animation/Animation.h>
-
 #include <WebGPU/WgpBuffer.h>
 #include <WebGPU/WgpMesh.h>
 #include <WebGPU/WgpModel.h>
@@ -10,6 +7,9 @@
 
 #include <States/StateMachine.h>
 #include <Shape/Shape.h>
+
+#include <animation/AnimatedModel.h>
+#include <animation/Animation.h>
 
 #include "Camera.h"
 #include "Fade.h"

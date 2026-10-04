@@ -1,8 +1,8 @@
 clang++^
- -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "./include/entities/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../rtaudio/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/" -I "../SDKs/RtAudio/include/" -I "../SDKs/OpenAl/include/" -I "../SDKs/Bullet/include/"^
- -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/" -L "../SDKs/ffmpeg/lib/" -L "../SDKs/OpenAl/lib/x64/" -L "../SDKs/Bullet/lib/x64/"^
+ -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "./include/entities/" -I "./include/ui/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../rtaudio/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/" -I "../SDKs/RtAudio/include/" -I "../SDKs/OpenAl/include/" -I "../SDKs/Bullet/include/" -I "../SDKs/freetype/include/"^
+ -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/" -L "../SDKs/ffmpeg/lib/" -L "../SDKs/OpenAl/lib/x64/" -L "../SDKs/Bullet/lib/x64/" -L "../SDKs/freetype/lib/x64/"^
  -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt -lstrmiids -lmfuuid -lavrt^
- -llibglfw3 -llibimgui -llibrtaudio -llibassimp -lwgpu -llibfreeimage -llibzlib -llibavutil -llibavcodec -llibswresample -llibavformat -llibswscale -llibopenal -lliblinearmath -llibbulletcollision -llibbulletdynamics^
+ -llibglfw3 -llibimgui -llibrtaudio -llibassimp -lwgpu -llibfreeimage -llibzlib -llibavutil -llibavcodec -llibswresample -llibavformat -llibswscale -llibopenal -lliblinearmath -llibbulletcollision -llibbulletdynamics -llibfreetype^
  src/scene/Node.cpp^
  src/scene/BaseNode.cpp^
  src/scene/SceneNode.cpp^
@@ -13,8 +13,9 @@ clang++^
  src/animation/AnimationState.cpp^
  src/animation/AnimatedModel.cpp^
  src/animation/AnimationController.cpp^
+ src/ui/UiContext.cpp^
+ src/ui/Widget.cpp^
  src/Object.cpp^
- src/VideoReader.cpp^
  src/BinaryIO.cpp^
  src/Fade.cpp^
  src/Mouse.cpp^
@@ -52,6 +53,7 @@ clang++^
  States/VideoDecode.cpp^
  States/Cubes.cpp^
  States/Isometric.cpp^
+ States/Menu.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^

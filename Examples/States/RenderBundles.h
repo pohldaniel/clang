@@ -11,7 +11,6 @@
 #include "Camera.h"
 #include "TrackBall.h"
 #include "Transform.h"
-#include "VideoReader.h"
 
 #define MAX_ASTEROID_COUNT (20000u)
 
