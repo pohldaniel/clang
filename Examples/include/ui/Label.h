@@ -1,0 +1,29 @@
+#pragma once
+
+#include <CharacterSet.h>
+#include "Widget.h"
+
+class Label : public Widget {
+
+public:
+
+	Label(const CharacterSet& characterSet);
+	Label(const Label& rhs);
+	Label(Label&& rhs) noexcept;
+	~Label();
+
+	void setText(const std::string& text);
+	void setColor(const glm::vec4& color);
+	void setPadding(float paddingX, float paddingY, bool silent = false) override;
+
+protected:
+
+	const CharacterSet& characterSet;
+	std::string m_text;
+	glm::vec4 m_color;
+
+private:
+
+	void OnLayoutChanged() override;
+	void OnDraw() override;
+};

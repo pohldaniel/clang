@@ -1,5 +1,5 @@
 clang++^
- -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "./include/entities/" -I "./include/ui/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../rtaudio/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/" -I "../SDKs/RtAudio/include/" -I "../SDKs/OpenAl/include/" -I "../SDKs/Bullet/include/" -I "../SDKs/freetype/include/"^
+ -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "./include/entities/" -I "./include/ui/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../librtaudio/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/" -I "../SDKs/RtAudio/include/" -I "../SDKs/OpenAl/include/" -I "../SDKs/Bullet/include/" -I "../SDKs/freetype/include/"^
  -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/" -L "../SDKs/ffmpeg/lib/" -L "../SDKs/OpenAl/lib/x64/" -L "../SDKs/Bullet/lib/x64/" -L "../SDKs/freetype/lib/x64/"^
  -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt -lstrmiids -lmfuuid -lavrt^
  -llibglfw3 -llibimgui -llibrtaudio -llibassimp -lwgpu -llibfreeimage -llibzlib -llibavutil -llibavcodec -llibswresample -llibavformat -llibswscale -llibopenal -lliblinearmath -llibbulletcollision -llibbulletdynamics -llibfreetype^
@@ -15,6 +15,10 @@ clang++^
  src/animation/AnimationController.cpp^
  src/ui/UiContext.cpp^
  src/ui/Widget.cpp^
+ src/ui/Empty.cpp^
+ src/ui/Surface.cpp^
+ src/ui/Button.cpp^
+ src/ui/Label.cpp^
  src/Object.cpp^
  src/BinaryIO.cpp^
  src/Fade.cpp^

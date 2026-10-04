@@ -23,6 +23,7 @@
 #include <States/VideoDecode.h>
 #include <States/Cubes.h>
 #include <States/Isometric.h>
+#include <States/Menu.h>
 
 #include "Mouse.h"
 #include "Keyboard.h"
@@ -142,7 +143,8 @@ void Application::initStates(){
   //Machine->addStateAtTop(new AudioDecode(*Machine));
   //Machine->addStateAtTop(new VideoDecode(*Machine));
   //Machine->addStateAtTop(new Cubes(*Machine));
-  Machine->addStateAtTop(new Isometric(*Machine));
+  //Machine->addStateAtTop(new Isometric(*Machine));
+  Machine->addStateAtTop(new Menu(*Machine));
 }
 
 bool Application::isRunning(){

@@ -730,7 +730,7 @@ void wgpCleanState() {
 	}
 
 	wgpContext.clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
-	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8, Application::OnSurfaceChange);
 	wgpSetMSAASampleCount(1u, Application::OnSurfaceChange);
 
@@ -740,7 +740,7 @@ void wgpCleanState() {
 
 void wgpShutDown() {
 	wgpContext.clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
-	wgpContext.colorFormat = WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm;
+	wgpContext.colorFormat = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
 	wgpContext.depthFormat = WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8;
 	wgpContext.msaaSampleCount = 1u;
 

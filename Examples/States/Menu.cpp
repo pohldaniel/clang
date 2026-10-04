@@ -16,22 +16,412 @@
 
 Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	Mouse::instance().attach(Application::Window, false, true);
-	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
-	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
     m_characterSet.loadFromFile("res/fonts/upheavtt.ttf", 24.0f);
     uiContext.textureView = m_characterSet.texture.getTextureView();
     uiInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 
-	m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_camera.lookAt(glm::vec3(0.0f, 15.0f, -50.0f), glm::vec3(0.0f, 15.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	m_camera.setMovingSpeed(50.0f);
-	m_camera.setRotationSpeed(0.1f);
+	float paddingBottom = 3.0f;
+	m_uiScene = new Empty();
+	m_uiScene->setPadding(20.0f, 20.0f);
+	m_uiScene->setSpacing(25.0f, 25.0f);
+	m_uiScene->setLayout(Layout::MASONRY);
+	m_uiScene->setBorder(10.0f);
 
-	m_trackball.reshape(Application::Width, Application::Height);
+	Surface* surface = m_uiScene->addChild<Surface>();
+	surface->setColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+	surface->setPadding(20.0f, 20.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setLayout(Layout::GRID);
 
-	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
+	Button* button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setPosition(0.05f, 0.05f);
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Wireframe(m_machine));
+	});*/
+
+	Label* label = button->addChild<Label>(m_characterSet);
+	label->setText("Wireframe");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setPosition(0.05f, 0.35f);
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Compute(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Compute");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setPosition(0.35f, 0.35f);
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Specularity(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Specularity");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setPosition(0.05f, 0.5f);
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new NormalMap(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Normal Map");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	surface = m_uiScene->addChild<Surface>();
+	surface->setColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+	surface->setPadding(20.0f, 20.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setLayout(Layout::GRID);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new MSDFFont(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("MSDF Font");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new InstancedCube(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Instanced Cube");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(5.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new ImageBasedLighting(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Image Based Lighting");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+	
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new ShadowMapping(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Shadow Mapping");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	surface = m_uiScene->addChild<Surface>();
+	surface->setColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+	surface->setPadding(20.0f, 20.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setLayout(Layout::GRID);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new SkinnedMesh(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Skinned Mesh");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new ComputeParticleLogo(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Compute Particle Logo");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new PrimitivePicking(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Primitive Picking");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new StencilMask(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Stencil Mask");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	surface = m_uiScene->addChild<Surface>();
+	surface->setColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+	surface->setPadding(20.0f, 20.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setLayout(Layout::GRID);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new DeferredRendering(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Defferred Rendering");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new VolumeRendering(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Volume Rendering");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new OcclusionQuery(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Occlusion Query");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new RenderBundles(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Render Bundles");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	surface = m_uiScene->addChild<Surface>();
+	surface->setColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+	surface->setPadding(20.0f, 20.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setLayout(Layout::GRID);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new NuklearUi(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Nuklear UI");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new AudioDecode(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Audio Decode");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new VideoDecode(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Video Decode");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Cubes(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Cubes");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	surface = m_uiScene->addChild<Surface>();
+	surface->setColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+	surface->setPadding(20.0f, 20.0f);
+	surface->setSpacing(15.0f, 0.0f);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	/*button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Isometric(m_machine));
+	});*/
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Isomeric");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	if (m_layout == SelectedLayout::M_VERTICAL) {
+		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
+		for (auto& surface : surfaces) {
+			surface->setLayout(Layout::VERTICAL);
+			m_uiScene->setLayout(Layout::HORIZONTAL);
+		}
+		m_uiScene->updateLayout();
+	}
+
+	if (m_layout == SelectedLayout::M_HORIZONTAL) {
+		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
+		for (auto& surface : surfaces) {
+			surface->setLayout(Layout::HORIZONTAL);
+			m_uiScene->setLayout(Layout::VERTICAL);
+		}
+		m_uiScene->updateLayout();
+	}
+
+	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 	wgpContext.OnDraw = std::bind(&Menu::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
 }
 
@@ -44,60 +434,9 @@ void Menu::fixedUpdate() {
 }
 
 void Menu::update() {
-
-	Mouse &mouse = Mouse::instance();
-
-	glm::vec3 direction = glm::vec3();
-
-	float dx = 0.0f;
-	float dy = 0.0f;
-	bool move = false;
-
-	if (glfwGetKey(Application::Window, GLFW_KEY_W) == GLFW_PRESS) {
-		direction += glm::vec3(0.0f, 0.0f, 1.0f);
-		move |= true;
-	}
-
-	if (glfwGetKey(Application::Window, GLFW_KEY_S) == GLFW_PRESS) {
-		direction += glm::vec3(0.0f, 0.0f, -1.0f);
-		move |= true;
-	}
-
-	if (glfwGetKey(Application::Window, GLFW_KEY_A) == GLFW_PRESS) {
-		direction += glm::vec3(-1.0f, 0.0f, 0.0f);
-		move |= true;
-	}
-
-	if (glfwGetKey(Application::Window, GLFW_KEY_D) == GLFW_PRESS) {
-		direction += glm::vec3(1.0f, 0.0f, 0.0f);
-		move |= true;
-	}
-
-	if (glfwGetKey(Application::Window, GLFW_KEY_Q) == GLFW_PRESS) {
-		direction += glm::vec3(0.0f, -1.0f, 0.0f);
-		move |= true;
-	}
-
-	if (glfwGetKey(Application::Window, GLFW_KEY_E) == GLFW_PRESS) {
-		direction += glm::vec3(0.0f, 1.0f, 0.0f);
-		move |= true;
-	}
-
-    if (mouse.buttonDownInvisible(GLFW_MOUSE_BUTTON_RIGHT)) {	
-		dx = mouse.xDelta();
-		dy = mouse.yDelta();
-	}
-	
-    if (move || dx != 0.0f || dy != 0.0f) {
-		if (dx || dy) {		
-			m_camera.rotate(dx, dy);
-		}
-
-		if (move) {
-			m_camera.move(direction * m_dt);
-		}
-	}
-	m_trackball.idle();
+	Mouse &mouse = Mouse::instance();	
+	m_uiScene->input(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT));
+	m_uiScene->draw();
 }
 
 void Menu::render() {
@@ -105,16 +444,15 @@ void Menu::render() {
 }
 
 void Menu::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
-	
+	uiDraw(commandEncoder, renderPassDescriptor);
 }
 
 void Menu::OnMouseMotion(const Event::MouseMoveEvent& event) {
-	m_trackball.motion(event.x, event.y);
+
 }
 
 void Menu::OnMouseButtonDown(const Event::MouseButtonEvent& event) {	
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
-		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		Mouse::instance().attach(Application::Window, false, true);
 	}
 
@@ -124,7 +462,6 @@ void Menu::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 
 void Menu::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
-		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		Mouse::instance().attach(Application::Window, false, true);
 	} 
 
@@ -145,10 +482,7 @@ void Menu::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void Menu::resize(int deltaW, int deltaH) {
-	nkResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
-	m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
-	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
-	m_trackball.reshape(Application::Width, Application::Height);	
+	uiResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 }
 
 void Menu::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {

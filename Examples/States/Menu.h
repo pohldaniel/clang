@@ -6,14 +6,19 @@
 #include <WebGPU/WgpData.h>
 
 #include <States/StateMachine.h>
-#include <Nuklear/NkContext.h>
 
-#include "Camera.h"
-#include "TrackBall.h"
-#include "CharacterSet.h"
+#include <ui/Empty.h>
+#include <ui/Surface.h>
+#include <ui/Button.h>
+#include <ui/Label.h>
 
 class Menu : public State {
-	
+	enum SelectedLayout {
+		M_HORIZONTAL,
+		M_VERTICAL,
+		M_GRID
+	};
+
 public:
 
 	Menu(StateMachine& machine);
@@ -39,8 +44,7 @@ private:
 	bool m_initUi = true;
 	bool m_drawUi = false;
 
-	Camera m_camera;
-	Uniforms m_uniforms;
-	TrackBall m_trackball;
+	Empty* m_uiScene;
 	CharacterSet m_characterSet;
+	SelectedLayout m_layout = SelectedLayout::M_GRID;
 };

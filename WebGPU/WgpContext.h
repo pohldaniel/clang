@@ -170,7 +170,7 @@ struct WgpContext {
 	WGPUSurfaceConfiguration config = {};
 	WGPUSurfaceCapabilities surfaceCapabilities;
 	WGPUTextureFormat depthFormat = WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8;
-	WGPUTextureFormat colorFormat = WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm;
+	WGPUTextureFormat colorFormat = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
 
 	std::unordered_map<std::string, WGPUComputePipeline> computePipelines;
 	std::unordered_map<std::string, WGPURenderPipeline> renderPipelines;
