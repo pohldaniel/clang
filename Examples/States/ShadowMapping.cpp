@@ -23,7 +23,7 @@ ShadowMapping::ShadowMapping(StateMachine& machine) : State(machine, States::SHA
 	m_camera.setRotationSpeed(0.1f);
 	m_camera.setMovingSpeed(50.0f);
 
-	m_dragon.loadModel("res/models/dragon_vrip_res4.ply");
+	m_dragon.loadModelAssimp("res/models/dragon_vrip_res4.ply");
 	m_dragon.scale(500.0f);
 	m_dragon.generateNormals();
 

@@ -25,7 +25,7 @@ SkinnedMesh::SkinnedMesh(StateMachine& machine) : State(machine, States::SKINNED
 	m_attack.loadAnimation("res/models/whale/attack.anic");
 	m_swim.loadAnimation("res/models/whale/swim.anic");
 
-	m_whale.loadModel("res/models/whale/whale.mdlc", 1u);
+	m_whale.loadModel({"res/models/whale/whale.mdlc"}, 1u);
 	m_whale.scale(10.0f, 10.0f, 10.0f);
 	m_whale.rotate(-90.0f, 0.0f, 0.0f);
 	m_whale.rotate(0.0f, 0.0f, 180.0f);
