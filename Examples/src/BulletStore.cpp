@@ -17,167 +17,113 @@
 
 namespace {
 
+    const float rotPerBullet = 3.0f * glm::pi<float>() / 180.0f;
+    const float bulletScale = 0.3f;
+    const float bulletLifetime = 1.0f;
+    const float bulletSpeed = 15.0f;
 
-const float pi = (float)M_PI;
-const float rotPerBullet = 3.0f * pi / 180.0f;
+    const float bulletEnemyMaxCollisionDist = 0.3f / 2 + 0.03f + 0.4f / 2 + 0.08f;
+    const float bulletEnemyMaxCollisionDist2 = bulletEnemyMaxCollisionDist * bulletEnemyMaxCollisionDist;
 
-glm::quat partialHamiltonProduct2(const glm::quat& q1, const glm::vec3& q2) {
-  return glm::quat(
-    - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z,
-    q1.w * q2.x + q1.y * q2.z - q1.z * q2.y,
-    q1.w * q2.y - q1.x * q2.z + q1.z * q2.x,
-    q1.w * q2.z + q1.x * q2.y - q1.y * q2.x);
-}
+    float distanceBetweenLineSegments(
+        const glm::vec3& a0,
+        const glm::vec3& a1,
+        const glm::vec3& b0,
+        const glm::vec3& b1) {
+        const float EPS = 0.001f;
 
-glm::vec3 partialHamiltonProduct(const glm::quat& q1, const glm::quat& q2) {
-  return glm::vec3(
-    q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
-    q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x,
-    q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w);
-}
+        const glm::vec3 A = a1 - a0;
+        const glm::vec3 B = b1 - b0;
+        const float magA = glm::length(A);
+        const float magB = glm::length(B);
 
-glm::vec3 rotateByQuat(const glm::vec3& v, const glm::quat& q) {
-  const glm::quat qPrime = glm::quat(q.w, -q.x, -q.y, -q.z);
-  return partialHamiltonProduct(partialHamiltonProduct2(q, v), qPrime);
-}
+        const glm::vec3 _A = A / magA;
+        const glm::vec3 _B = B / magB;
 
-const float bulletScale = 0.3f;
-const float bulletLifetime = 1.0f; // seconds
-const glm::vec3 scaleVec(bulletScale, bulletScale, bulletScale);
-const float bulletSpeed = 15.0f; // Game units per second
-const glm::vec3 bulletNormal(0.0f, 1.0f, 0.0f);
-const glm::vec3 canonicalDir(0.0f, 0.0f, 1.0f);
+        const glm::vec3 cross = glm::cross(_A, _B);
+        const float cl = glm::length(cross);
+        const float denom = cl * cl;
 
-// TODO double sided?
-const float bulletVertices[] = {
-    // Positions                                            // Tex Coords
-    bulletScale * (-0.243f), 0.0f, bulletScale * (-0.5f),   1.0f, 0.0f,
-    bulletScale * (-0.243f), 0.0f, bulletScale * 0.5f,      0.0f, 0.0f,
-    bulletScale * 0.243f,  0.0f, bulletScale * 0.5f,        0.0f, 1.0f,
-    bulletScale * 0.243f, 0.0f, bulletScale * (-0.5f),      1.0f, 1.0f
-};
-const unsigned int bulletIndices[] = {
-    0, 1, 2,
-    0, 2, 3
-};
+        if (denom < EPS) {
+            const float d0 = glm::dot(_A, (b0 - a0));
+            const float d1 = glm::dot(_A, (b1 - a0));
 
-const float bulletEnemyMaxCollisionDist = 0.3f / 2 + 0.03f + 0.4f / 2 + 0.08f;
-const float bulletEnemyMaxCollisionDist2 = bulletEnemyMaxCollisionDist * bulletEnemyMaxCollisionDist;
-
-float distanceBetweenLineSegments(
-    const glm::vec3& a0,
-    const glm::vec3& a1,
-    const glm::vec3& b0,
-    const glm::vec3& b1) {
-    const float EPS = 0.001f;
-
-    const glm::vec3 A = a1 - a0;
-    const glm::vec3 B = b1 - b0;
-    const float magA = glm::length(A);
-    const float magB = glm::length(B);
-
-    const glm::vec3 _A = A / magA;
-    const glm::vec3 _B = B / magB;
-
-    const glm::vec3 cross = glm::cross(_A, _B);
-    const float cl = glm::length(cross);
-    const float denom = cl * cl;
-
-
-    // If lines are parallel (denom=0) test if lines overlap.
-    // If they don't overlap then there is a closest point solution.
-    // If they do overlap, there are infinite closest positions, but there is a closest distance
-    if (denom < EPS) {
-        const float d0 = glm::dot(_A, (b0 - a0));
-        const float d1 = glm::dot(_A, (b1 - a0));
-
-        // Is segment B before A?
-        if (d0 <= 0.0f && 0.0f >= d1) {
-            if (abs(d0) < abs(d1)) {
-                return glm::length(a0 - b0);
+            if (d0 <= 0.0f && 0.0f >= d1) {
+                if (abs(d0) < abs(d1)) {
+                    return glm::length(a0 - b0);
+                }
+                return glm::length(a0 - b1);
             }
-            return glm::length(a0 - b1);
-        }
-        else if (d0 >= magA && magA <= d1) {
-            if (abs(d0) < abs(d1)) {
-                return glm::length(a1 - b0);
+            else if (d0 >= magA && magA <= d1) {
+                if (abs(d0) < abs(d1)) {
+                    return glm::length(a1 - b0);
+                }
+                return glm::length(a1 - b1);
             }
-            return glm::length(a1 - b1);
+            return glm::length(((d0 * _A) + a0) - b0);
         }
 
+        const glm::vec3 t = (b0 - a0);
+        const float detA = glm::determinant(glm::mat3(t, _B, cross));
+        const float detB = glm::determinant(glm::mat3(t, _A, cross));
 
-        // Segments overlap, return distance between parallel segments
-        return glm::length(((d0 * _A) + a0) - b0);
-    }
+        const float t0 = detA / denom;
+        const float t1 = detB / denom;
 
+        glm::vec3 pA = a0 + (_A * t0);
+        glm::vec3 pB = b0 + (_B * t1);
 
-
-    // Lines criss-cross: Calculate the projected closest points
-    const glm::vec3 t = (b0 - a0);
-    const float detA = glm::determinant(glm::mat3(t, _B, cross));
-    const float detB = glm::determinant(glm::mat3(t, _A, cross));
-
-    const float t0 = detA / denom;
-    const float t1 = detB / denom;
-
-    glm::vec3 pA = a0 + (_A * t0); // Projected closest point on segment A
-    glm::vec3 pB = b0 + (_B * t1); // Projected closest point on segment B
-
-    // Clamp projections
-    if (t0 < 0.0f) {
-        pA = a0;
-    }
-    else if (t0 > magA) {
-        pA = a1;
-    }
-
-    if (t1 < 0) {
-        pB = b0;
-    }
-    else if (t1 > magB) {
-        pB = b1;
-    }
-
-    // Clamp projection A
-    if (t0 < 0.0f || t0 > magA) {
-        float dot = glm::dot(_B, (pA - b0));
-        if (dot < 0.0f) {
-            dot = 0;
+        if (t0 < 0.0f) {
+            pA = a0;
         }
-        else if (dot > magB) {
-            dot = magB;
+        else if (t0 > magA) {
+            pA = a1;
         }
-        pB = b0 + (_B * dot);
+
+        if (t1 < 0) {
+            pB = b0;
+        }
+        else if (t1 > magB) {
+            pB = b1;
+        }
+
+        if (t0 < 0.0f || t0 > magA) {
+            float dot = glm::dot(_B, (pA - b0));
+            if (dot < 0.0f) {
+                dot = 0;
+            }
+            else if (dot > magB) {
+                dot = magB;
+            }
+            pB = b0 + (_B * dot);
+        }
+
+        if (t1 < 0.0f || t1 > magB) {
+            float dot = glm::dot(_A, (pB - a0));
+            if (dot < 0.0f) {
+                dot = 0;
+            }
+            else if (dot > magA) {
+                dot = magA;
+            }
+            pA = a0 + (_A * dot);
+        }
+
+        return glm::length(pA - pB);
     }
 
-    // Clamp projection B
-    if (t1 < 0.0f || t1 > magB) {
-        float dot = glm::dot(_A, (pB - a0));
-        if (dot < 0.0f) {
-            dot = 0;
+    bool bulletCollidesWithEnemy(const glm::vec3& bPos, const glm::vec3& bDir, const Enemy* e) {   
+        if (glm::distance2(bPos, e->getPosition()) > bulletEnemyMaxCollisionDist2) {
+            return false;
         }
-        else if (dot > magA) {
-            dot = magA;
-        }
-        pA = a0 + (_A * dot);
+        const float closestDist =
+            distanceBetweenLineSegments(
+                bPos - bDir * (0.3f / 2),
+                bPos + bDir * (0.3f / 2),
+                e->getPosition() - e->getDirection() * (0.4f / 2),
+                e->getPosition() + e->getDirection() * (0.4f / 2));
+        return closestDist <= (0.03f + 0.08f);
     }
-
-    return glm::length(pA - pB);
-}
-
-bool bulletCollidesWithEnemy(const glm::vec3& bPos, const glm::vec3& bDir, const Enemy* e) {   
-    if (glm::distance2(bPos, e->getPosition()) > bulletEnemyMaxCollisionDist2) {
-        return false;
-    }
-    const float closestDist =
-        distanceBetweenLineSegments(
-            bPos - bDir * (0.3f / 2),
-            bPos + bDir * (0.3f / 2),
-            e->getPosition() - e->getDirection() * (0.4f / 2),
-            e->getPosition() + e->getDirection() * (0.4f / 2));
-    return closestDist <= (0.03f + 0.08f);
-}
-
 }
 
 void BulletStore::createBullets(const glm::vec3& position, const glm::quat& midOri, const int spreadAmount) {   
@@ -219,19 +165,19 @@ void BulletStore::createBullets(const glm::vec3& position, const glm::quat& midO
   bulletGroups.push_back(g);
 }
 
-void BulletStore::updateBullets(float deltaTimeSeconds, std::vector<Enemy*>& enemies) {
+void BulletStore::update(float dt, std::vector<Enemy*>& enemies) {
 
     const bool useAABB = enemies.size() > 0;
     const int numSubGroups = useAABB ? 9 : 1;
 
-    const float deltaPosMagnitude = deltaTimeSeconds * bulletSpeed;
+    const float deltaPosMagnitude = dt * bulletSpeed;
     int firstLiveBulletGroup = 0;
 
     std::vector<bool> enemyDeathMarker(enemies.size());
 
     std::vector<std::future<void>> futures;
     for (BulletGroup& g : bulletGroups) {
-        g.TTL -= deltaTimeSeconds;
+        g.TTL -= dt;
         if (g.TTL <= 0.0f) {
             firstLiveBulletGroup++;
         }

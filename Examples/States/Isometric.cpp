@@ -526,7 +526,7 @@ void Isometric::update() {
 
 	m_player.update(m_dt);
 	m_player.updateSkinning();
-	m_bulletStore.updateBullets(m_dt, m_enemies);
+	m_bulletStore.update(m_dt, m_enemies);
 	updateSpawn(m_dt, posistion);
 
 	for (auto enemy : m_enemies) {

@@ -41,9 +41,9 @@ void Cylinder::BuildMesh(const std::array<float, 3>& position, float baseRadius,
 	unsigned int stride = 3u + 2u * generateTexels + 3u * generateNormals + 6u * generateTangents;
 
 	for (int i = 0; i <= uResolution; ++i) {
-		y = -(length * 0.5f) + (float)i / uResolution * length;      // vertex position z
-		radius = baseRadius + (float)i / uResolution * (topRadius - baseRadius);     // lerp
-		float t = 1.0f - (float)i / uResolution;   // top-to-bottom
+		y = -(length * 0.5f) + (float)i / uResolution * length;
+		radius = baseRadius + (float)i / uResolution * (topRadius - baseRadius);
+		float t = 1.0f - (float)i / uResolution;
 
 		float sectorStep = 2 * M_PI / vResolution;
 		float sectorAngle;
