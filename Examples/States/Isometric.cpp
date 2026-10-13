@@ -26,7 +26,7 @@
 #include "Keyboard.h"
 #include "Application.h"
 
-Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_threadPool(4), m_bulletStore(&m_threadPool) {
+Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&m_threadPool), m_threadPool(4) {
 	Mouse::instance().attach(Application::Window, false, true);
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
