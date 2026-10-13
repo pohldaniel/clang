@@ -10,6 +10,21 @@
 
 #include <ui/UiContext.h>
 
+#include <States/Wireframe.h>
+#include <States/ImageBasedLighting.h>
+#include <States/ShadowMapping.h>
+#include <States/SkinnedMesh.h>
+#include <States/ComputeParticleLogo.h>
+#include <States/PrimitivePicking.h>
+#include <States/StencilMask.h>
+#include <States/DeferredRendering.h>
+#include <States/VolumeRendering.h>
+#include <States/OcclusionQuery.h>
+#include <States/RenderBundles.h>
+#include <States/NuklearGui.h>
+#include <States/AudioDecode.h>
+#include <States/VideoDecode.h>
+#include <States/Cubes.h>
 #include <States/Isometric.h>
 
 #include "Menu.h"
@@ -18,9 +33,12 @@
 
 Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	Mouse::instance().attach(Application::Window, false, true);
+	LoadingManager::Get().startBackgroundThreads(8);
 
+	uiInitTextureArray();
     m_characterSet.loadFromFile("res/fonts/upheavtt.ttf", 24.0f);
-    uiContext.textureView = m_characterSet.texture.getTextureView();
+    uiContext.textureViewFont = m_characterSet.texture.getTextureView();
+	uiContext.wgpTexture.fill({ 1.0f, 1.0f, 1.0f, 1.0f }, 1u);
     uiInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 
 	float paddingBottom = 3.0f;
@@ -42,11 +60,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setPosition(0.05f, 0.05f);
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Wireframe(m_machine));
-	});*/
+	});
 
 	Label* label = button->addChild<Label>(m_characterSet);
 	label->setText("Wireframe");
@@ -405,6 +423,30 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		int randomSeed = rand();
+		auto* noiseTask = new NoiseGenerationTask(512, 512, randomSeed, [this]() {
+
+		});
+		LoadingManager::Get().addTask(noiseTask);
+	});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Noise");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	Canvas* canvas = surface->addChild<Canvas>();
+	canvas->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	canvas->setWidth(400.0f);
+	canvas->setHeight(400.0f);
+	canvas->setLayer(1u);
+
 	if (m_layout == SelectedLayout::M_VERTICAL) {
 		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
 		for (auto& surface : surfaces) {
@@ -436,6 +478,7 @@ void Menu::fixedUpdate() {
 }
 
 void Menu::update() {
+	LoadingManager::Get().update();
 	Mouse &mouse = Mouse::instance();	
 	m_uiScene->input(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT));
 	m_uiScene->draw();
@@ -476,7 +519,11 @@ void Menu::OnScroll(const Event::MouseWheelEvent& event) {
 }
 
 void Menu::OnKeyDown(const Event::KeyboardEvent& event) {
-
+	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		uiShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+	}
 }
 
 void Menu::OnKeyUp(const Event::KeyboardEvent& event) {
@@ -527,4 +574,94 @@ void Menu::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 
 	ImGui::Render();
 	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
+}
+
+float hash2D(int x, int y, int seed) {
+
+	int n = x + y * 57 + seed * 131;
+	n = (n << 13) ^ n;
+	return (1.0f - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0f);
+}
+
+float bilinearInterpolate(float x, float y, int seed) {
+	int intX = static_cast<int>(floor(x));
+	int intY = static_cast<int>(floor(y));
+	float fracX = x - intX;
+	float fracY = y - intY;
+
+	float v1 = hash2D(intX, intY, seed);
+	float v2 = hash2D(intX + 1, intY, seed);
+	float v3 = hash2D(intX, intY + 1, seed);
+	float v4 = hash2D(intX + 1, intY + 1, seed);
+
+	float fadeX = fracX * fracX * (3.0f - 2.0f * fracX);
+	float fadeY = fracY * fracY * (3.0f - 2.0f * fracY);
+
+	float i1 = v1 + fadeX * (v2 - v1);
+	float i2 = v3 + fadeX * (v4 - v3);
+	return i1 + fadeY * (i2 - i1);
+}
+
+
+float generateFractalNoise(float x, float y, int seed, int octaves = 4) {
+	float total = 0.0f;
+	float amplitude = 1.0f;
+	float frequency = 0.05f;
+	float maxValue = 0.0f;
+
+	for (int i = 0; i < octaves; ++i) {
+		total += bilinearInterpolate(x * frequency, y * frequency, seed) * amplitude;
+		maxValue += amplitude;
+		amplitude *= 0.5f;
+		frequency *= 2.0f;
+	}
+
+	return total / maxValue;
+}
+
+void NoiseGenerationTask::OnProcess() {
+	m_pixelData.resize(m_width * m_height * 4);
+
+	for (int y = 0; y < m_height; ++y) {
+		for (int x = 0; x < m_width; ++x) {
+			float noiseValue = generateFractalNoise(static_cast<float>(x), static_cast<float>(y), m_seed, 5);
+			unsigned char byteValue = static_cast<unsigned char>((noiseValue + 1.0f) * 0.5f * 255.0f);
+
+			int index = (y * m_width + x) * 4;
+			m_pixelData[index + 0] = byteValue;
+			m_pixelData[index + 1] = byteValue;
+			m_pixelData[index + 2] = byteValue;
+			m_pixelData[index + 3] = 255;
+		}
+	}
+}
+
+void NoiseGenerationTask::OnComplete() {
+	WGPUTexelCopyTextureInfo copyDst = {};
+	copyDst.texture = uiContext.wgpTexture.getTexture();
+	copyDst.mipLevel = 0u;
+	copyDst.origin = { 0u, 0u, 1u };
+	copyDst.aspect = WGPUTextureAspect_All;
+
+	WGPUTexelCopyBufferLayout dataLayout = {};
+	dataLayout.offset = 0u;
+	dataLayout.bytesPerRow = m_width * 4u;
+	dataLayout.rowsPerImage = m_height;
+
+	WGPUExtent3D writeSize = { static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height), 1u };
+
+	wgpuQueueWriteTexture(
+		wgpContext.queue,
+		&copyDst,
+		m_pixelData.data(),
+		m_pixelData.size(),
+		&dataLayout,
+		&writeSize
+	);
+
+	if (m_onUploadComplete) {
+		m_onUploadComplete();
+	}
+
+	delete this;
 }

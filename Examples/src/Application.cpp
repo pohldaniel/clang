@@ -101,7 +101,7 @@ void Application::initWindow() {
   glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
   glfwWindowHint(GLFW_SCALE_FRAMEBUFFER, GLFW_FALSE);
   glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_FALSE);
-  Window = glfwCreateWindow(Width, Height, "WebGPU window", nullptr, nullptr);
+  Window = glfwCreateWindow(Width, Height, "WebGPU", nullptr, nullptr);
   glfwGetWindowPos(Window, &PosX, &PosY);
 }
 
@@ -143,12 +143,11 @@ void Application::initStates(){
   //Machine->addStateAtTop(new AudioDecode(*Machine));
   //Machine->addStateAtTop(new VideoDecode(*Machine));
   //Machine->addStateAtTop(new Cubes(*Machine));
-  Machine->addStateAtTop(new Isometric(*Machine));
-  //Machine->addStateAtTop(new Menu(*Machine));
+  //Machine->addStateAtTop(new Isometric(*Machine));
+  Machine->addStateAtTop(new Menu(*Machine));
 }
 
 bool Application::isRunning(){
-  MessageLoop(this);
   return !glfwWindowShouldClose(Window);
 }
 
@@ -157,9 +156,13 @@ void Application::fixedUpdate(){
 }
 
 void Application::update(){
+    if (!Machine->isRunning()) {
+        glfwSetWindowShouldClose(Window, GLFW_TRUE);
+    }
     glfwPollEvents();
     Mouse::instance().update();
     Keyboard::instance().update();
+   
     Machine->update();
     Machine->render();
     ScrollDelta = 0.0f;

@@ -3,7 +3,7 @@
 #include <vector>
 
 #include <glm/glm.hpp>
-#include "ThreadPool.h"
+#include "thread/ThreadPool.h"
 
 class Enemy;
 class BulletStore {

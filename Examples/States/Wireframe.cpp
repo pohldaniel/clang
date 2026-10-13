@@ -5,6 +5,8 @@
 #include <imgui_internal.h>
 
 #include <WebGPU/WgpContext.h>
+#include <States/Menu.h>
+
 #include "Wireframe.h"
 #include "Application.h"
 #include "Mouse.h"
@@ -195,13 +197,11 @@ void Wireframe::OnMouseMotion(const Event::MouseMoveEvent& event) {
 }
 
 void Wireframe::OnKeyDown(const Event::KeyboardEvent& event){
-	//if (event.keyCode == GLFW_KEY_T) {
-	//	if(glfwGetInputMode(Application::Window, GLFW_CURSOR) == GLFW_CURSOR_HIDDEN){
-	//		glfwSetInputMode(Application::Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	//	}else{
-	//		glfwSetInputMode(Application::Window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-	//	}
-	//}
+	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
 }
 
 void Wireframe::OnKeyUp(const Event::KeyboardEvent& event) {

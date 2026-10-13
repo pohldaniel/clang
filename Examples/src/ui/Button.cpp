@@ -61,11 +61,7 @@ void Button::OnDraw() {
 	buttonInst.textureRect[1] = 0.0f;
 	buttonInst.textureRect[2] = 1.0f;
 	buttonInst.textureRect[3] = 1.0f;
-	buttonInst.textureLayer = 0.0f;
-
-	buttonInst.flipAndTile[0] = 0.0f;
-	buttonInst.flipAndTile[1] = 0.0f;
-	buttonInst.flipAndTile[2] = 0.0f;
+	buttonInst.textureLayer = 0u;
 
 	pushWidget(UiPipelineType::MaskWrite, buttonInst);
 
@@ -84,11 +80,7 @@ void Button::OnDraw() {
 	outlineInst.textureRect[1] = 0.0f;
 	outlineInst.textureRect[2] = 1.0f;
 	outlineInst.textureRect[3] = 1.0f;
-	outlineInst.textureLayer = 0.0f;
-
-	outlineInst.flipAndTile[0] = 0.0f;
-	outlineInst.flipAndTile[1] = 0.0f;
-	outlineInst.flipAndTile[2] = 0.0f;
+	outlineInst.textureLayer = 0u;
 
 	pushWidget(UiPipelineType::OutlineRead, outlineInst);
 }

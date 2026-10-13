@@ -1,5 +1,5 @@
 clang++^
- -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "./include/entities/" -I "./include/ui/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../librtaudio/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/" -I "../SDKs/RtAudio/include/" -I "../SDKs/OpenAl/include/" -I "../SDKs/Bullet/include/" -I "../SDKs/freetype/include/"^
+ -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "./include/entities/" -I "./include/ui/" -I "./include/thread/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../librtaudio/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/" -I "../SDKs/RtAudio/include/" -I "../SDKs/OpenAl/include/" -I "../SDKs/Bullet/include/" -I "../SDKs/freetype/include/"^
  -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/" -L "../SDKs/ffmpeg/lib/" -L "../SDKs/OpenAl/lib/x64/" -L "../SDKs/Bullet/lib/x64/" -L "../SDKs/freetype/lib/x64/"^
  -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt -lstrmiids -lmfuuid -lavrt^
  -llibglfw3 -llibimgui -llibrtaudio -llibassimp -lwgpu -llibfreeimage -llibzlib -llibavutil -llibavcodec -llibswresample -llibavformat -llibswscale -llibopenal -lliblinearmath -llibbulletcollision -llibbulletdynamics -llibfreetype^
@@ -19,6 +19,9 @@ clang++^
  src/ui/Surface.cpp^
  src/ui/Button.cpp^
  src/ui/Label.cpp^
+ src/ui/Canvas.cpp^
+ src/thread/Thread.cpp^
+ src/thread/LoadingManager.cpp^
  src/Object.cpp^
  src/BinaryIO.cpp^
  src/Fade.cpp^
@@ -33,8 +36,7 @@ clang++^
  src/Camera.cpp^
  src/CharacterSet.cpp^
  src/Application.cpp^
- src/bullet_store.cpp^
- src/enemy_spawner.cpp^
+ src/BulletStore.cpp^
  src/entities/Entity.cpp^
  src/entities/CollisionEntity.cpp^
  src/entities/Enemy.cpp^

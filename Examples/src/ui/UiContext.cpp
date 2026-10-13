@@ -14,7 +14,7 @@ void uiInit(float width, float height) {
 	uiContext.wgpUniformBuffer.createBuffer(16 * sizeof(float), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
 	uiResize(width, height);
 
-	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(2);
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(4);
 
 	bindingLayoutEntries[0].binding = 0u;
 	bindingLayoutEntries[0].visibility = WGPUShaderStage_Vertex;
@@ -25,6 +25,15 @@ void uiInit(float width, float height) {
 	bindingLayoutEntries[1].visibility = WGPUShaderStage_Vertex;
 	bindingLayoutEntries[1].buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_ReadOnlyStorage;
 	bindingLayoutEntries[1].buffer.minBindingSize = 400u * sizeof(UiInstance);
+
+	bindingLayoutEntries[2].binding = 2u;
+	bindingLayoutEntries[2].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[2].sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+
+	bindingLayoutEntries[3].binding = 3u;
+	bindingLayoutEntries[3].visibility = WGPUShaderStage_Fragment;
+	bindingLayoutEntries[3].texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	bindingLayoutEntries[3].texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2DArray;
 
 	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
 	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
@@ -69,6 +78,11 @@ void uiInit(float width, float height) {
 	uiCreateBindGroupText(uiContext.bindgroupText);
 }
 
+void uiInitTextureArray(uint32_t width, uint32_t height, uint32_t layers) {
+	uiContext.wgpTexture.createEmpty(width, height, layers, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst, WGPUTextureFormat_RGBA8Unorm, 1u, 1u, true);
+	uiContext.wgpTexture.fill();
+}
+
 void uiResize(float width, float height) {
 	uiContext.width = width;
 	uiContext.height = height;
@@ -90,6 +104,9 @@ void uiShutDown() {
 
 	uiContext.wgpStorageBuffer.markForDelete();
 	uiContext.wgpStorageBuffer.cleanup();
+
+	uiContext.wgpTexture.markForDelete();
+	uiContext.wgpTexture.cleanup();
 
 	if (uiContext.bindgroup) {
 		wgpuBindGroupRelease(uiContext.bindgroup);
@@ -208,7 +225,7 @@ void uiDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescri
 }
 
 void uiCreateBindGroup(WGPUBindGroup& bindgroup) {
-	std::vector<WGPUBindGroupEntry> bindGroupEntries(2);
+	std::vector<WGPUBindGroupEntry> bindGroupEntries(4);
 
 	bindGroupEntries[0].binding = 0u;
 	bindGroupEntries[0].buffer = uiContext.wgpUniformBuffer.getBuffer();
@@ -219,6 +236,12 @@ void uiCreateBindGroup(WGPUBindGroup& bindgroup) {
 	bindGroupEntries[1].buffer = uiContext.wgpStorageBuffer.getBuffer();
 	bindGroupEntries[1].offset = 0u;
 	bindGroupEntries[1].size = wgpuBufferGetSize(uiContext.wgpStorageBuffer.getBuffer());
+
+	bindGroupEntries[2].binding = 2u;
+	bindGroupEntries[2].sampler = wgpContext.getSampler(SS_LINEAR_CLAMP);
+
+	bindGroupEntries[3].binding = 3u;
+	bindGroupEntries[3].textureView = uiContext.wgpTexture.getTextureView();
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = uiContext.bindgroupLayout;
@@ -245,7 +268,7 @@ void uiCreateBindGroupText(WGPUBindGroup& bindgroup) {
 	bindGroupEntries[2].sampler = wgpContext.getSampler(SS_LINEAR_REPEAT);
 
 	bindGroupEntries[3].binding = 3u;
-	bindGroupEntries[3].textureView = uiContext.textureView;
+	bindGroupEntries[3].textureView = uiContext.textureViewFont;
 
 	WGPUBindGroupDescriptor bindGroupDesc = {};
 	bindGroupDesc.layout = uiContext.bindgroupLayoutText;
@@ -256,7 +279,7 @@ void uiCreateBindGroupText(WGPUBindGroup& bindgroup) {
 }
 
 void uiCreateRenderPipeline(WGPURenderPipeline& renderPipeline) {
-	WGPUShaderModule shaderModule = wgpCreateShaderFromFile("res/shader/ui.wgsl");
+	WGPUShaderModule shaderModule = wgpCreateShaderFromString(UI_WGSL);
 
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 	pipelineLayoutDescriptor.bindGroupLayoutCount = 1u;
@@ -337,7 +360,7 @@ void uiCreateRenderPipeline(WGPURenderPipeline& renderPipeline) {
 }
 
 void uiCreateRenderPipelineMask(WGPURenderPipeline& renderPipeline) {
-	WGPUShaderModule shaderModule = wgpCreateShaderFromFile("res/shader/ui.wgsl");
+	WGPUShaderModule shaderModule = wgpCreateShaderFromString(UI_WGSL);
 
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 	pipelineLayoutDescriptor.bindGroupLayoutCount = 1u;
@@ -418,7 +441,7 @@ void uiCreateRenderPipelineMask(WGPURenderPipeline& renderPipeline) {
 }
 
 void uiCreateRenderPipelineRead(WGPURenderPipeline& renderPipeline) {
-	WGPUShaderModule shaderModule = wgpCreateShaderFromFile("res/shader/ui.wgsl");
+	WGPUShaderModule shaderModule = wgpCreateShaderFromString(UI_WGSL);
 
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 	pipelineLayoutDescriptor.bindGroupLayoutCount = 1u;
@@ -498,7 +521,7 @@ void uiCreateRenderPipelineRead(WGPURenderPipeline& renderPipeline) {
 }
 
 void uiCreateRenderPipelineClear(WGPURenderPipeline& renderPipeline) {
-	WGPUShaderModule shaderModule = wgpCreateShaderFromFile("res/shader/ui.wgsl");
+	WGPUShaderModule shaderModule = wgpCreateShaderFromString(UI_WGSL);
 
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 	pipelineLayoutDescriptor.bindGroupLayoutCount = 1u;
@@ -513,23 +536,15 @@ void uiCreateRenderPipelineClear(WGPURenderPipeline& renderPipeline) {
 	vertexState.bufferCount = 0u;
 	vertexState.buffers = nullptr;
 
-	WGPUBlendState blendState = {};
-	blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-	blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
-	blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
-	blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
-	blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
-	blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
-
 	WGPUColorTargetState colorTargetState = {};
 	colorTargetState.nextInChain = NULL;
 	colorTargetState.format = wgpContext.colorFormat;
-	colorTargetState.blend = &blendState;
+	colorTargetState.blend = NULL;
 	colorTargetState.writeMask = WGPUColorWriteMask_None;
 
 	WGPUFragmentState fragmentState = {};
 	fragmentState.module = shaderModule;
-	fragmentState.entryPoint = WGPU_STR("fs_main");
+	fragmentState.entryPoint = WGPU_STR("fs_main_clear");
 	fragmentState.constantCount = 0u;
 	fragmentState.constants = NULL;
 	fragmentState.targetCount = 1u;
@@ -578,7 +593,7 @@ void uiCreateRenderPipelineClear(WGPURenderPipeline& renderPipeline) {
 }
 
 void uiCreateRenderPipelineText(WGPURenderPipeline& renderPipeline) {
-	WGPUShaderModule shaderModule = wgpCreateShaderFromFile("res/shader/ui_text.wgsl");
+	WGPUShaderModule shaderModule = wgpCreateShaderFromString(UI_TEXT_WGSL);
 
 	WGPUPipelineLayoutDescriptor pipelineLayoutDescriptor = {};
 	pipelineLayoutDescriptor.bindGroupLayoutCount = 1u;

@@ -11,6 +11,29 @@
 #include <ui/Surface.h>
 #include <ui/Button.h>
 #include <ui/Label.h>
+#include <ui/Canvas.h>
+
+#include <thread/ILoadingListener.h>
+#include <thread/LoadingManager.h>
+
+class NoiseGenerationTask : public ILoadingListener {
+public:
+
+    NoiseGenerationTask(int width, int height, int seed,  std::function<void()> onUploadComplete)
+        : m_width(width), m_height(height), m_seed(seed), m_onUploadComplete(onUploadComplete) {
+    }
+
+    void OnProcess() override;
+	void OnComplete() override;
+
+private:
+
+    int m_width;
+    int m_height;
+    int m_seed;
+    std::function<void()> m_onUploadComplete;
+    std::vector<unsigned char> m_pixelData;
+};
 
 class Menu : public State {
 	enum SelectedLayout {

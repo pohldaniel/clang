@@ -40,7 +40,9 @@ int main(int argc, const char* argv[]) {
 #ifdef WASM
   emscripten_set_main_loop_arg(Application::MessageLopp, &application, 0, true);
 #else
-  while(application.isRunning()){}
+  while(application.isRunning()){
+    Application::MessageLoop(&application);
+  }
 #endif
 
   return 0;

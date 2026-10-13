@@ -20,7 +20,6 @@
 #include "Camera.h"
 #include "TrackBall.h"
 #include "Transform.h"
-#include "bullet_store.h"
 
 #define ARRAY_SIZE_Y 5
 #define ARRAY_SIZE_X 5

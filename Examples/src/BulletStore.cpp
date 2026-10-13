@@ -12,8 +12,8 @@
 
 #include <entities/Enemy.h>
 
-#include "aabb.h"
-#include "bullet_store.h"
+#include "AABB.h"
+#include "BulletStore.h"
 
 namespace {
 

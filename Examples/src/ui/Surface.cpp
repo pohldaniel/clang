@@ -148,11 +148,7 @@ void Surface::OnDraw() {
 	uiInstance.textureRect[1] = 0.0f;
 	uiInstance.textureRect[2] = 1.0f;
 	uiInstance.textureRect[3] = 1.0f;
-	uiInstance.textureLayer = 0.0f;
-
-	uiInstance.flipAndTile[0] = 0.0f;
-	uiInstance.flipAndTile[1] = 0.0f;
-	uiInstance.flipAndTile[2] = 0.0f;
+	uiInstance.textureLayer = 0u;
 	pushWidget(UiPipelineType::Clear, uiInstance);
 
 	UiInstance dragInst = {};
@@ -163,12 +159,7 @@ void Surface::OnDraw() {
 	dragInst.textureRect[1] = 0.0f;
 	dragInst.textureRect[2] = 1.0f;
 	dragInst.textureRect[3] = 1.0f;
-	dragInst.textureLayer = 0.0f;
-
-	dragInst.flipAndTile[0] = 0.0f;
-	dragInst.flipAndTile[1] = 0.0f;
-	dragInst.flipAndTile[2] = 0.0f;
-
+	dragInst.textureLayer = 0u;
 	pushWidget(UiPipelineType::Standard, dragInst);
 
 	UiInstance gripInst = {};
@@ -179,11 +170,6 @@ void Surface::OnDraw() {
 	gripInst.textureRect[1] = 0.0f;
 	gripInst.textureRect[2] = 1.0f;
 	gripInst.textureRect[3] = 1.0f;
-	gripInst.textureLayer = 0.0f;
-
-	gripInst.flipAndTile[0] = 0.0f;
-	gripInst.flipAndTile[1] = 0.0f;
-	gripInst.flipAndTile[2] = 0.0f;
-
+	gripInst.textureLayer = 0u;
 	pushWidget(UiPipelineType::Standard, gripInst);
 }
