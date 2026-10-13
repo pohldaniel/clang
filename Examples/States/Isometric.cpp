@@ -13,6 +13,8 @@
 #include <Nuklear/NkContext.h>
 #include <Nuklear/NkStyle.h>
 
+#include <States/Menu.h>
+
 #include <scene/CollisionNode.h>
 
 #include <entities/CollisionEntity.h>
@@ -288,8 +290,7 @@ Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC),
 
 Isometric::~Isometric() {
 	delete m_scene;
-	nkShutDown();
-	Physics::DebugDrawer.shutDown();
+	
 	m_uniformBuffer.markForDelete();
     m_infoBufferBillboard.markForDelete();
     m_infoBufferMuzzle.markForDelete();
@@ -778,7 +779,13 @@ void Isometric::OnScroll(const Event::MouseWheelEvent& event) {
 }
 
 void Isometric::OnKeyDown(const Event::KeyboardEvent& event) {
-
+	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		nkShutDown();
+		wgpCleanState();
+		Physics::DebugDrawer.shutDown();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
 }
 
 void Isometric::OnKeyUp(const Event::KeyboardEvent& event) {

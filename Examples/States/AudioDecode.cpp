@@ -11,6 +11,8 @@
 #include <Nuklear/NkJoystick.h>
 #include <Nuklear/NkStyle.h>
 
+#include <States/Menu.h>
+
 #include "AudioDecode.h"
 #include "Mouse.h"
 #include "Keyboard.h"
@@ -54,7 +56,7 @@ AudioDecode::AudioDecode(StateMachine& machine) : State(machine, States::AUDIO_D
 }
 
 AudioDecode::~AudioDecode() {
-	nkShutDown();
+	
 }
 
 void AudioDecode::fixedUpdate() {
@@ -200,7 +202,12 @@ void AudioDecode::OnScroll(const Event::MouseWheelEvent& event) {
 }
 
 void AudioDecode::OnKeyDown(const Event::KeyboardEvent& event) {
-
+	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		nkShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
 }
 
 void AudioDecode::OnKeyUp(const Event::KeyboardEvent& event) {

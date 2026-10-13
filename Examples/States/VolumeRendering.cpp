@@ -6,6 +6,7 @@
 #include <imgui_internal.h>
 
 #include <WebGPU/WgpContext.h>
+#include <States/Menu.h>
 
 #include "Application.h"
 #include "Mouse.h"
@@ -171,7 +172,11 @@ void VolumeRendering::OnScroll(const Event::MouseWheelEvent& event) {
 }
 
 void VolumeRendering::OnKeyDown(const Event::KeyboardEvent& event) {
-
+	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
 }
 
 void VolumeRendering::OnKeyUp(const Event::KeyboardEvent& event) {

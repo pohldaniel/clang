@@ -10,10 +10,9 @@
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
 
-#include <Nuklear/NkContext.h>
-#include <Nuklear/NkStyle.h>
-
 #include <Physics/Physics.h>
+
+#include <States/Menu.h>
 
 #include "Cubes.h"
 #include "Mouse.h"
@@ -25,8 +24,6 @@ Cubes::Cubes(StateMachine& machine) : State(machine, States::CUBES) {
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 
-	nkInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
-	nkInitFont("res/fonts/upheavtt.ttf");
 	Physics::DebugDrawer.init();
 
 	m_camera.perspective(glm::radians(45.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
@@ -54,7 +51,6 @@ Cubes::Cubes(StateMachine& machine) : State(machine, States::CUBES) {
 
 	wgpContext.setClearColor({ 0.7f, 0.7f, 0.7f, 1.0f });
 	wgpContext.OnDraw = std::bind(&Cubes::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
-	nkContext.OnFillBuffer = std::bind(&Cubes::OnFillBuffer, this, std::placeholders::_1);
 
 	m_scene = new SceneNode();
 	m_scene->setOnChildAdded([this](Node* newNode) {
@@ -99,8 +95,6 @@ Cubes::Cubes(StateMachine& machine) : State(machine, States::CUBES) {
 
 Cubes::~Cubes() {
 	delete m_scene;
-	nkShutDown();
-	Physics::DebugDrawer.shutDown();
 	m_uniformBuffer.markForDelete();
 	m_storageBuffer.markForDelete();
 }
@@ -112,7 +106,6 @@ void Cubes::fixedUpdate() {
 void Cubes::update() {
 	Mouse &mouse = Mouse::instance();
 	Keyboard& keyboard = Keyboard::instance();
-	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT), mouse.buttonDown(GLFW_MOUSE_BUTTON_RIGHT), Application::ScrollDelta);
 
 	glm::vec3 direction = glm::vec3();
 
@@ -241,13 +234,6 @@ void Cubes::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPas
 	}
 }
 
-void Cubes::OnFillBuffer(nk_context& nkCntxt) {
-	//set_transparent_window_style();
-	//virtual_joystick(nk_rect(20.0f, static_cast<float>(Application::Height) - 200.0f, 180.0f, 180.0f), m_joystickResult);
-	//virtual_rotation_button(nk_rect(static_cast<float>(Application::Width) - 180.0f, static_cast<float>(Application::Height) - 180.0f, 140.0f, 140.0f), m_rotationButtonResult);
-	//reset_transparent_window_style();
-}
-
 void Cubes::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 }
@@ -277,7 +263,12 @@ void Cubes::OnScroll(const Event::MouseWheelEvent& event) {
 }
 
 void Cubes::OnKeyDown(const Event::KeyboardEvent& event) {
-
+	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		wgpCleanState();
+		Physics::DebugDrawer.shutDown();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
 }
 
 void Cubes::OnKeyUp(const Event::KeyboardEvent& event) {
@@ -285,7 +276,6 @@ void Cubes::OnKeyUp(const Event::KeyboardEvent& event) {
 }
 
 void Cubes::resize(int deltaW, int deltaH) {
-	nkResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	m_camera.perspective(glm::radians(45.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_trackball.reshape(Application::Width, Application::Height);

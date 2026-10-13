@@ -54,7 +54,7 @@ clang++^
  States/VolumeRendering.cpp^
  States/OcclusionQuery.cpp^
  States/RenderBundles.cpp^
- States/NuklearGui.cpp^
+ States/NuklearUi.cpp^
  States/AudioDecode.cpp^
  States/VideoDecode.cpp^
  States/Cubes.cpp^

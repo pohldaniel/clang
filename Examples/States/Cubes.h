@@ -13,7 +13,6 @@
 #include <scene/CollisionNode.h>
 
 #include <States/StateMachine.h>
-#include <Nuklear/NkJoystick.h>
 #include <Shape/Shape.h>
 
 #include "AssimpModel.h"
@@ -47,7 +46,6 @@ public:
 	void update() override;
 	void render() override;
 	void OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor);
-	void OnFillBuffer(nk_context& nkCntxt);
 
 	void OnMouseMotion(const Event::MouseMoveEvent& event) override;
 	void OnScroll(const Event::MouseWheelEvent& event) override;

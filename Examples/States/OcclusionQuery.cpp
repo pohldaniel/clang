@@ -6,6 +6,7 @@
 #include <imgui_internal.h>
 
 #include <WebGPU/WgpContext.h>
+#include <States/Menu.h>
 
 #include "Application.h"
 #include "Mouse.h"
@@ -63,8 +64,6 @@ OcclusionQuery::OcclusionQuery(StateMachine& machine) : State(machine, States::O
 }
 
 OcclusionQuery::~OcclusionQuery() {
-	Mouse::instance().detach();
-
 	m_uniformBuffer.markForDelete();
 	m_resolveBuffer.markForDelete();
 	m_resultBuffer.markForDelete();
@@ -243,7 +242,15 @@ void OcclusionQuery::OnScroll(const Event::MouseWheelEvent& event) {
 }
 
 void OcclusionQuery::OnKeyDown(const Event::KeyboardEvent& event) {
-
+	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		while (wgpuBufferGetMapState(m_resultBuffer.getBuffer()) == WGPUBufferMapState_Pending) {
+			wgpuInstanceProcessEvents(wgpContext.instance);
+		}
+		Mouse::instance().detach();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
 }
 
 void OcclusionQuery::OnKeyUp(const Event::KeyboardEvent& event) {

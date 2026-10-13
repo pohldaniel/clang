@@ -9,6 +9,7 @@
 
 #include <WebGPU/WgpContext.h>
 #include <WebGPU/WgpRenderer.h>
+#include <States/Menu.h>
 
 #include "ShadowMapping.h"
 #include "Application.h"
@@ -210,7 +211,11 @@ void ShadowMapping::OnScroll(const Event::MouseWheelEvent& event) {
 }
 
 void ShadowMapping::OnKeyDown(const Event::KeyboardEvent& event) {
-
+	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
 }
 
 void ShadowMapping::OnKeyUp(const Event::KeyboardEvent& event) {

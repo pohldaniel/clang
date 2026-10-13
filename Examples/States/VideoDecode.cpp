@@ -13,6 +13,8 @@
 
 #include <Sound/SoundDevice.h>
 
+#include <States/Menu.h>
+
 #include "VideoDecode.h"
 #include "Mouse.h"
 #include "Keyboard.h"
@@ -55,8 +57,7 @@ VideoDecode::VideoDecode(StateMachine& machine) : State(machine, States::VIDEO_D
 }
 
 VideoDecode::~VideoDecode() {
-	SoundDevice::ShutDown();
-	nkShutDown();
+
 }
 
 void VideoDecode::fixedUpdate() {
@@ -200,7 +201,13 @@ void VideoDecode::OnScroll(const Event::MouseWheelEvent& event) {
 }
 
 void VideoDecode::OnKeyDown(const Event::KeyboardEvent& event) {
-
+	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		SoundDevice::ShutDown();
+		nkShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
 }
 
 void VideoDecode::OnKeyUp(const Event::KeyboardEvent& event) {

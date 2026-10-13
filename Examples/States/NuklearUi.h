@@ -11,12 +11,12 @@
 #include "Camera.h"
 #include "TrackBall.h"
 
-class NuklearGui : public State {
+class NuklearUi : public State {
 	
 public:
 
-	NuklearGui(StateMachine& machine);
-	~NuklearGui();
+	NuklearUi(StateMachine& machine);
+	~NuklearUi();
 
 	void fixedUpdate() override;
 	void update() override;

@@ -21,7 +21,7 @@
 #include <States/VolumeRendering.h>
 #include <States/OcclusionQuery.h>
 #include <States/RenderBundles.h>
-#include <States/NuklearGui.h>
+#include <States/NuklearUi.h>
 #include <States/AudioDecode.h>
 #include <States/VideoDecode.h>
 #include <States/Cubes.h>
@@ -38,7 +38,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	uiInitTextureArray();
     m_characterSet.loadFromFile("res/fonts/upheavtt.ttf", 24.0f);
     uiContext.textureViewFont = m_characterSet.texture.getTextureView();
-	uiContext.wgpTexture.fill({ 1.0f, 1.0f, 1.0f, 1.0f }, 1u);
+	uiContext.wgpTexture.fillLayer({ 1.0f, 1.0f, 1.0f, 1.0f }, 1u);
     uiInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 
 	float paddingBottom = 3.0f;
@@ -74,102 +74,13 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button = surface->addChild<Button>();
 	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-	button->setPosition(0.05f, 0.35f);
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
-		wgpCleanState();
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new Compute(m_machine));
-	});*/
-
-	label = button->addChild<Label>(m_characterSet);
-	label->setText("Compute");
-	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	label->setPadding(0.0f, paddingBottom);
-
-	button = surface->addChild<Button>();
-	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-	button->setPosition(0.35f, 0.35f);
-	button->setOutlineThickness(5.0f);
-	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
-		wgpCleanState();
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new Specularity(m_machine));
-	});*/
-
-	label = button->addChild<Label>(m_characterSet);
-	label->setText("Specularity");
-	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	label->setPadding(0.0f, paddingBottom);
-
-	button = surface->addChild<Button>();
-	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-	button->setPosition(0.05f, 0.5f);
-	button->setOutlineThickness(5.0f);
-	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
-		wgpCleanState();
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new NormalMap(m_machine));
-	});*/
-
-	label = button->addChild<Label>(m_characterSet);
-	label->setText("Normal Map");
-	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	label->setPadding(0.0f, paddingBottom);
-
-	surface = m_uiScene->addChild<Surface>();
-	surface->setColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
-	surface->setPadding(20.0f, 20.0f);
-	surface->setSpacing(25.0f, 25.0f);
-	surface->setLayout(Layout::GRID);
-
-	button = surface->addChild<Button>();
-	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-	button->setOutlineThickness(5.0f);
-	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
-		wgpCleanState();
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new MSDFFont(m_machine));
-	});*/
-
-	label = button->addChild<Label>(m_characterSet);
-	label->setText("MSDF Font");
-	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	label->setPadding(0.0f, paddingBottom);
-
-	button = surface->addChild<Button>();
-	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-	button->setOutlineThickness(5.0f);
-	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
-		wgpCleanState();
-		m_isRunning = false;
-		m_machine.addStateAtBottom(new InstancedCube(m_machine));
-	});*/
-
-	label = button->addChild<Label>(m_characterSet);
-	label->setText("Instanced Cube");
-	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	label->setPadding(5.0f, paddingBottom);
-
-	button = surface->addChild<Button>();
-	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-	button->setOutlineThickness(5.0f);
-	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new ImageBasedLighting(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Image Based Lighting");
@@ -181,11 +92,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new ShadowMapping(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Shadow Mapping");
@@ -203,11 +114,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new SkinnedMesh(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Skinned Mesh");
@@ -219,11 +130,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new ComputeParticleLogo(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Compute Particle Logo");
@@ -235,11 +146,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new PrimitivePicking(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Primitive Picking");
@@ -251,11 +162,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new StencilMask(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Stencil Mask");
@@ -273,11 +184,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new DeferredRendering(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Defferred Rendering");
@@ -289,11 +200,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new VolumeRendering(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Volume Rendering");
@@ -305,11 +216,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new OcclusionQuery(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Occlusion Query");
@@ -321,11 +232,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new RenderBundles(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Render Bundles");
@@ -343,11 +254,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new NuklearUi(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Nuklear UI");
@@ -359,11 +270,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new AudioDecode(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Audio Decode");
@@ -375,11 +286,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new VideoDecode(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Video Decode");
@@ -391,11 +302,11 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
-	/*button->setOnClick([&]() {
+	button->setOnClick([&]() {
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Cubes(m_machine));
-	});*/
+	});
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Cubes");

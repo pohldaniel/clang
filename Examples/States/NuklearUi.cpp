@@ -12,7 +12,9 @@
 #include <Nuklear/NkNodeEditor.h>
 #include <Nuklear/NkCalculator.h>
 
-#include "NuklearGui.h"
+#include <States/Menu.h>
+
+#include "NuklearUi.h"
 #include "Mouse.h"
 #include "Application.h"
 
@@ -34,7 +36,7 @@ const char* style_name[] = {
 static int selected_item = 0;
 struct nk_colorf backgroundf = { 0.2f, 0.2f, 0.2f, 1.0f };
 
-NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_GUI) {
+NuklearUi::NuklearUi(StateMachine& machine) : State(machine, States::NUKLEAR_UI) {
 	Mouse::instance().attach(Application::Window, false, true);
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
@@ -52,19 +54,19 @@ NuklearGui::NuklearGui(StateMachine& machine) : State(machine, States::NUKLEAR_G
 	m_trackball.reshape(Application::Width, Application::Height);
 
 	wgpContext.setClearColor({ 0.2f, 0.2f, 0.2f, 1.0f });
-	wgpContext.OnDraw = std::bind(&NuklearGui::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
-	nkContext.OnFillBuffer = std::bind(&NuklearGui::OnFillBuffer, this, std::placeholders::_1);
+	wgpContext.OnDraw = std::bind(&NuklearUi::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+	nkContext.OnFillBuffer = std::bind(&NuklearUi::OnFillBuffer, this, std::placeholders::_1);
 }
 
-NuklearGui::~NuklearGui() {
-	nkShutDown();
+NuklearUi::~NuklearUi() {
+	
 }
 
-void NuklearGui::fixedUpdate() {
+void NuklearUi::fixedUpdate() {
 
 }
 
-void NuklearGui::update() {
+void NuklearUi::update() {
 
 	Mouse &mouse = Mouse::instance();
 
@@ -123,11 +125,11 @@ void NuklearGui::update() {
 	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT), mouse.buttonDown(GLFW_MOUSE_BUTTON_RIGHT), Application::ScrollDelta);
 }
 
-void NuklearGui::render() {
+void NuklearUi::render() {
 	wgpDraw();
 }
 
-void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+void NuklearUi::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
 	{
 		WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
 		renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Load;
@@ -139,7 +141,7 @@ void NuklearGui::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURend
 	}
 }
 
-void NuklearGui::OnFillBuffer(nk_context& nkCntxt) {
+void NuklearUi::OnFillBuffer(nk_context& nkCntxt) {
 	calculator();
 	node_editor();
 	if (nk_begin(&nkCntxt, "Demo", nk_rect(430, 10, 230, 250),
@@ -183,11 +185,11 @@ void NuklearGui::OnFillBuffer(nk_context& nkCntxt) {
 	nk_end(&nkCntxt);	
 }
 
-void NuklearGui::OnMouseMotion(const Event::MouseMoveEvent& event) {
+void NuklearUi::OnMouseMotion(const Event::MouseMoveEvent& event) {
 	m_trackball.motion(event.x, event.y);
 }
 
-void NuklearGui::OnMouseButtonDown(const Event::MouseButtonEvent& event) {	
+void NuklearUi::OnMouseButtonDown(const Event::MouseButtonEvent& event) {	
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
 		Mouse::instance().attach(Application::Window, false, true);
@@ -197,7 +199,7 @@ void NuklearGui::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
 		Mouse::instance().attach(Application::Window, true, true, true);
 }
 
-void NuklearGui::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+void NuklearUi::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
 		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
 		Mouse::instance().attach(Application::Window, false, true);
@@ -207,26 +209,31 @@ void NuklearGui::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
 		Mouse::instance().attach(Application::Window, false, false, true);
 }
 
-void NuklearGui::OnScroll(const Event::MouseWheelEvent& event) {
+void NuklearUi::OnScroll(const Event::MouseWheelEvent& event) {
 	
 }
 
-void NuklearGui::OnKeyDown(const Event::KeyboardEvent& event) {
+void NuklearUi::OnKeyDown(const Event::KeyboardEvent& event) {
+	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		nkShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
+}
+
+void NuklearUi::OnKeyUp(const Event::KeyboardEvent& event) {
 
 }
 
-void NuklearGui::OnKeyUp(const Event::KeyboardEvent& event) {
-
-}
-
-void NuklearGui::resize(int deltaW, int deltaH) {
+void NuklearUi::resize(int deltaW, int deltaH) {
 	nkResize(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);
 	m_trackball.reshape(Application::Width, Application::Height);	
 }
 
-void NuklearGui::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+void NuklearUi::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
 	ImGui_ImplWGPU_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
