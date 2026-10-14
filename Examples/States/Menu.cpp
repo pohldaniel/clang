@@ -358,22 +358,33 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	canvas->setHeight(400.0f);
 	canvas->setLayer(1u);
 
+	if (m_layout == SelectedLayout::M_GRID) {
+		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
+		for (auto& surface : surfaces) {
+			surface->setLayout(Layout::GRID);
+		}
+		surfaces.back()->setLayout(Layout::HORIZONTAL);
+		m_uiScene->setLayout(Layout::MASONRY);
+		m_uiScene->updateLayout(true);
+	}
+
 	if (m_layout == SelectedLayout::M_VERTICAL) {
 		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
 		for (auto& surface : surfaces) {
-			surface->setLayout(Layout::VERTICAL);
-			m_uiScene->setLayout(Layout::HORIZONTAL);
+			surface->setLayout(Layout::VERTICAL);			
 		}
-		m_uiScene->updateLayout();
+		m_uiScene->setLayout(Layout::HORIZONTAL);
+		m_uiScene->updateLayout(true);
 	}
 
 	if (m_layout == SelectedLayout::M_HORIZONTAL) {
 		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
 		for (auto& surface : surfaces) {
 			surface->setLayout(Layout::HORIZONTAL);
-			m_uiScene->setLayout(Layout::VERTICAL);
+			
 		}
-		m_uiScene->updateLayout();
+		m_uiScene->setLayout(Layout::VERTICAL);
+		m_uiScene->updateLayout(true);
 	}
 
 	wgpContext.setClearColor({ 0.0f, 0.0f, 0.0f, 1.0f });

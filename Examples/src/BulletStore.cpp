@@ -18,7 +18,6 @@
 namespace {
 
     const float rotPerBullet = 3.0f * glm::pi<float>() / 180.0f;
-    const float bulletScale = 0.3f;
     const float bulletLifetime = 1.0f;
     const float bulletSpeed = 15.0f;
 

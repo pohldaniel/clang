@@ -360,7 +360,13 @@ void Widget::pushWidget(UiPipelineType type, const UiInstance& instance) {
     currentBatches.back().instanceCount++;
 }
 
-void Widget::updateLayout() {
+void Widget::updateLayout(bool sort) {
+	if (sort) {
+		getChildren().sort([](const std::unique_ptr<Node, std::function<void(Node* node)>>& a, const std::unique_ptr<Node, std::function<void(Node* node)>>& b) {
+			return a->getSort() < b->getSort();
+		});
+	}
+
 	for (std::list<std::unique_ptr<Node, std::function<void(Node* node)>>>::iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
 		static_cast<Widget*>((*it).get())->updateLayout();
 	}
@@ -378,8 +384,9 @@ void Widget::OnLayoutChanged() {
 
 			for (const auto& childNode : getChildren()) {
 				Widget* child = static_cast<Widget*>(childNode.get());
-				totalWidth += child->getWidth() + m_spacingX;
-				maxHeight = std::max(maxHeight, child->getHeight());
+				glm::vec2 scale = child->getScale();
+				totalWidth += child->getWidth() * scale[0] + m_spacingX;
+				maxHeight = std::max(maxHeight, child->getHeight() * scale[1]);
 			}
 
 			totalWidth -= m_spacingX;
@@ -390,9 +397,9 @@ void Widget::OnLayoutChanged() {
 
 			for (const auto& childNode : getChildren()) {
 				Widget* child = static_cast<Widget*>(childNode.get());
-				float posY = (getHeight() - child->getHeight()) * 0.5f;
+				float posY = (getHeight() - child->getHeight() * child->getScale()[1]) * 0.5f;
 				child->setPosition(glm::vec2(posX, posY));
-				posX += child->getWidth() + m_spacingX;
+				posX += child->getWidth() * child->getScale()[0] + m_spacingX;
 			}
 		}else if (m_layout == Layout::VERTICAL) {
 			
@@ -401,8 +408,9 @@ void Widget::OnLayoutChanged() {
 
 			for (const auto& childNode : getChildren()) {
 				Widget* child = static_cast<Widget*>(childNode.get());
-				totalHeight += child->getHeight() + m_spacingY;
-				maxWidth = std::max(maxWidth, child->getWidth());
+				glm::vec2 scale = child->getScale();
+				totalHeight += child->getHeight() * scale[1] + m_spacingY;
+				maxWidth = std::max(maxWidth, child->getWidth() * scale[0]);
 			}
 
 			totalHeight -= m_spacingY;
@@ -414,7 +422,7 @@ void Widget::OnLayoutChanged() {
 			for (const auto& childNode : getChildren()) {
 				Widget* child = static_cast<Widget*>(childNode.get());
 				child->setPosition(glm::vec2(posX, posY));
-				posY += child->getHeight() + m_spacingY;
+				posY += child->getHeight() * child->getScale()[1] + m_spacingY;
 			}
 		}else if (m_layout == Layout::GRID) {
 			const int widgetCount = static_cast<int>(getChildren().size());
@@ -624,6 +632,10 @@ void Widget::setLayout(Layout layout, bool silent) {
 	m_layout = layout;
 	if (!silent)
 		OnInvalidate();
+}
+
+void Widget::setSort(size_t sort) {
+	Node::setSort(sort);
 }
 
 void Widget::setBorder(float border) {
