@@ -6,6 +6,8 @@
 Empty::Empty() : Widget(), 
 m_sliderPosX(0.0f), 
 m_sliderPosY(0.0f),
+m_contentScrollX(0.0f),
+m_contentScrollY(0.0f),
 m_isDragged(false),
 m_mouseX(0),
 m_mouseY(0),
@@ -19,6 +21,8 @@ Empty::Empty(const Empty& rhs) :
 	Widget(rhs),
 	m_sliderPosX(rhs.m_sliderPosX),
 	m_sliderPosY(rhs.m_sliderPosY),
+	m_contentScrollX(rhs.m_contentScrollX),
+	m_contentScrollY(rhs.m_contentScrollY),
 	m_isDragged(rhs.m_isDragged),
 	m_mouseX(rhs.m_mouseX),
 	m_mouseY(rhs.m_mouseY),
@@ -31,6 +35,8 @@ Empty::Empty(Empty&& rhs) noexcept :
 	Widget(rhs),
 	m_sliderPosX(rhs.m_sliderPosX),
 	m_sliderPosY(rhs.m_sliderPosY),
+	m_contentScrollX(rhs.m_contentScrollX),
+	m_contentScrollY(rhs.m_contentScrollY),
 	m_isDragged(rhs.m_isDragged),
 	m_mouseX(rhs.m_mouseX),
 	m_mouseY(rhs.m_mouseY),
@@ -41,22 +47,6 @@ Empty::Empty(Empty&& rhs) noexcept :
 
 Empty::~Empty() {
 
-}
-
-bool Empty::inputTree(const int mouseX, const int mouseY, bool buttonLeft) {
-	if (!OnMouseOver(mouseX, mouseY)) {
-		return false;
-	}
-
-	if (isOverSliderBottom(mouseX, mouseY) || isOverSliderRight(mouseX, mouseY)) {
-		if (buttonLeft) {
-			Widget::ActiveWidget = this;
-			m_hasFocus = true;
-			pushToFront();
-		}
-		return OnInput(mouseX, mouseY, buttonLeft);
-	}
-	return Widget::inputTree(mouseX, mouseY, buttonLeft);
 }
 
 bool Empty::OnInput(int mouseX, int mouseY, bool buttonLeft) {
@@ -84,39 +74,44 @@ bool Empty::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 
 		if (deltaX != 0 || deltaY != 0) {
 			glm::vec2 parentScale = m_parent ? static_cast<Widget*>(m_parent)->getWorldScale() : glm::vec2(1.0f, 1.0f);
+
 			if (m_dragMode == DragMode::HORIZONTAL && deltaX != 0) {
-				float maxSliderDeltaX = std::max(m_border * m_scale[0], uiContext.width - (uiContext.width / m_width) * uiContext.width * m_scale[0]);
+				float sliderWidth = (uiContext.width * uiContext.width) / m_width;
+				float maxSliderDeltaX = uiContext.width - sliderWidth;
 				float maxContentDeltaX = m_width - uiContext.width;
-
 				if (maxSliderDeltaX > 0.0f && maxContentDeltaX > 0.0f) {
-					float scrollFactor = (maxContentDeltaX) / maxSliderDeltaX;
-					float prevSliderPos = m_sliderPosX;
+					float newSliderPosX = m_sliderPosX + (static_cast<float>(deltaX) / parentScale[0]);
+					newSliderPosX = std::clamp(newSliderPosX, 0.0f, maxSliderDeltaX);
+					float scrollPercent = newSliderPosX / maxSliderDeltaX;
+					float targetContentScrollX = scrollPercent * maxContentDeltaX;
 
-					
+					float translateDeltaX = targetContentScrollX - m_contentScrollX;
 
-					m_sliderPosX += static_cast<float>(deltaX) / parentScale[0];
-					if (m_sliderPosX < 0.0f) m_sliderPosX = 0.0f;
-					if (m_sliderPosX > maxSliderDeltaX) m_sliderPosX = maxSliderDeltaX;
-
-					float sliderDelta = m_sliderPosX - prevSliderPos;
-					setPosition(getPosition() - glm::vec2(sliderDelta * scrollFactor, 0.0f));
+					if (translateDeltaX != 0.0f) {
+						translate(-translateDeltaX, 0.0f);
+						m_contentScrollX = targetContentScrollX;
+					}
+					m_sliderPosX = newSliderPosX;
 				}
 			}
 
 			if (m_dragMode == DragMode::VERTICAL && deltaY != 0) {
-				float maxSliderDeltaY = std::max(m_border * m_scale[1], uiContext.height - (uiContext.height / m_height) * uiContext.height * m_scale[1]);
+				float sliderHeight = (uiContext.height * uiContext.height) / m_height;
+				float maxSliderDeltaY = uiContext.height - sliderHeight;
 				float maxContentDeltaY = m_height - uiContext.height;
-
 				if (maxSliderDeltaY > 0.0f && maxContentDeltaY > 0.0f) {
-					float scrollFactor = (maxContentDeltaY) / maxSliderDeltaY;
-					float prevSliderPos = m_sliderPosY;
+					float newSliderPosY = m_sliderPosY + (static_cast<float>(deltaY) / parentScale[1]);
+					newSliderPosY = std::clamp(newSliderPosY, 0.0f, maxSliderDeltaY);
+					float scrollPercent = newSliderPosY / maxSliderDeltaY;
+					float targetContentScrollY = scrollPercent * maxContentDeltaY;
 
-					m_sliderPosY += static_cast<float>(deltaY) / parentScale[1];
-					if (m_sliderPosY < 0.0f) m_sliderPosY = 0.0f;
-					if (m_sliderPosY > maxSliderDeltaY) m_sliderPosY = maxSliderDeltaY;
+					float translateDeltaY = targetContentScrollY - m_contentScrollY;
 
-					float sliderDelta = m_sliderPosY - prevSliderPos;
-					setPosition(getPosition() - glm::vec2(0.0f, sliderDelta * scrollFactor));
+					if (translateDeltaY != 0.0f) {
+						translate(0.0f, -translateDeltaY);
+						m_contentScrollY = targetContentScrollY;
+					}
+					m_sliderPosY = newSliderPosY;
 				}
 			}
 			
@@ -128,49 +123,61 @@ bool Empty::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 }
 
 void Empty::setWidth(float width, bool silent) {
-	float prevSliderDeltaX = std::max(m_border * m_scale[0], uiContext.width - (uiContext.width / m_width) * uiContext.width * m_scale[0]);
-	float prevMaxContentDeltaX = m_width - uiContext.width;
+	float mouseDeltaX = width - m_width;
+	m_width = width;
 
-	float newMaxSliderDeltaX = std::max(m_border * m_scale[0], uiContext.width - (uiContext.width / width) * uiContext.width * m_scale[0]);
-	float newMaxContentDeltaX = width - uiContext.width;
+	float maxContentDeltaX = m_width - uiContext.width;
+	float targetScrollX = m_contentScrollX + mouseDeltaX;
 
-	if (prevMaxContentDeltaX > 0.0f && newMaxSliderDeltaX > 0.0f && prevSliderDeltaX > 0.0f && newMaxContentDeltaX > 0.0f) {
-		float oldScrollFactor = prevMaxContentDeltaX / prevSliderDeltaX;
-		float newScrollFactor = newMaxContentDeltaX / newMaxSliderDeltaX;
-		m_sliderPosX = (m_sliderPosX * oldScrollFactor) / newScrollFactor;
-
-		if (m_sliderPosX < 0.0f) m_sliderPosX = 0.0f;
-		if (m_sliderPosX > newMaxSliderDeltaX) m_sliderPosX = newMaxSliderDeltaX;
+	if (maxContentDeltaX > 0.0f) {
+		targetScrollX = std::clamp(targetScrollX, 0.0f, maxContentDeltaX);
+		float scrollPercent = targetScrollX / maxContentDeltaX;
+		float sliderWidth = (uiContext.width * uiContext.width) / m_width;
+		m_sliderPosX = scrollPercent * (uiContext.width - sliderWidth);
+	}else {
+		targetScrollX = 0.0f;
+		m_sliderPosX = 0.0f;
 	}
 
-	m_width = width;
+	float translateDeltaX = targetScrollX - m_contentScrollX;
+
+	if (translateDeltaX != 0.0f) {
+		this->translate(-translateDeltaX, 0.0f);
+		m_contentScrollX = targetScrollX;
+	}
+
 	if (!silent)
 		OnInvalidate();
 }
 
 void Empty::setHeight(float height, bool silent) {
-	float prevSliderDeltaY = std::max(m_border * m_scale[1], uiContext.height - (uiContext.height / m_height) * uiContext.height * m_scale[1]);
-	float prevMaxContentDeltaY = m_height - uiContext.height;
+	float mouseDeltaY = height - m_height;
+	m_height = height;
 
-	float newMaxSliderDeltaY = std::max(m_border * m_scale[1], uiContext.height - (uiContext.height / height) * uiContext.height * m_scale[1]);
-	float newMaxContentDeltaY = height - uiContext.height;
+	float maxContentDeltaY = m_height - uiContext.height;
+	float targetScrollY = m_contentScrollY + mouseDeltaY;
 
-	if (prevMaxContentDeltaY > 0.0f && newMaxSliderDeltaY > 0.0f && prevSliderDeltaY > 0.0f && newMaxContentDeltaY > 0.0f) {
-		float oldScrollFactor = prevMaxContentDeltaY / prevSliderDeltaY;
-		float newScrollFactor = newMaxContentDeltaY / newMaxSliderDeltaY;
-		m_sliderPosY = (m_sliderPosY * oldScrollFactor) / newScrollFactor;
-
-		if (m_sliderPosY < 0.0f) m_sliderPosX = 0.0f;
-		if (m_sliderPosY > newMaxSliderDeltaY) m_sliderPosY = newMaxSliderDeltaY;
+	if (maxContentDeltaY > 0.0f) {
+		targetScrollY = std::clamp(targetScrollY, 0.0f, maxContentDeltaY);
+		float scrollPercent = targetScrollY / maxContentDeltaY;
+		float sliderHeight = (uiContext.height * uiContext.height) / m_height;
+		m_sliderPosY = scrollPercent * (uiContext.height - sliderHeight);
+	}else {
+		targetScrollY = 0.0f;
+		m_sliderPosY = 0.0f;
 	}
 
-	m_height = height;
+	float translateDeltaY = targetScrollY - m_contentScrollY;
+	if (translateDeltaY != 0.0f) {
+		this->translate(0.0f, -translateDeltaY);
+		m_contentScrollY = targetScrollY;
+	}
+
 	if (!silent)
 		OnInvalidate();
 }
 
 void Empty::OnDraw() {
-	
 	UiInstance bottomBorderInst = {};
 	std::memcpy(bottomBorderInst.transform, glm::value_ptr(glm::translate(glm::vec3(0.0f, uiContext.height - m_border / m_scale[1], 0.0f)) * glm::scale(glm::vec3(uiContext.width, m_border / m_scale[1], 1.0f))), sizeof(glm::mat4));
 	std::memcpy(bottomBorderInst.color, glm::value_ptr(m_borderColor), sizeof(glm::vec4));
@@ -249,15 +256,20 @@ void Empty::OnLayoutChanged() {
 	Widget::OnLayoutChanged();
 	m_width = std::max(uiContext.width, m_width);
 	m_height = std::max(uiContext.height, m_height);
+
 	m_sliderPosX = 0.0f;
+	m_contentScrollX = 0.0f;
 	m_sliderPosY = 0.0f;
-	setPosition(0.0f, 0.0f);
+	m_contentScrollY = 0.0f;
+
+	setPosition(0.0f, 0.0f);	
 }
 
 void Empty::OnMouseWheel(int mouseX, int mouseY, float delta) {
 
 	glm::vec2 parentScale = m_parent ? static_cast<Widget*>(m_parent)->getWorldScale() : glm::vec2(1.0f, 1.0f);
-	float maxSliderDeltaY = std::max(m_border * m_scale[1], uiContext.height - (uiContext.height / m_height) * uiContext.height * m_scale[1]);
+	float sliderHeight = (uiContext.height * uiContext.height) / m_height;
+	float maxSliderDeltaY = uiContext.height - sliderHeight;
 	float maxContentDeltaY = m_height - uiContext.height;
 
 	if (maxSliderDeltaY > 0.0f && maxContentDeltaY > 0.0f) {
@@ -273,6 +285,14 @@ void Empty::OnMouseWheel(int mouseX, int mouseY, float delta) {
 		if (m_sliderPosY < 0.0f) m_sliderPosY = 0.0f;
 		if (m_sliderPosY > maxSliderDeltaY) m_sliderPosY = maxSliderDeltaY;
 		float sliderDelta = m_sliderPosY - prevSliderPos;
-		setPosition(getPosition() - glm::vec2(0.0f, sliderDelta * scrollFactor));
+		translate(0.0f, -sliderDelta * scrollFactor);
+
+		float scrollPercent = m_sliderPosY / maxSliderDeltaY;
+		float targetContentScrollY = scrollPercent * maxContentDeltaY;
+		m_contentScrollY = targetContentScrollY;
 	}
+}
+
+bool Empty::OnOverControl(int mouseX, int mouseY) {
+	return m_isDragged || isOverSliderBottom(mouseX, mouseY) || isOverSliderRight(mouseX, mouseY);
 }

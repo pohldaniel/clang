@@ -17,6 +17,7 @@ private:
 	
 	bool OnInput(int mouseX, int mouseY, bool buttonLeft) override;
 	void OnDraw() override;
+	bool OnMouseOver(int mouseX, int mouseY) override;
 
 	glm::vec4 m_color;
 	glm::vec4 m_dragColor;

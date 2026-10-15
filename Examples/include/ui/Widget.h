@@ -26,11 +26,11 @@ public:
 	Widget(Widget&& rhs) noexcept;
 	virtual ~Widget();
 
-	
 	void input(int mouseX, int mouseY, bool buttonLeft = false);
 	void wheelInput(int mouseX, int mouseY, float delta);
 
 	void updateLayout(bool sort = false);
+	void updateOrder();
 	void draw();
 
 	virtual void setScale(float sx, float sy) override;
@@ -66,6 +66,7 @@ public:
 	
 	float getWidth();
 	float getHeight();
+	float getBorder();
 
 	virtual void setWidth(float width, bool silent = false);
 	virtual void setHeight(float height, bool silent = false);
@@ -81,20 +82,19 @@ protected:
 
 	void OnTransformChanged();
 	void OnInvalidate();
+	void OnOrderDirty();
 
 	virtual bool OnInput(int mouseX, int mouseY, bool buttonLeft = false);
 	virtual void OnMouseWheel(int mouseX, int mouseY, float delta);
 	virtual void OnLayoutChanged();
 	virtual void OnDraw() = 0;
 	virtual bool OnMouseOver(int mouseX, int mouseY);
+	virtual bool OnOverControl(int mouseX, int mouseY);
 	virtual void OnReset();
 
-	virtual bool inputTree(int mouseX, int mouseY, bool buttonLeft);
-	
-
+	bool inputTree(int mouseX, int mouseY, bool buttonLeft);
 	void drawTree();			
 	void pushWidget(UiPipelineType type, const UiInstance& instance);
-	void pushToFront();
 
 	mutable bool m_isLayoutDirty;
 
@@ -112,12 +112,11 @@ protected:
 
 private:
 
-	
 	void resetTree();
 	
-
 	mutable glm::mat4 m_modelMatrix;
 	mutable bool m_isDirty;
+	mutable bool m_isOrderDirty;
 	
 	float m_spacingX;
 	float m_spacingY;
@@ -126,6 +125,5 @@ private:
 	static glm::vec2 WorldPosition;
 	static glm::vec2 WorldScale;
 	static float WorldOrientation;
-	
 };
 

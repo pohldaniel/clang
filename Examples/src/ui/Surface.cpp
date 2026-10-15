@@ -64,8 +64,7 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 				m_mouseY = mouseY;
 			}
 		}
-	}
-	else {
+	}else {
 		m_isDragged = false;
 		m_isResizing = false;
 	}
@@ -86,16 +85,16 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 		m_mouseY = mouseY;
 
 		if (m_parent) {
-			Widget* parentWidget = static_cast<Widget*>(m_parent);
+			Widget* parent = static_cast<Widget*>(m_parent);
 
-			float widgetRightEdge = nextLocalPos[0] + m_width * m_scale[0];
-			float widgetBottomEdge = nextLocalPos[1] + m_height * m_scale[1];
+			float widgetRightEdge = nextLocalPos[0] + m_width * m_scale[0] + parent->getBorder() + m_paddingX;
+			float widgetBottomEdge = nextLocalPos[1] + m_height * m_scale[1] + parent->getBorder() + m_paddingY;
 
-			if (widgetRightEdge > parentWidget->getWidth()) {
-				parentWidget->setWidth(widgetRightEdge, true);
+			if (widgetRightEdge > parent->getWidth()) {
+				parent->setWidth(widgetRightEdge, true);
 			}
-			if (widgetBottomEdge > parentWidget->getHeight()) {
-				parentWidget->setHeight(widgetBottomEdge, true);
+			if (widgetBottomEdge > parent->getHeight()) {
+				parent->setHeight(widgetBottomEdge, true);
 			}
 		}
 	}
@@ -119,17 +118,17 @@ bool Surface::OnInput(int mouseX, int mouseY, bool buttonLeft) {
 		m_mouseY = mouseY;
 
 		if (m_parent) {
-			Widget* parentWidget = static_cast<Widget*>(m_parent);
+			Widget* parent = static_cast<Widget*>(m_parent);
 			glm::vec2 localPos = getPosition();
 
-			float widgetRightEdge = localPos[0] + (m_width + m_paddingX) * newScaleX;
-			float widgetBottomEdge = localPos[1] + (m_height + m_paddingY) * newScaleY;
+			float widgetRightEdge = localPos[0] + m_width * newScaleX + parent->getBorder() + m_paddingX;
+			float widgetBottomEdge = localPos[1] + m_height * newScaleY + parent->getBorder() + m_paddingY;
 
-			if (widgetRightEdge > parentWidget->getWidth()) {
-				parentWidget->setWidth(widgetRightEdge, true);
+			if (widgetRightEdge > parent->getWidth()) {
+				parent->setWidth(widgetRightEdge, true);
 			}
-			if (widgetBottomEdge > parentWidget->getHeight()) {
-				parentWidget->setHeight(widgetBottomEdge, true);
+			if (widgetBottomEdge > parent->getHeight()) {
+				parent->setHeight(widgetBottomEdge, true);
 			}
 		}
 	}
@@ -172,4 +171,14 @@ void Surface::OnDraw() {
 	gripInst.textureRect[3] = 1.0f;
 	gripInst.textureLayer = 0u;
 	pushWidget(UiPipelineType::Standard, gripInst);
+}
+
+bool Surface::OnMouseOver(int mouseX, int mouseY) {
+	glm::vec2 scale = getWorldScale(true);
+	float visualWidth = m_width * scale[0];
+	float visualHeight = m_height * scale[1];
+	glm::vec2 position = getWorldPosition(true);
+
+	return (mouseX > position[0] && mouseX < position[0] + visualWidth &&
+		mouseY > position[1] - m_controlSize && mouseY < position[1] + visualHeight + m_controlSize);
 }

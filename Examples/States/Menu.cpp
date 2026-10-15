@@ -317,6 +317,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	surface->setColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
 	surface->setPadding(20.0f, 20.0f);
 	surface->setSpacing(15.0f, 0.0f);
+	surface->setSort(0u);
 
 	button = surface->addChild<Button>();
 	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -334,11 +335,18 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 
-	button = surface->addChild<Button>();
+	Canvas* canvas = surface->addChild<Canvas>();
+	canvas->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	canvas->setWidth(400.0f);
+	canvas->setHeight(400.0f);
+	canvas->setLayer(1u);
+
+	button = canvas->addChild<Button>();
 	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
+	button->setPosition(10.0f, 10.0f);
 	button->setOnClick([&]() {
 		int randomSeed = rand();
 		auto* noiseTask = new NoiseGenerationTask(512, 512, randomSeed, [this]() {
@@ -351,12 +359,6 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	label->setText("Noise");
 	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
-
-	Canvas* canvas = surface->addChild<Canvas>();
-	canvas->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	canvas->setWidth(400.0f);
-	canvas->setHeight(400.0f);
-	canvas->setLayer(1u);
 
 	if (m_layout == SelectedLayout::M_GRID) {
 		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();

@@ -14,7 +14,8 @@ m_paddingY(0.0f),
 m_isMovable(false),
 m_border(0.0f),
 m_hasFocus(false),
-m_isDirty(true), 
+m_isDirty(true),
+m_isOrderDirty(true),
 m_spacingX(0.0f), 
 m_spacingY(0.0f), 
 m_layout(Layout::HORIZONTAL) {
@@ -31,6 +32,7 @@ Widget::Widget(const Widget& rhs) : Node(rhs), Object2D(rhs) {
 	m_border = rhs.m_border;
 	m_hasFocus = rhs.m_hasFocus;
 	m_isDirty = rhs.m_isDirty;
+	m_isOrderDirty = rhs.m_isOrderDirty;
 	m_spacingX = rhs.m_spacingX;
 	m_spacingY = rhs.m_spacingY;
 	m_layout = rhs.m_layout;
@@ -46,6 +48,7 @@ Widget::Widget(Widget&& rhs) noexcept : Node(rhs), Object2D(rhs) {
 	m_border = rhs.m_border;
 	m_hasFocus = rhs.m_hasFocus;
 	m_isDirty = rhs.m_isDirty;
+	m_isOrderDirty = rhs.m_isOrderDirty;
 	m_spacingX = rhs.m_spacingX;
 	m_spacingY = rhs.m_spacingY;
 	m_layout = rhs.m_layout;
@@ -139,12 +142,18 @@ void Widget::input(int mouseX, int mouseY, bool buttonLeft) {
 		return;
 	}
 	inputTree(mouseX, mouseY, buttonLeft);
-	updateLayout();
+	updateOrder();
+	if(m_isLayoutDirty)
+		updateLayout();
 }
 
 bool Widget::inputTree(int mouseX, int mouseY, bool buttonLeft) {
 	if(!OnMouseOver(mouseX, mouseY)) {
 		return false;
+	}
+
+	if (OnOverControl(mouseX, mouseY)) {
+		return OnInput(mouseX, mouseY, buttonLeft);
 	}
 
 	if (!m_children.empty()) {
@@ -159,7 +168,9 @@ bool Widget::inputTree(int mouseX, int mouseY, bool buttonLeft) {
 	if(buttonLeft) {
 		Widget::ActiveWidget = this;
 		m_hasFocus = true;
-		pushToFront();
+		if (m_parent != nullptr) {
+			static_cast<Widget*>(m_parent)->OnOrderDirty();
+		}
 	}
 
 	return OnInput(mouseX, mouseY, buttonLeft);
@@ -200,6 +211,10 @@ void Widget::OnInvalidate() {
 	if(m_parent)
 		static_cast<Widget*>(m_parent)->OnInvalidate();
 	
+}
+
+void Widget::OnOrderDirty() {
+	m_isOrderDirty = true;
 }
 
 const glm::mat4& Widget::getWorldTransformation() const {
@@ -371,6 +386,23 @@ void Widget::updateLayout(bool sort) {
 		static_cast<Widget*>((*it).get())->updateLayout();
 	}
 	OnLayoutChanged();
+}
+
+void Widget::updateOrder() {
+	if (m_isOrderDirty) {
+		for (auto it = m_children.begin(); it != m_children.end(); ++it) {
+			if (static_cast<Widget*>((*it).get())->m_hasFocus) {
+				m_children.splice(m_children.end(), m_children, it);
+				break;
+			}
+		}
+		m_isOrderDirty = false;
+	}
+
+
+	for (auto& child : m_children) {
+		static_cast<Widget*>(child.get())->updateOrder();
+	}
 }
 
 void Widget::OnLayoutChanged() {
@@ -602,6 +634,10 @@ float Widget::getHeight() {
 	return m_height;
 }
 
+float Widget::getBorder() {
+	return m_border;
+}
+
 void Widget::setWidth(float width, bool silent) {
 	m_width = width;
 	if(!silent)
@@ -642,19 +678,6 @@ void Widget::setBorder(float border) {
 	m_border = border;
 }
 
-void Widget::pushToFront() {	
-	if (m_parent) {
-		auto& siblings = m_parent->getChildren();
-		for (auto it = siblings.begin(); it != siblings.end(); ++it) {
-			if ((*it).get() == this) {
-				siblings.splice(siblings.end(), siblings, it);
-				break;
-			}
-		}
-		static_cast<Widget*>(m_parent)->pushToFront();
-	}
-}
-
 bool Widget::OnMouseOver(int mouseX, int mouseY) {
 	glm::vec2 scale = getWorldScale(true);
 	float visualWidth = m_width * scale[0];
@@ -669,6 +692,10 @@ bool Widget::OnMouseOver(int mouseX, int mouseY) {
 
 void Widget::OnReset() {
 	m_hasFocus = false;
+}
+
+bool Widget::OnOverControl(int mouseX, int mouseY) {
+	return false;
 }
 
 bool Widget::OnInput(int mouseX, int mouseY, bool buttonLeft) {
