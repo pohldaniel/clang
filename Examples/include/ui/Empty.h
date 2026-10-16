@@ -21,17 +21,20 @@ public:
 
 private:
 	
-
 	bool OnInput(int mouseX, int mouseY, bool buttonLeft) override;
 	void OnDraw() override;
 	bool OnMouseOver(int mouseX, int mouseY) override;
 	void OnLayoutChanged() override;
 	void OnMouseWheel(int mouseX, int mouseY, float delta) override;
 	bool OnOverControl(int mouseX, int mouseY) override;
+	void OnResize(int deltaW, int deltaH) override;
 
 	bool isOverSliderBottom(int mouseX, int mouseY);
 	bool isOverSliderRight(int mouseX, int mouseY);
 	
+	void fitContentX(float width);
+	void fitContentY(float height);
+
 	float m_sliderPosX, m_sliderPosY;
 	float m_contentScrollX, m_contentScrollY;
 	bool m_isDragged;

@@ -26,7 +26,7 @@ public:
 	bool isRunning();
 
 	static void MessageLoop(void *arg);
-	static void Resize(uint32_t width, uint32_t height);
+	static void Resize(uint32_t width, uint32_t height, int deltaW, int deltaH);
 	static bool IsInitialized();
 	static void OnSurfaceChange();
 	static void Cleanup();

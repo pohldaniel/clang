@@ -6,7 +6,13 @@
   extern "C" {
     EMSCRIPTEN_KEEPALIVE
     void Resize(int width, int height){
-      Application::Resize(width, height);
+      int deltaW =  Application::Width;
+      int deltaH =  Application::Height;
+      Application::Width = static_cast<int>(width);
+      Application::Height = static_cast<int>(height);
+      deltaW = Application::Width - deltaW;
+      deltaH = Application::Height - deltaH;
+      Application::Resize(width, height, deltaW, deltaH);
     }
 
     EMSCRIPTEN_KEEPALIVE

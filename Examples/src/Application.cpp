@@ -67,7 +67,7 @@ void Application::MessageLoop(void *arg) {
 }
 
 Application::Application(float& dt, float& fdt) : fdt(fdt), dt(dt), last(0.0), accumulator(0.0) {
-  Application::Width = 1260;
+  Application::Width = 1280;
   Application::Height = 720;
   Application::physics = std::make_unique<Physics>();
 
@@ -168,10 +168,10 @@ void Application::update(){
     ScrollDelta = 0.0f;
 }
 
-void Application::Resize(uint32_t width, uint32_t height){
+void Application::Resize(uint32_t width, uint32_t height, int deltaW, int deltaH){
   if(Init){
     wgpResize(Width, Height);
-    Machine->getStates().top()->resize(0, 0);
+    Machine->getStates().top()->resize(deltaW, deltaH);
   }
 }
 
@@ -306,7 +306,12 @@ void glfwWindowResizeCallback(GLFWwindow* window, int width, int height){
 
 void glfwFramebufferResizeCallback(GLFWwindow* window, int width , int height) {
 	glfwSetWindowSize(window, width, height);
+ 
+  int deltaW =  Application::Width;
+  int deltaH =  Application::Height;
   Application::Width = static_cast<int>(width);
   Application::Height = static_cast<int>(height);
-  Application::Resize(Application::Width, Application::Height);
+  deltaW = Application::Width - deltaW;
+  deltaH = Application::Height - deltaH;
+  Application::Resize(Application::Width, Application::Height, deltaW, deltaH);
 }
