@@ -20,7 +20,8 @@ enum States {
 	VIDEO_DECODE,
 	CUBES,
 	ISOMETRIC,
-	MENU
+	MENU,
+	CONTROLLER
 };
 
 class State;

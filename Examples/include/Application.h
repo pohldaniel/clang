@@ -17,7 +17,6 @@ class Application {
 	friend void glfwWindowScroll(GLFWwindow* window, double xpos, double ypos);
 	friend void glfwFramebufferResizeCallback(GLFWwindow* m_window, int width , int height);
 
-
 public:
 
 	Application(float& dt, float& fdt);

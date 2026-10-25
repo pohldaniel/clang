@@ -24,9 +24,11 @@
 #include <States/Cubes.h>
 #include <States/Isometric.h>
 #include <States/Menu.h>
+#include <States/Controller.h>
 
 #include "Mouse.h"
 #include "Keyboard.h"
+#include "GamePad.h"
 #include "Application.h"
 
 GLFWwindow* Application::Window = nullptr;
@@ -74,8 +76,7 @@ Application::Application(float& dt, float& fdt) : fdt(fdt), dt(dt), last(0.0), a
   initWindow();
   initWebGPU();
   initImGUI();
-  initStates();
-
+  
   glfwSetWindowUserPointer(Window, this);
   glfwSetFramebufferSizeCallback(Window, glfwFramebufferResizeCallback);
   glfwSetCursorPosCallback(Window, glfwMouseMoveCallback);
@@ -84,6 +85,9 @@ Application::Application(float& dt, float& fdt) : fdt(fdt), dt(dt), last(0.0), a
   glfwSetKeyCallback(Window, glfwKeyCallback);
   glfwSetInputMode(Window, GLFW_STICKY_KEYS, GLFW_FALSE);
 
+  GLFWGamePad::Initialize();
+  SDLGamePad::Initialize();
+  initStates();
   Application::Init = true;
   last = glfwGetTime();
 }
@@ -144,7 +148,8 @@ void Application::initStates(){
   //Machine->addStateAtTop(new VideoDecode(*Machine));
   //Machine->addStateAtTop(new Cubes(*Machine));
   //Machine->addStateAtTop(new Isometric(*Machine));
-  Machine->addStateAtTop(new Menu(*Machine));
+  //Machine->addStateAtTop(new Menu(*Machine));
+  Machine->addStateAtTop(new Controller(*Machine));
 }
 
 bool Application::isRunning(){
@@ -162,7 +167,8 @@ void Application::update(){
     glfwPollEvents();
     Mouse::instance().update();
     Keyboard::instance().update();
-   
+    GLFWGamePad::Update();
+    SDLGamePad::Update();
     Machine->update();
     Machine->render();
     ScrollDelta = 0.0f;
@@ -196,6 +202,8 @@ void Application::Cleanup(){
   wgpShutDown();
   ImGui_ImplWGPU_Shutdown();
   ImGui_ImplGlfw_Shutdown();
+  GLFWGamePad::Shutdown();
+  SDLGamePad::Shutdown();
   glfwDestroyWindow(Window);
   glfwTerminate();
 }

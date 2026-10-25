@@ -1,8 +1,8 @@
 clang++^
- -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "./include/entities/" -I "./include/ui/" -I "./include/thread/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../librtaudio/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/" -I "../SDKs/RtAudio/include/" -I "../SDKs/OpenAl/include/" -I "../SDKs/Bullet/include/" -I "../SDKs/freetype/include/"^
- -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/" -L "../SDKs/ffmpeg/lib/" -L "../SDKs/OpenAl/lib/x64/" -L "../SDKs/Bullet/lib/x64/" -L "../SDKs/freetype/lib/x64/"^
+ -I "./" -I "./include/" -I "./include/animation/" -I "./include/scene/" -I "./include/entities/" -I "./include/ui/" -I "./include/thread/" -I "../" -I "../include/" -I "../include/bullet" -I "../libglfw3/include/" -I "../libimgui/include/" -I "../librtaudio/include/" -I "../SDKs/wgpu-dawn/include/" -I "../SDKs/ffmpeg/include/" -I "../SDKs/RtAudio/include/" -I "../SDKs/OpenAl/include/" -I "../SDKs/Bullet/include/" -I "../SDKs/freetype/include/" -I "../SDKs/SDL3/include/"^
+ -L "../lib/" -L "../SDKs/wgpu-dawn/lib/x64/" -L "../SDKs/ffmpeg/lib/" -L "../SDKs/OpenAl/lib/x64/" -L "../SDKs/Bullet/lib/x64/" -L "../SDKs/freetype/lib/x64/" -L "../SDKs/SDL3/lib/x64/"^
  -luser32 -lgdi32 -lshell32 -ldxguid -lonecore -lmsvcrt -llibcmt -lstrmiids -lmfuuid -lavrt^
- -llibglfw3 -llibimgui -llibrtaudio -llibassimp -lwgpu -llibfreeimage -llibzlib -llibavutil -llibavcodec -llibswresample -llibavformat -llibswscale -llibopenal -lliblinearmath -llibbulletcollision -llibbulletdynamics -llibfreetype^
+ -llibglfw3 -llibimgui -llibrtaudio -llibassimp -lwgpu -llibfreeimage -llibzlib -llibavutil -llibavcodec -llibswresample -llibavformat -llibswscale -llibopenal -lliblinearmath -llibbulletcollision -llibbulletdynamics -llibfreetype -lSDL3^
  src/scene/Node.cpp^
  src/scene/BaseNode.cpp^
  src/scene/SceneNode.cpp^
@@ -27,6 +27,7 @@ clang++^
  src/Fade.cpp^
  src/Mouse.cpp^
  src/Keyboard.cpp^
+ src/GamePad.cpp^
  src/Material.cpp^
  src/Transform.cpp^
  src/Mesh.cpp^
@@ -60,6 +61,7 @@ clang++^
  States/Cubes.cpp^
  States/Isometric.cpp^
  States/Menu.cpp^
+ States/Controller.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^

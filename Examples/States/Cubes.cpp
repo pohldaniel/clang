@@ -8,7 +8,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <WebGPU/WgpContext.h>
-#include <WebGPU/WgpRenderer.h>
 
 #include <Physics/Physics.h>
 
