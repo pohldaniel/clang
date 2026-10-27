@@ -337,6 +337,7 @@ void ImageBasedLighting::OnScroll(const Event::MouseWheelEvent& event) {
 
 void ImageBasedLighting::OnKeyDown(const Event::KeyboardEvent& event ){
 	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		Material::CleanupMaterials();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Menu(m_machine));
