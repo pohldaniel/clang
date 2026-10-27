@@ -15,7 +15,6 @@
 #include "GamePad.h"
 
 Controller::Controller(StateMachine& machine) : State(machine, States::CONTROLLER) {
-	Mouse::instance().attach(Application::Window, false, true);
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
     wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
 

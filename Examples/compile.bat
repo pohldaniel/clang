@@ -62,6 +62,7 @@ clang++^
  States/Isometric.cpp^
  States/Menu.cpp^
  States/Controller.cpp^
+ States/HDRBloom.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^

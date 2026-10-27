@@ -21,7 +21,8 @@ enum States {
 	CUBES,
 	ISOMETRIC,
 	MENU,
-	CONTROLLER
+	CONTROLLER,
+	HDR_BLOOM
 };
 
 class State;

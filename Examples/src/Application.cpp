@@ -25,6 +25,7 @@
 #include <States/Isometric.h>
 #include <States/Menu.h>
 #include <States/Controller.h>
+#include <States/HDRBloom.h>
 
 #include "Mouse.h"
 #include "Keyboard.h"
@@ -149,7 +150,8 @@ void Application::initStates(){
   //Machine->addStateAtTop(new Cubes(*Machine));
   //Machine->addStateAtTop(new Isometric(*Machine));
   //Machine->addStateAtTop(new Menu(*Machine));
-  Machine->addStateAtTop(new Controller(*Machine));
+  //Machine->addStateAtTop(new Controller(*Machine));
+   Machine->addStateAtTop(new HDRBloom(*Machine));
 }
 
 bool Application::isRunning(){

@@ -328,21 +328,21 @@ void WgpRenderer::Dispatch(const WgpTexture& texture, const WgpBuffer& probabili
 			wgpuComputePassEncoderEnd(computePassEncoder);
 			wgpuComputePassEncoderRelease(computePassEncoder);
 
-			WGPUTexelCopyTextureInfo source = {};
-			source.texture = texture.getTexture();
-			source.mipLevel = level;
-			source.origin = { 0u, 0u,  0u };
-			source.aspect = WGPUTextureAspect_All;
-
 			WGPUTexelCopyTextureInfo destination = {};
-			destination.texture = writeTexture.getTexture();
-			destination.mipLevel = level;
-			destination.origin = { 0u, 0u, 0u };
-			destination.aspect = WGPUTextureAspect_All;
+            destination.texture = texture.getTexture();
+            destination.mipLevel = level;
+            destination.origin = { 0u, 0u,  0u };
+            destination.aspect = WGPUTextureAspect_All;
+
+			WGPUTexelCopyTextureInfo source = {};
+            source.texture = writeTexture.getTexture();
+            source.mipLevel = level;
+            source.origin = { 0u, 0u, 0u };
+            source.aspect = WGPUTextureAspect_All;
 
 			WGPUExtent3D size = { levelWidth , levelHeight, 1u };
 
-			wgpuCommandEncoderCopyTextureToTexture(commandEncoder, &destination, &source, &size);
+			wgpuCommandEncoderCopyTextureToTexture(commandEncoder, &source, &destination, &size);
 		}	
 	}
 
