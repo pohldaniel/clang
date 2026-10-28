@@ -66,13 +66,44 @@ void GLFWGamePad::update() {
         m_rightTrigger = (state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] + 1.0f) * 0.5f;
 
         if (glfwJoystickPresent(m_playerIndex)){
-            m_leftStickX = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
-            m_leftStickY = -state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
+            float rawRX = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
+            float rawRY = -state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
 
-            m_rightStickX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
-            m_rightStickY = -state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+            float rawLX = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+            float rawLY = -state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+
+            float magnitudeR = std::sqrt(rawRX * rawRX + rawRY * rawRY);
+            if (magnitudeR > DEADZONE) {
+
+                if (magnitudeR > 1.0f) magnitudeR = 1.0f;
+                
+                float normRX = rawRX / magnitudeR;
+                float normRY = rawRY / magnitudeR;
+                float normalizedMagnitude = (magnitudeR - DEADZONE) / (1.0f - DEADZONE);
+                
+                m_leftStickX = normRX * normalizedMagnitude;
+                m_leftStickY = normRY * normalizedMagnitude;
+            } else {
+                m_leftStickX = 0.0f;
+                m_leftStickY = 0.0f;
+            }
+
+            float magnitudeL = std::sqrt(rawLX * rawLX + rawLY * rawLY);
+            if (magnitudeL > DEADZONE) {
+                if (magnitudeL > 1.0f) magnitudeL = 1.0f;
+                
+                float normLX = rawLX / magnitudeL;
+                float normLY = rawLY / magnitudeL;
+                
+                float normalizedMagnitude = (magnitudeL - DEADZONE) / (1.0f - DEADZONE);
+                
+                m_rightStickX = normLX * normalizedMagnitude;
+                m_rightStickY = normLY * normalizedMagnitude;
+            }else{
+                m_rightStickX = 0.0f;
+                m_rightStickY = 0.0f;
+            }
         }
-
     }else {
 		if (m_connected) {
 			m_connected = false;
@@ -84,12 +115,6 @@ void GLFWGamePad::update() {
 void GLFWGamePad::setVibration(float leftMotor, float rightMotor) {
     leftMotor = std::clamp(leftMotor, 0.0f, 1.0f);
     rightMotor = std::clamp(rightMotor, 0.0f, 1.0f);
-
-    //XINPUT_VIBRATION vibration;
-    //memset(&vibration, 0, sizeof(XINPUT_VIBRATION));
-    //vibration.wLeftMotorSpeed = static_cast<WORD>(leftMotor * 65535.0f); 
-    //vibration.wRightMotorSpeed = static_cast<WORD>(rightMotor * 65535.0f);
-    //XInputSetState(m_playerIndex, &vibration);
 }
 
 float GLFWGamePad::getLeftStickX() const {

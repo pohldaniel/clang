@@ -84,7 +84,7 @@ private:
 	float m_rightStickY;
 	float m_leftTrigger;
 	float m_rightTrigger;
-
+	const float DEADZONE = 0.15f;
 	static GLFWGamePad* s_Players[4];
 };
 

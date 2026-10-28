@@ -149,9 +149,9 @@ HDRBloom::HDRBloom(StateMachine& machine) : State(machine, States::HDR_BLOOM) {
 	for (unsigned int i = 0; i < m_lights.size(); i++) {
 		m_instances.push_back({ glm::translate(glm::vec3(m_lights[i].position)) * glm::scale(glm::vec3(0.25f, 0.25f, 0.25f)),
 								m_lights[i].color });
-}
+	}
 
-wgpuQueueWriteBuffer(wgpContext.queue, m_storageBuffer.getBuffer(), 0u, m_instances.data(), m_instances.size() * sizeof(Instance));
+	wgpuQueueWriteBuffer(wgpContext.queue, m_storageBuffer.getBuffer(), 0u, m_instances.data(), m_instances.size() * sizeof(Instance));
 }
 
 HDRBloom::~HDRBloom() {

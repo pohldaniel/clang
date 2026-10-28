@@ -24,6 +24,7 @@
 #include "Isometric.h"
 #include "Mouse.h"
 #include "Keyboard.h"
+#include "GamePad.h"
 #include "Application.h"
 
 Isometric::Isometric(StateMachine& machine) : State(machine, States::ISOMETRIC), m_bulletStore(&m_threadPool), m_threadPool(4) {
@@ -359,6 +360,7 @@ void Isometric::fixedUpdate() {
 void Isometric::update() {
 	Mouse &mouse = Mouse::instance();
 	Keyboard& keyboard = Keyboard::instance();
+	IGamePad* gamePad = SDLGamePad::GetPlayer();
 	nkUpdateInput(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT), mouse.buttonDown(GLFW_MOUSE_BUTTON_RIGHT), Application::ScrollDelta);
 
 	glm::vec3 direction = glm::vec3();
@@ -402,7 +404,7 @@ void Isometric::update() {
 		m_debugCollision = !m_debugCollision;
 	}
 
-	if (!m_isDeath && (m_rotationButtonResult.buttonDown || (mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < glfwGetTime()) {
+	if (!m_isDeath && (m_rotationButtonResult.buttonDown || (((gamePad && gamePad->buttonDown(GamepadButton::GAMEPAD_RIGHT_SHOULDER)) || mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT)) && !m_rotationButtonResult.isActive && !m_joystickResult.isActive)) && (lastFireTime + 0.1f) < glfwGetTime()) {
 		const glm::quat midOri = m_player.getOrientation();
 		const glm::mat4 playerModelTransform = m_player.getWorldTransformation();
 		const glm::vec3 projectileSpawnPoint = playerModelTransform * glm::vec4(-20.0f * 0.01f, 120.0f * 0.01f, 140.0f * 0.01f, 1.0f);
@@ -432,6 +434,28 @@ void Isometric::update() {
 
 	const glm::vec3 posistion = static_cast<const AnimatedMesh*>(m_player.getMesh())->getBone(0u).getPosition();
 	m_camera.lookAt(posistion + glm::vec3(0.0f, 4.3f, 4.0f), posistion, glm::vec3(0.0f, 1.0f, 0.0f));
+
+	if (gamePad && (gamePad->getLeftStickX() || gamePad->getLeftStickY()) && !m_isDeath) {
+		float targetRadians = glm::atan(gamePad->getLeftStickX(), -gamePad->getLeftStickY());
+		glm::quat targetRotation = glm::quat(glm::vec3(0.0f, targetRadians, 0.0f));
+		glm::quat currentRotation = m_player.getOrientation();
+
+		float rotationSpeed = 5.0f;
+		float t = std::min(rotationSpeed * m_dt, 1.0f);
+		glm::quat newRotation = glm::slerp(currentRotation, targetRotation, t);
+		m_player.setOrientation(newRotation);
+
+		float radians = 2.0f * glm::atan(newRotation.y, newRotation.w);
+		float degrees = glm::degrees(radians);
+
+		if (degrees < 0.0f) {
+			degrees += 360.0f;
+		}
+
+		aimTheta = degrees;
+		m_rotationButtonResult.degrees = degrees;
+	}
+
 	if ((mouse.xDelta() || mouse.yDelta()) && !m_isDeath) {
 		glm::vec3 coords;	
 		if (getWorldPosition(mouse.xPos(), mouse.yPos(), glm::vec3(0.0f, 1.0f, 0.0f), coords)) {	
@@ -462,6 +486,11 @@ void Isometric::update() {
 	}
 
 	glm::vec3 playerDirection = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	if (gamePad) {
+		playerDirection = glm::vec3(gamePad->getRightStickX(), 0.0f, -gamePad->getRightStickY());
+	}
+
 	if (keyboard.keyDown(GLFW_KEY_W) || moveY > 0.0f) {
 		playerDirection -= glm::vec3(0.0f, 0.0f, 1.0f);
 	}
