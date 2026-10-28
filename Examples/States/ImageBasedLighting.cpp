@@ -19,7 +19,7 @@
 
 ImageBasedLighting::ImageBasedLighting(StateMachine& machine) : State(machine, States::IMAGE_BASED_LIGHTING) {
 
-	wgpSetMSAASampleCount(4u, Application::OnSurfaceChange);
+	wgpSetMSAASampleCount(4u);
 
 	m_camera.perspective(glm::radians(90.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
 	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), 0.0f, static_cast<float>(Application::Height), -1.0f, 1.0f);

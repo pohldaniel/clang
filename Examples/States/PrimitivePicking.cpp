@@ -15,7 +15,7 @@
 PrimitivePicking::PrimitivePicking(StateMachine& machine) : State(machine, States::PRIMITIVE_PICKING) {
 	Mouse::instance().attach(Application::Window, false, true);
 
-	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm);
 
 	wgpVertexAttribute(VL_0).push_back(WGPUVertexAttribute{ NULL, WGPUVertexFormat_Float32x3, 0u, 0u });
 	wgpVertexAttribute(VL_0).push_back(WGPUVertexAttribute{ NULL, WGPUVertexFormat_Float32x3, 3 * sizeof(float), 1u });

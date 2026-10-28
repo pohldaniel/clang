@@ -12,7 +12,7 @@
 #include "Mouse.h"
 
 Wireframe::Wireframe(StateMachine& machine) : State(machine, States::WIREFRAME) {
-	wgpSetMSAASampleCount(4u, Application::OnSurfaceChange);
+	wgpSetMSAASampleCount(4u);
 
 	wgpContext.addSahderModule("PTN", "res/shader/shader.wgsl");
 	wgpContext.createRenderPipeline("PTN", "RP_PTNC", VL_PTNC, std::bind(&Wireframe::OnBindGroupLayouts, this), 4u);

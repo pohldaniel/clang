@@ -38,8 +38,8 @@ struct nk_colorf backgroundf = { 0.2f, 0.2f, 0.2f, 1.0f };
 
 NuklearUi::NuklearUi(StateMachine& machine) : State(machine, States::NUKLEAR_UI) {
 	Mouse::instance().attach(Application::Window, false, true);
-	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
-	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus, Application::OnSurfaceChange);
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm);
+	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24Plus);
 
 	nkInit(static_cast<float>(Application::Width), static_cast<float>(Application::Height));
 	nkInitFont("res/fonts/upheavtt.ttf");

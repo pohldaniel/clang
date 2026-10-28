@@ -3,7 +3,6 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include "WgpContext.h"
-#include "../include/Application.h"
 
 #define WGPU_STR(str) { str, sizeof(str) - 1 }
 
@@ -136,7 +135,9 @@ void wgpRequestDeviceSync(WGPUAdapter instance, const WGPUDeviceDescriptor* devi
 #endif // __EMSCRIPTEN__
 }
 
-void wgpInit(void* window) {
+void wgpInit(void* window, uint32_t width, uint32_t height) {
+	wgpContext.config.width = width;
+	wgpContext.config.height = height;
 	wgpCreateDevice(window);
 }
 
@@ -203,7 +204,7 @@ bool wgpCreateDevice(void* window) {
 	//wgpContext.colorFormat = wgpContext.surfaceCapabilities.formats[0];
 
 	wgpContext.queue = wgpuDeviceGetQueue(wgpContext.device);
-	wgpContext.depthTexture = wgpCreateTexture(static_cast<uint32_t>(Application::Width), static_cast<uint32_t>(Application::Height), 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthFormat, 1u, wgpContext.msaaSampleCount, wgpContext.depthFormat);
+	wgpContext.depthTexture = wgpCreateTexture(wgpContext.config.width, wgpContext.config.height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthFormat, 1u, wgpContext.msaaSampleCount, wgpContext.depthFormat);
 	wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
     wgpConfigureSurface();
 
@@ -227,11 +228,8 @@ bool wgpCreateDevice(void* window) {
 }
 
 void wgpConfigureSurface() {
-	wgpContext.config = {};
 	wgpContext.config.nextInChain = NULL;
 	wgpContext.config.format = wgpContext.colorFormat;
-	wgpContext.config.width = Application::Width;
-	wgpContext.config.height = Application::Height;
 	wgpContext.config.usage = WGPUTextureUsage_RenderAttachment;
 	wgpContext.config.viewFormatCount = 0;
 	wgpContext.config.viewFormats = NULL;
@@ -733,10 +731,12 @@ void wgpCleanState() {
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8);
 	wgpSetMSAASampleCount(1u);
-	Application::OnSurfaceChange();
 
 	wgpContext.OnDraw = NULL;
 	wgpContext.OnPostDraw = NULL;
+
+	if(wgpContext.OnSurfaceChange)
+		wgpContext.OnSurfaceChange();
 }
 
 void wgpShutDown() {
@@ -839,7 +839,7 @@ void wgpProcessQueue() {
 	}
 }
 
-void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange) {
+void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat) {
 	if (wgpContext.surface) {
 		wgpContext.colorFormat = textureFormat;
 		wgpContext.config.format = wgpContext.colorFormat;
@@ -857,12 +857,12 @@ void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat, const std::functi
 			wgpContext.msaaTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.colorFormat, 1u, wgpContext.msaaSampleCount, wgpContext.colorFormat);
 			wgpContext.msaaTextureView = wgpCreateTextureView(wgpContext.msaaTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 		}
-		if (onSurfaceChange)
-			onSurfaceChange();
+		if (wgpContext.OnSurfaceChange)
+			wgpContext.OnSurfaceChange();
 	}
 }
 
-void wgpSetSurfaceDepthFormat(WGPUTextureFormat textureFormat, const std::function<void()>& onSurfaceChange) {
+void wgpSetSurfaceDepthFormat(WGPUTextureFormat textureFormat) {
 	if (wgpContext.surface) {
 		wgpContext.depthFormat = textureFormat;
 
@@ -876,13 +876,12 @@ void wgpSetSurfaceDepthFormat(WGPUTextureFormat textureFormat, const std::functi
 		wgpContext.depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthFormat, 1u, wgpContext.msaaSampleCount, wgpContext.depthFormat);
 		wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 
-		if (onSurfaceChange)
-			onSurfaceChange();
-
+		if (wgpContext.OnSurfaceChange)
+			wgpContext.OnSurfaceChange();
 	}
 }
 
-void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& onSurfaceChange) {
+void wgpSetMSAASampleCount(const uint32_t count) {
 	if(wgpContext.msaaSampleCount != count){
 		wgpContext.msaaSampleCount = count;
 
@@ -906,8 +905,8 @@ void wgpSetMSAASampleCount(const uint32_t count, const std::function<void()>& on
 		wgpContext.depthTexture = wgpCreateTexture(width, height, 1u, WGPUTextureUsage_RenderAttachment, wgpContext.depthFormat, 1u, wgpContext.msaaSampleCount, wgpContext.depthFormat);
 		wgpContext.depthTextureView = wgpCreateTextureView(wgpContext.depthTexture, WGPUTextureAspect::WGPUTextureAspect_All);
 
-		if (onSurfaceChange)
-			onSurfaceChange();
+		if (wgpContext.OnSurfaceChange)
+			wgpContext.OnSurfaceChange();
 	}
 }
 

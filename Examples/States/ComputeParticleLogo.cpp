@@ -15,7 +15,7 @@
 
 ComputeParticleLogo::ComputeParticleLogo(StateMachine& machine) : State(machine, States::COMPUTE_PARTICLE_LOGO) {
 
-	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm, Application::OnSurfaceChange);
+	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_BGRA8Unorm);
 
 	wgpVertexAttribute(VL_0).push_back({NULL, WGPUVertexFormat_Float32x3, 0u, 0u});
 	wgpVertexAttribute(VL_0).push_back({NULL, WGPUVertexFormat_Float32x4, 4 * sizeof(float), 1u});
