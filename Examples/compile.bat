@@ -63,6 +63,7 @@ clang++^
  States/Menu.cpp^
  States/Controller.cpp^
  States/HDRBloom.cpp^
+ States/ABuffer.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^

@@ -26,6 +26,7 @@
 #include <States/Menu.h>
 #include <States/Controller.h>
 #include <States/HDRBloom.h>
+#include <States/ABuffer.h>
 
 #include "Mouse.h"
 #include "Keyboard.h"
@@ -153,6 +154,7 @@ void Application::initStates(){
   Machine->addStateAtTop(new Menu(*Machine));
   //Machine->addStateAtTop(new Controller(*Machine));
   //Machine->addStateAtTop(new HDRBloom(*Machine));
+  //Machine->addStateAtTop(new ABuffer(*Machine));
 }
 
 bool Application::isRunning(){

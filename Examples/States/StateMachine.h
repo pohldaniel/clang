@@ -22,7 +22,8 @@ enum States {
 	ISOMETRIC,
 	MENU,
 	CONTROLLER,
-	HDR_BLOOM
+	HDR_BLOOM,
+	ABUFFER
 };
 
 class State;

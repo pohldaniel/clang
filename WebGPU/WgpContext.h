@@ -66,6 +66,11 @@ extern "C" {
 	void wgpSetSurfaceColorFormat(WGPUTextureFormat textureFormat);
 	void wgpSetSurfaceDepthFormat(WGPUTextureFormat textureFormat);
 	void wgpSetMSAASampleCount(const uint32_t count);
+
+	void wgpTextureAddUsage(WGPUTexture& texture, WGPUTextureView& depthTextureView, WGPUTextureUsage textureUsage);
+	void wgpTextureRemoveUsage(WGPUTexture& texture, WGPUTextureView& depthTextureView, WGPUTextureUsage textureUsage);
+	void wgpTextureSetUsage(WGPUTexture& texture, WGPUTextureView& depthTextureView, WGPUTextureUsage textureUsage);
+
 	WGPURenderPassDepthStencilAttachment wgpCopyDepthStencilAttachment(const WGPURenderPassDepthStencilAttachment* src);
 }
 
@@ -90,6 +95,7 @@ enum RenderPipelineFlags {
 
 enum BlendMode {
 	ALPHA_BLENDING,
+	ALPHA_BLENDING_ONE,
 	ADDITIVE_BLENDING_SRC,
 	ADDITIVE_BLENDING_ONE
 };
@@ -168,6 +174,7 @@ struct WgpContext {
 	WGPUTexture msaaTexture = NULL;
 	uint32_t msaaSampleCount = 1u;
 
+	WGPULimits limits = {};
 	WGPUSurfaceConfiguration config = {};
 	WGPUSurfaceCapabilities surfaceCapabilities;
 	WGPUTextureFormat depthFormat = WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8;

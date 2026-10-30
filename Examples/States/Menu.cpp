@@ -28,6 +28,7 @@
 #include <States/Isometric.h>
 #include <States/Controller.h>
 #include <States/HDRBloom.h>
+#include <States/ABuffer.h>
 
 #include "Menu.h"
 #include "Mouse.h"
@@ -394,12 +395,34 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 
+	surface = m_uiScene->addChild<Surface>();
+	surface->setColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+	surface->setPadding(20.0f, 20.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setSort(0u);
+	surface->setLayout(Layout::GRID);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new ABuffer(m_machine));
+	});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("ABuffer");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
 	if (m_layout == SelectedLayout::M_GRID) {
 		const std::vector<Surface*>& surfaces = m_uiScene->getChildren<Surface>();
 		for (auto& surface : surfaces) {
 			surface->setLayout(Layout::GRID);
 		}
-		surfaces.back()->setLayout(Layout::HORIZONTAL);
 		m_uiScene->setLayout(Layout::MASONRY);
 		m_uiScene->updateLayout(true);
 	}

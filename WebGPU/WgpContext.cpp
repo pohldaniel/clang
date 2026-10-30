@@ -224,6 +224,7 @@ bool wgpCreateDevice(void* window) {
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_ClampToEdge), SS_NEAREST_CLAMP);
 	wgpContext.addSampler(wgpCreateSampler(WGPUFilterMode_Nearest, WGPUAddressMode_Repeat), SS_NEAREST_REPEAT);
 
+	wgpuDeviceGetLimits(wgpContext.device, &wgpContext.limits);
     return true;
 }
 
@@ -728,6 +729,7 @@ void wgpCleanState() {
 	}
 
 	wgpContext.clearColor = { 0.2f, 0.2f, 0.2f, 1.0f };
+	wgpTextureSetUsage(wgpContext.depthTexture, wgpContext.depthTextureView, WGPUTextureUsage_RenderAttachment);
 	wgpSetSurfaceColorFormat(WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);
 	wgpSetSurfaceDepthFormat(WGPUTextureFormat::WGPUTextureFormat_Depth24PlusStencil8);
 	wgpSetMSAASampleCount(1u);
@@ -907,6 +909,68 @@ void wgpSetMSAASampleCount(const uint32_t count) {
 
 		if (wgpContext.OnSurfaceChange)
 			wgpContext.OnSurfaceChange();
+	}
+}
+
+void wgpTextureAddUsage(WGPUTexture& texture, WGPUTextureView& depthTextureView, WGPUTextureUsage textureUsage) {
+	WGPUTextureUsage txtrUsg = wgpuTextureGetUsage(texture);
+	if (txtrUsg != textureUsage) {
+		uint32_t width = wgpuTextureGetWidth(wgpContext.depthTexture);
+		uint32_t height = wgpuTextureGetHeight(wgpContext.depthTexture);
+		uint32_t depth = wgpuTextureGetDepthOrArrayLayers(wgpContext.depthTexture);
+		uint32_t msaaSampleCount = wgpuTextureGetSampleCount(texture);
+
+		uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(texture);
+		WGPUTextureFormat textureFormat = wgpuTextureGetFormat(texture);
+		txtrUsg = txtrUsg | textureUsage;
+
+		wgpuTextureViewRelease(wgpContext.depthTextureView);
+		wgpuTextureDestroy(wgpContext.depthTexture);
+		wgpuTextureRelease(wgpContext.depthTexture);
+
+		texture = wgpCreateTexture(width, height, depth, txtrUsg, textureFormat, mipLevelCount, msaaSampleCount, textureFormat);
+		depthTextureView = wgpCreateTextureView(texture, WGPUTextureAspect::WGPUTextureAspect_All);
+	}
+}
+
+void wgpTextureRemoveUsage(WGPUTexture& texture, WGPUTextureView& depthTextureView, WGPUTextureUsage textureUsage) {
+	WGPUTextureUsage txtrUsg = wgpuTextureGetUsage(texture);
+	if (txtrUsg != textureUsage) {
+		uint32_t width = wgpuTextureGetWidth(wgpContext.depthTexture);
+		uint32_t height = wgpuTextureGetHeight(wgpContext.depthTexture);
+		uint32_t depth = wgpuTextureGetDepthOrArrayLayers(wgpContext.depthTexture);
+		uint32_t msaaSampleCount = wgpuTextureGetSampleCount(texture);
+
+		uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(texture);
+		WGPUTextureFormat textureFormat = wgpuTextureGetFormat(texture);
+		txtrUsg = txtrUsg &~ textureUsage;
+
+		wgpuTextureViewRelease(wgpContext.depthTextureView);
+		wgpuTextureDestroy(wgpContext.depthTexture);
+		wgpuTextureRelease(wgpContext.depthTexture);
+
+		texture = wgpCreateTexture(width, height, depth, txtrUsg, textureFormat, mipLevelCount, msaaSampleCount, textureFormat);
+		depthTextureView = wgpCreateTextureView(texture, WGPUTextureAspect::WGPUTextureAspect_All);
+	}
+}
+
+void wgpTextureSetUsage(WGPUTexture& texture, WGPUTextureView& depthTextureView, WGPUTextureUsage textureUsage) {
+	WGPUTextureUsage txtrUsg = wgpuTextureGetUsage(texture);
+	if (txtrUsg != textureUsage) {
+		uint32_t width = wgpuTextureGetWidth(wgpContext.depthTexture);
+		uint32_t height = wgpuTextureGetHeight(wgpContext.depthTexture);
+		uint32_t depth = wgpuTextureGetDepthOrArrayLayers(wgpContext.depthTexture);
+		uint32_t msaaSampleCount = wgpuTextureGetSampleCount(texture);
+
+		uint32_t mipLevelCount = wgpuTextureGetMipLevelCount(texture);
+		WGPUTextureFormat textureFormat = wgpuTextureGetFormat(texture);
+
+		wgpuTextureViewRelease(wgpContext.depthTextureView);
+		wgpuTextureDestroy(wgpContext.depthTexture);
+		wgpuTextureRelease(wgpContext.depthTexture);
+
+		texture = wgpCreateTexture(width, height, depth, textureUsage, textureFormat, mipLevelCount, msaaSampleCount, textureFormat);
+		depthTextureView = wgpCreateTextureView(texture, WGPUTextureAspect::WGPUTextureAspect_All);
 	}
 }
 
@@ -1094,6 +1158,13 @@ void WgpContext::createRenderPipeline(const std::string& shaderModuleName,
 		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
 		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_SrcAlpha;
 		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;		
+		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
+	}else if (configuration.blendMode == ALPHA_BLENDING_ONE) {
+		blendState.color.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
+		blendState.color.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
+		blendState.color.dstFactor = WGPUBlendFactor::WGPUBlendFactor_OneMinusSrcAlpha;
 		blendState.alpha.operation = WGPUBlendOperation::WGPUBlendOperation_Add;
 		blendState.alpha.srcFactor = WGPUBlendFactor::WGPUBlendFactor_One;
 		blendState.alpha.dstFactor = WGPUBlendFactor::WGPUBlendFactor_Zero;
