@@ -65,9 +65,6 @@ bool Utils::bytesToBool(unsigned char b0) {
 }
 
 void Utils::MdlcIO::meshToMdlc(const char* out, const std::vector<float>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, uint32_t stride) {
-	if (stride != 8u)
-		return;
-
 	std::ofstream file(out, std::ios::binary);
 
 	unsigned int vertexCount = static_cast<unsigned int>(vertexBuffer.size() / stride);
