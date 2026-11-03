@@ -23,7 +23,8 @@ enum States {
 	MENU,
 	CONTROLLER,
 	HDR_BLOOM,
-	ABUFFER
+	ABUFFER,
+	COMPUTE_PARTICLE_EASING
 };
 
 class State;
