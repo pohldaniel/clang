@@ -28,6 +28,7 @@
 #include <States/HDRBloom.h>
 #include <States/ABuffer.h>
 #include <States/ComputeParticleEasing.h>
+#include <States/PristineGrid.h>
 
 #include "Mouse.h"
 #include "Keyboard.h"
@@ -152,11 +153,12 @@ void Application::initStates(){
   //Machine->addStateAtTop(new VideoDecode(*Machine));
   //Machine->addStateAtTop(new Cubes(*Machine));
   //Machine->addStateAtTop(new Isometric(*Machine));
-  //Machine->addStateAtTop(new Menu(*Machine));
+  Machine->addStateAtTop(new Menu(*Machine));
   //Machine->addStateAtTop(new Controller(*Machine));
   //Machine->addStateAtTop(new HDRBloom(*Machine));
   //Machine->addStateAtTop(new ABuffer(*Machine));
-  Machine->addStateAtTop(new ComputeParticleEasing(*Machine));
+  //Machine->addStateAtTop(new ComputeParticleEasing(*Machine));
+  //Machine->addStateAtTop(new PristineGrid(*Machine));
 }
 
 bool Application::isRunning(){

@@ -540,11 +540,11 @@ void ABuffer::createBuffer() {
 
 	m_linkedListBuffer.createBuffer(m_sliceHeight * bytesPerLine, WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
 
-	const uint32_t bufferCount = 1 + Application::Width * m_sliceHeight;
+	const uint32_t bufferCount = 1u + Application::Width * m_sliceHeight;
 	m_headsInitBuffer.createBuffer(bufferCount * sizeof(uint32_t), WGPUBufferUsage_CopySrc, true);
 	m_headsBuffer.createBuffer(bufferCount * sizeof(uint32_t), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Storage);
 
-	uint32_t* buffer = (uint32_t*)wgpuBufferGetMappedRange(m_headsInitBuffer.getBuffer(), 0, bufferCount * sizeof(uint32_t));
+	uint32_t* buffer = (uint32_t*)wgpuBufferGetMappedRange(m_headsInitBuffer.getBuffer(), 0u, bufferCount * sizeof(uint32_t));
 	for (uint32_t i = 0; i < bufferCount; ++i) {
 		buffer[i] = 0xffffffff;
 	}

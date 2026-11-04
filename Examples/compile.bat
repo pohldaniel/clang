@@ -65,6 +65,7 @@ clang++^
  States/HDRBloom.cpp^
  States/ABuffer.cpp^
  States/ComputeParticleEasing.cpp^
+ States/PristineGrid.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^
