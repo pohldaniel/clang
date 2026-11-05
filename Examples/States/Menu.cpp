@@ -37,6 +37,7 @@
 #include "Application.h"
 
 Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
+	ImGui::GetIO().WantCaptureMouse = false;
 	Mouse::instance().attach(Application::Window, false, true);
 	LoadingManager::Get().startBackgroundThreads(8);
 
@@ -392,8 +393,8 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
 	Canvas* canvas = surface->addChild<Canvas>();
 	canvas->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	canvas->setWidth(400.0f);
-	canvas->setHeight(400.0f);
+	canvas->setWidth(100.0f);
+	canvas->setHeight(100.0f);
 	canvas->setLayer(1u);
 
 	button = canvas->addChild<Button>();
