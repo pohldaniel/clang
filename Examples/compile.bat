@@ -105,4 +105,6 @@ clang++^
  -D_MD -D_DLL -O3 -flto -fuse-ld=lld -std=c++17 -D_CRT_SECURE_NO_WARNINGS^
  -Wno-return-type-c-linkage^
  -DNWASM -DNDEBUG -DFREEIMAGE_LIB -DWEBGPU_DAWN -DAL_LIBTYPE_STATIC^
+ --target=x86_64-pc-windows-msvc^
  -o Examples.exe
+::-Wl,/SUBSYSTEM:WINDOWS -Wl,/ENTRY:mainCRTStartup
