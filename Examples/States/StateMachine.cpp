@@ -18,15 +18,13 @@ void StateMachine::popState() {
 		States state = m_states.top()->getCurrentState();
 		delete m_states.top();
 		m_states.pop();
-		if (!m_states.empty())
-			m_states.top()->OnReEnter(state);
 	}
 }
 
 void StateMachine::update() {
 	if (!m_states.empty()) {
-		m_states.top()->update();
 		popState();
+		m_states.top()->update();		
 	}else {
 		m_isRunning = false;
 	}

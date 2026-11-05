@@ -18,7 +18,7 @@ PristineGrid::PristineGrid(StateMachine& machine) : State(machine, States::PRIST
     m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
     m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f , -1.0f, 1.0f);
     m_camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f) + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    m_camera.setMovingSpeed(100.0f);
+    m_camera.setMovingSpeed(20.0f);
 	m_camera.setRotationSpeed(0.1f);
 
 	m_quad.buildQuadXZ({ -20.0, -0.5f, -20.0f }, { 40.0f, 40.0f }, 1u, 1u, true, false);

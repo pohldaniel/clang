@@ -66,6 +66,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Wireframe(m_machine));
@@ -82,6 +83,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new ImageBasedLighting(m_machine));
@@ -98,6 +100,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new ShadowMapping(m_machine));
@@ -120,6 +123,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new SkinnedMesh(m_machine));
@@ -136,6 +140,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new ComputeParticleLogo(m_machine));
@@ -152,6 +157,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new PrimitivePicking(m_machine));
@@ -168,6 +174,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new StencilMask(m_machine));
@@ -190,6 +197,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new DeferredRendering(m_machine));
@@ -206,6 +214,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new VolumeRendering(m_machine));
@@ -222,6 +231,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new OcclusionQuery(m_machine));
@@ -238,6 +248,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new RenderBundles(m_machine));
@@ -260,6 +271,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new NuklearUi(m_machine));
@@ -276,6 +288,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new AudioDecode(m_machine));
@@ -292,6 +305,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new VideoDecode(m_machine));
@@ -308,6 +322,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Cubes(m_machine));
@@ -321,7 +336,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	surface = m_uiScene->addChild<Surface>();
 	surface->setColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
 	surface->setPadding(20.0f, 20.0f);
-	surface->setSpacing(15.0f, 0.0f);
+	surface->setSpacing(15.0f, 15.0f);
 	surface->setSort(0u);
 
 	button = surface->addChild<Button>();
@@ -330,6 +345,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Isometric(m_machine));
@@ -346,6 +362,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new Controller(m_machine));
@@ -362,6 +379,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new HDRBloom(m_machine));
@@ -410,6 +428,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new ABuffer(m_machine));
@@ -426,6 +445,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new ComputeParticleEasing(m_machine));
@@ -442,6 +462,7 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 	button->setOutlineThickness(5.0f);
 	button->setPadding(5.0f, 5.0f);
 	button->setOnClick([&]() {
+		uiShutDown();
 		wgpCleanState();
 		m_isRunning = false;
 		m_machine.addStateAtBottom(new PristineGrid(m_machine));
@@ -496,7 +517,9 @@ void Menu::update() {
 	LoadingManager::Get().update();
 	Mouse &mouse = Mouse::instance();	
 	m_uiScene->input(mouse.xPos(), mouse.yPos(), mouse.buttonDown(GLFW_MOUSE_BUTTON_LEFT));
-	m_uiScene->draw();
+
+	if(m_isRunning)
+		m_uiScene->draw();
 }
 
 void Menu::render() {
