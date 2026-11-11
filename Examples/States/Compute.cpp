@@ -1,0 +1,241 @@
+#include <GLFW/glfw3.h>
+#include <imgui.h>
+#include <imgui_impl_wgpu.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_internal.h>
+
+#include <WebGPU/WgpContext.h>
+#include <States/Menu.h>
+
+#include "Compute.h"
+#include "Application.h"
+
+Compute::Compute(StateMachine& machine) : State(machine, States::COMPUTE) {
+	m_uniformBuffer.createBuffer(sizeof(UniformsCompute), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+	wgpContext.addSahderModule("COMPUTE", "res/shader/compute.wgsl");
+	//"computeFilter"
+	wgpContext.createComputePipeline("COMPUTE", "computeSobelX", "CP_COMPUTE", std::bind(&Compute::OnBindGroupLayouts, this));
+
+	m_inputTexture.loadFromFile("res/textures/input.jpg", true);
+	m_outputTexture.createEmpty(m_inputTexture.getWidth(), m_inputTexture.getHeight(), 1u, WGPUTextureUsage_TextureBinding | WGPUTextureUsage_StorageBinding | WGPUTextureUsage_CopySrc, WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm);	
+	m_bindGroup = createBindGroup();
+
+	wgpContext.OnDraw = std::bind(&Compute::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+}
+
+Compute::~Compute() {
+	m_uniformBuffer.markForDelete();
+	m_inputTexture.markForDelete();
+	m_outputTexture.markForDelete();
+
+	wgpuBindGroupRelease(m_bindGroup);
+	m_bindGroup = NULL;
+}
+
+void Compute::fixedUpdate() {
+
+}
+
+void Compute::update() {
+	
+}
+
+void Compute::render() {
+	wgpDraw();
+}
+
+void Compute::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+	WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
+
+	renderUi(renderPassEncoder, m_force);
+
+	wgpuRenderPassEncoderEnd(renderPassEncoder);
+	wgpuRenderPassEncoderRelease(renderPassEncoder);
+
+	compute(commandEncoder);
+}
+
+void Compute::compute(const WGPUCommandEncoder& commandEncoder) {
+	if (m_shouldCompute) {
+		wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(UniformsCompute));
+
+		WGPUComputePassDescriptor computePassDesc = {};
+		computePassDesc.timestampWrites = NULL;
+		WGPUComputePassEncoder computePassEncoder = wgpuCommandEncoderBeginComputePass(commandEncoder, &computePassDesc);
+		wgpuComputePassEncoderSetPipeline(computePassEncoder, wgpContext.computePipelines.at("CP_COMPUTE"));
+
+		for (uint32_t i = 0; i < 1; ++i) {
+			wgpuComputePassEncoderSetBindGroup(computePassEncoder, 0, m_bindGroup, 0, nullptr);
+			uint32_t invocationCountX = m_inputTexture.getWidth();
+			uint32_t invocationCountY = m_inputTexture.getHeight();
+			uint32_t workgroupSizePerDim = 8;
+			uint32_t workgroupCountX = (invocationCountX + workgroupSizePerDim - 1) / workgroupSizePerDim;
+			uint32_t workgroupCountY = (invocationCountY + workgroupSizePerDim - 1) / workgroupSizePerDim;
+			wgpuComputePassEncoderDispatchWorkgroups(computePassEncoder, workgroupCountX, workgroupCountY, 1);
+		}
+
+		wgpuComputePassEncoderEnd(computePassEncoder);
+		wgpuComputePassEncoderRelease(computePassEncoder);
+
+		m_shouldCompute = false;
+		m_force = false;
+	}
+}
+
+void Compute::OnMouseButtonDown(const Event::MouseButtonEvent& event) {
+	
+}
+
+void Compute::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+	
+}
+
+void Compute::OnMouseMotion(const Event::MouseMoveEvent& event) {
+
+}
+
+void Compute::OnKeyDown(const Event::KeyboardEvent& event){
+	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
+}
+
+void Compute::OnKeyUp(const Event::KeyboardEvent& event) {
+
+}
+
+void Compute::resize(int deltaW, int deltaH) {
+
+}
+
+void Compute::renderUi(const WGPURenderPassEncoder& renderPassEncoder, bool force) {
+	ImGui_ImplWGPU_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+		ImGuiWindowFlags_NoBackground;
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("InvisibleWindow", nullptr, windowFlags);
+	ImGui::PopStyleVar(3);
+
+	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
+	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::End();
+
+	if (m_initUi) {
+		m_initUi = false;
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceId);
+		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
+	}
+
+	{
+		ImDrawList* drawList = ImGui::GetBackgroundDrawList();
+		float offset = 0.0f;
+		float width = 0.0f;
+
+		// Input image
+		width = m_inputTexture.getWidth() * m_scale;
+		drawList->AddImage((ImTextureID)m_inputTexture.getTextureView(), {offset, 0}, {offset + width, m_inputTexture.getHeight() * m_scale});
+		offset += width;
+
+		// Output image
+		width = m_outputTexture.getWidth() * m_scale;
+		drawList->AddImage((ImTextureID)m_outputTexture.getTextureView(), {offset, 0}, {offset + width, m_outputTexture.getHeight() * m_scale});
+		offset += width;
+	}
+
+	/*bool changed = false;
+	ImGui::Begin("Parameters");
+	float minimum = m_parameters.normalize ? 0.0f : -2.0f;
+	float maximum = m_parameters.normalize ? 4.0f : 2.0f;
+	changed = ImGui::Combo("Filter Type", (int*)&m_parameters.filterType, "Sum\0Maximum\0Minimum\0") || changed;
+	changed = ImGui::SliderFloat3("Kernel X", &m_parameters.kernel[0][0], minimum, maximum) || changed;
+	changed = ImGui::SliderFloat3("Kernel Y", &m_parameters.kernel[1][0], minimum, maximum) || changed;
+	changed = ImGui::SliderFloat3("Kernel Z", &m_parameters.kernel[2][0], minimum, maximum) || changed;
+	changed = ImGui::Checkbox("Normalize", &m_parameters.normalize) || changed;
+	ImGui::End();
+
+	if (changed) {
+		float sum = glm::dot(glm::vec4(1.0, 1.0, 1.0, 0.0), m_parameters.kernel * glm::vec3(1.0));
+		m_uniforms.kernel = m_parameters.normalize && std::abs(sum) > 1e-6
+			? m_parameters.kernel / sum
+			: m_parameters.kernel;
+		m_uniforms.filterType = (uint32_t)m_parameters.filterType;
+	}
+	m_shouldCompute = changed || force;*/
+
+	ImGui::Begin("Settings");
+	ImGui::SliderFloat("Scale", &m_scale, 0.0f, 2.0f);
+	ImGui::End();
+
+	ImGui::Render();
+	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
+}
+
+std::vector<WGPUBindGroupLayout> Compute::OnBindGroupLayouts() {
+	std::vector<WGPUBindGroupLayout> bindingLayouts(1);
+
+	std::vector<WGPUBindGroupLayoutEntry> bindingLayoutEntries(3);
+
+	WGPUBindGroupLayoutEntry& inputImageLayout = bindingLayoutEntries[0];
+	inputImageLayout.binding = 0u;
+	inputImageLayout.texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
+	inputImageLayout.texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+	inputImageLayout.visibility = WGPUShaderStage_Compute;
+
+	WGPUBindGroupLayoutEntry& outputImageLayout = bindingLayoutEntries[1];
+	outputImageLayout.binding = 1u;
+	outputImageLayout.storageTexture.access = WGPUStorageTextureAccess::WGPUStorageTextureAccess_WriteOnly;
+	outputImageLayout.storageTexture.format = WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm;
+	outputImageLayout.storageTexture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
+	outputImageLayout.visibility = WGPUShaderStage_Compute;
+
+	WGPUBindGroupLayoutEntry& uniformLayout = bindingLayoutEntries[2];
+	uniformLayout.binding = 2u;
+	uniformLayout.buffer.type = WGPUBufferBindingType::WGPUBufferBindingType_Uniform;
+	uniformLayout.buffer.minBindingSize = sizeof(UniformsCompute);
+	uniformLayout.visibility = WGPUShaderStage_Compute;
+
+	WGPUBindGroupLayoutDescriptor bindGroupLayoutDescriptor = {};
+	bindGroupLayoutDescriptor.entryCount = (uint32_t)bindingLayoutEntries.size();
+	bindGroupLayoutDescriptor.entries = bindingLayoutEntries.data();
+
+	bindingLayouts[0] = wgpuDeviceCreateBindGroupLayout(wgpContext.device, &bindGroupLayoutDescriptor);
+
+	return bindingLayouts;
+}
+
+WGPUBindGroup Compute::createBindGroup() {
+	std::vector<WGPUBindGroupEntry> entries(3);
+
+	entries[0].binding = 0;
+	entries[0].textureView = m_inputTexture.getTextureView();
+
+	entries[1].binding = 1;
+	entries[1].textureView = m_outputTexture.getTextureView();
+
+	entries[2].binding = 2;
+	entries[2].buffer = m_uniformBuffer.getBuffer();
+	entries[2].offset = 0;
+	entries[2].size = sizeof(UniformsCompute);
+
+	WGPUBindGroupDescriptor bindGroupDesc = {};
+	bindGroupDesc.layout = wgpuComputePipelineGetBindGroupLayout(wgpContext.computePipelines.at("CP_COMPUTE"), 0);
+	bindGroupDesc.entryCount = (uint32_t)entries.size();
+	bindGroupDesc.entries = (WGPUBindGroupEntry*)entries.data();
+	return wgpuDeviceCreateBindGroup(wgpContext.device, &bindGroupDesc);
+}

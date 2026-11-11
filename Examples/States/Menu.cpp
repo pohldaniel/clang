@@ -11,6 +11,11 @@
 #include <ui/UiContext.h>
 
 #include <States/Wireframe.h>
+#include <States/Specularity.h>
+#include <States/Compute.h>
+#include <States/NormalMap.h>
+#include <States/MSDFFont.h>
+#include <States/InstancedCube.h>
 #include <States/ImageBasedLighting.h>
 #include <States/ShadowMapping.h>
 #include <States/SkinnedMesh.h>
@@ -31,6 +36,7 @@
 #include <States/ABuffer.h>
 #include <States/ComputeParticleEasing.h>
 #include <States/PristineGrid.h>
+#include <States/WireframeOverlay.h>
 
 #include "Menu.h"
 #include "Mouse.h"
@@ -75,6 +81,100 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
 	Label* label = button->addChild<Label>(m_characterSet);
 	label->setText("Wireframe");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setPosition(0.35f, 0.35f);
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		uiShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Specularity(m_machine));
+	});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Specularity");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setPosition(0.05f, 0.35f);
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		uiShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Compute(m_machine));
+	});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Compute");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setPosition(0.05f, 0.5f);
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		uiShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new NormalMap(m_machine));
+	});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Normal Map");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	surface = m_uiScene->addChild<Surface>();
+	surface->setColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+	surface->setPadding(20.0f, 20.0f);
+	surface->setSpacing(25.0f, 25.0f);
+	surface->setLayout(Layout::GRID);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		uiShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new MSDFFont(m_machine));
+	});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("MSDF Font");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		uiShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new InstancedCube(m_machine));
+	});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Instanced Cube");
 	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 
@@ -471,6 +571,23 @@ Menu::Menu(StateMachine& machine) : State(machine, States::MENU) {
 
 	label = button->addChild<Label>(m_characterSet);
 	label->setText("Pristine Grid");
+	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	label->setPadding(0.0f, paddingBottom);
+
+	button = surface->addChild<Button>();
+	button->setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	button->setOutlineColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+	button->setOutlineThickness(5.0f);
+	button->setPadding(5.0f, 5.0f);
+	button->setOnClick([&]() {
+		uiShutDown();
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new WireframeOverlay(m_machine));
+	});
+
+	label = button->addChild<Label>(m_characterSet);
+	label->setText("Wireframe Overlay");
 	label->setColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	label->setPadding(0.0f, paddingBottom);
 

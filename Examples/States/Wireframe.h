@@ -5,6 +5,7 @@
 #include <WebGPU/WgpMesh.h>
 #include <WebGPU/WgpData.h>
 #include <WebGPU/WgpModel.h>
+
 #include "Camera.h"
 #include "TrackBall.h"
 #include "ObjModel.h"
@@ -39,7 +40,6 @@ private:
 	std::vector<WGPUBindGroup> OnBindGroups();
 	std::vector<WGPUBindGroup> OnBindGroupsWF();
 
-	void applyTransformation(const TrackBall& arc);
 	void renderUi(const WGPURenderPassEncoder& renderPassEncoder);
 	
 	bool m_initUi = true;

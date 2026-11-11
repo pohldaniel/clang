@@ -8,6 +8,11 @@
 #include <Physics/Physics.h>
 #include <States/StateMachine.h>
 #include <States/Wireframe.h>
+#include <States/Specularity.h>
+#include <States/Compute.h>
+#include <States/NormalMap.h>
+#include <States/MSDFFont.h>
+#include <States/InstancedCube.h>
 #include <States/ImageBasedLighting.h>
 #include <States/ShadowMapping.h>
 #include <States/SkinnedMesh.h>
@@ -29,6 +34,7 @@
 #include <States/ABuffer.h>
 #include <States/ComputeParticleEasing.h>
 #include <States/PristineGrid.h>
+#include <States/WireframeOverlay.h>
 
 #include "Mouse.h"
 #include "Keyboard.h"
@@ -138,6 +144,11 @@ void Application::initImGUI() {
 void Application::initStates(){
   Machine = new StateMachine(dt, fdt);
   //Machine->addStateAtTop(new Wireframe(*Machine));
+  //Machine->addStateAtTop(new Specularity(*Machine));
+  //Machine->addStateAtTop(new Compute(*Machine));
+  //Machine->addStateAtTop(new NormalMap(*Machine));
+  //Machine->addStateAtTop(new MSDFFont(*Machine));
+  //Machine->addStateAtTop(new InstancedCube(*Machine));
   //Machine->addStateAtTop(new ImageBasedLighting(*Machine));
   //Machine->addStateAtTop(new ShadowMapping(*Machine));
   //Machine->addStateAtTop(new SkinnedMesh(*Machine));
@@ -159,6 +170,7 @@ void Application::initStates(){
   //Machine->addStateAtTop(new ABuffer(*Machine));
   //Machine->addStateAtTop(new ComputeParticleEasing(*Machine));
   //Machine->addStateAtTop(new PristineGrid(*Machine));
+  //Machine->addStateAtTop(new WireframeOverlay(*Machine));
 }
 
 bool Application::isRunning(){

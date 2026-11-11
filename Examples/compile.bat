@@ -45,6 +45,11 @@ clang++^
  src/main.cpp^
  States/StateMachine.cpp^
  States/Wireframe.cpp^
+ States/Compute.cpp^
+ States/Specularity.cpp^
+ States/NormalMap.cpp^
+ States/MSDFFont.cpp^
+ States/InstancedCube.cpp^
  States/ImageBasedLighting.cpp^
  States/ShadowMapping.cpp^
  States/SkinnedMesh.cpp^
@@ -66,6 +71,7 @@ clang++^
  States/ABuffer.cpp^
  States/ComputeParticleEasing.cpp^
  States/PristineGrid.cpp^
+ States/WireframeOverlay.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^
