@@ -54,7 +54,7 @@ VolumetricTexture::VolumetricTexture(StateMachine& machine) : State(machine, Sta
 			.addSampler(2u, WGPUShaderStage_Fragment)
 			.build() },
 		1u, WGPUPrimitiveTopology_Undefined, WGPUTextureFormat_Undefined, WGPUTextureFormat_Undefined, WGPUCompareFunction_Less,
-		{ FRAGMENT_STATE | DEPTH_STENCIL_STATE, ColorMode::WRITE_RGBA, DepthMode::PASS, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING_ONE, WGPUTextureFormat_Undefined, WGPUCullMode_Front });
+		{ FRAGMENT_STATE | DEPTH_STENCIL_STATE | BLEND_STATE, ColorMode::WRITE_RGBA, DepthMode::PASS, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING_ONE, WGPUTextureFormat_Undefined, WGPUCullMode_Front });
 
 	m_bgRayMarch[0] = wgpContext.createRenderBindGroup("RP_VOL_RAYMARCH")
 		.bindBuffer(0u, m_rayMarchBuffer.getBuffer(), sizeof(RayMarchUniforms))
@@ -298,6 +298,21 @@ void VolumetricTexture::OnDraw(const WGPUCommandEncoder& commandEncoder, const W
 		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_VOL_RAYMARCH"));
 		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bgRayMarch[m_current], 0u, nullptr);
 		m_wgpCube.drawRaw(renderPassEncoder);
+		wgpuRenderPassEncoderEnd(renderPassEncoder);
+		wgpuRenderPassEncoderRelease(renderPassEncoder);
+	}
+
+	if (m_drawUi)
+	{
+		WGPURenderPassColorAttachment renderPassColorAttachment = renderPassDescriptor.colorAttachments[0];
+		renderPassColorAttachment.loadOp = WGPULoadOp::WGPULoadOp_Load;
+
+		WGPURenderPassDescriptor rndrPssDscrptor = renderPassDescriptor;
+		rndrPssDscrptor.colorAttachments = &renderPassColorAttachment;
+
+		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &rndrPssDscrptor);
+		wgpuRenderPassEncoderSetViewport(renderPassEncoder, 0.0f, 0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f, 1.0f);
+		renderUi(renderPassEncoder);
 		wgpuRenderPassEncoderEnd(renderPassEncoder);
 		wgpuRenderPassEncoderRelease(renderPassEncoder);
 	}

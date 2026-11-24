@@ -187,7 +187,7 @@ public:
     //
 	//
 	//////////////////////////////////////////////////////////////////
-	const glm::mat4 getTransform() const{
+	glm::mat4 getTransform() const{
 		glm::mat4 transform = glm::translate(glm::mat4(1.0), _dolly);
 		transform = glm::translate(transform, _pan);
 		transform = glm::translate(transform, _centroid);
@@ -196,7 +196,7 @@ public:
 		return transform;
 	}
 
-	const glm::mat4 getInvTransform() const {
+	glm::mat4 getInvTransform() const {
 		glm::mat4 inv = glm::translate(glm::mat4(1.0f), _centroid);
 		inv *= glm::mat4_cast(glm::conjugate(_r));
 		inv = glm::translate(inv, -_centroid);
