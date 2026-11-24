@@ -7,7 +7,8 @@
 #include <webgpu/webgpu.h>
 #ifdef __EMSCRIPTEN__
 #  include <emscripten.h>
-#endif // __EMSCRIPTEN__
+#endif
+#include "WgpUtils.h"
 
 #define WGPU_STR(str) { str, sizeof(str) - 1 }
 #define STRVIEW(str) WGPUStringView{ str, sizeof(str) - 1 }
@@ -144,10 +145,15 @@ struct WgpContext {
     friend void wgpShaderModulesRelease();
     friend void wgpPipelineLayoutsRelease();
 
-    void createComputePipeline(const std::string& shaderModuleName, 
+    void createComputePipeline(const std::string& shaderModuleName,
                                const std::string& entrypoint,
-                               const std::string& pipelineLayoutName, 
+                               const std::string& pipelineLayoutName,
                                const std::function<std::vector<WGPUBindGroupLayout>()>& onBindGroupLayouts = NULL);
+
+    void createComputePipeline(const std::string& shaderModuleName,
+                               const std::string& entrypoint,
+                               const std::string& pipelineLayoutName,
+                               const std::vector<WGPUBindGroupLayout>& bindGroupLayouts);
 
 	void createRenderPipeline(const std::string& shaderModuleName, 
 	                          const std::string& pipelineLayoutName, 
@@ -159,15 +165,29 @@ struct WgpContext {
 							  WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
 							  WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Undefined,
 							  PipelineConfiguration configuration = { DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, {}, {0, 0.0f, 0.0f} });
+
+	void createRenderPipeline(const std::string& shaderModuleName,
+                              const std::string& pipelineLayoutName,
+                              const VertexLayoutSlot vertexLayoutSlot,
+                              const std::vector<WGPUBindGroupLayout>& bindGroupLayouts,
+                              uint32_t msaaSampleCount = 1u,
+                              WGPUPrimitiveTopology primitiveTopology = WGPUPrimitiveTopology::WGPUPrimitiveTopology_Undefined,
+                              WGPUTextureFormat colorTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
+                              WGPUTextureFormat depthTextureFormat = WGPUTextureFormat::WGPUTextureFormat_Undefined,
+                              WGPUCompareFunction depthCompareFunction = WGPUCompareFunction::WGPUCompareFunction_Undefined,
+                              const PipelineConfiguration configuration = { DEPTH_STENCIL_STATE | BLEND_STATE | FRAGMENT_STATE, ColorMode::WRITE_RGBA, DepthMode::WRITE, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING, WGPUTextureFormat_Undefined, WGPUCullMode_Undefined, {}, {0, 0.0f, 0.0f} });							  
 	
+	WgpBindGroupLayoutBuilder createBindGroupLayout();
+	WgpBindGroupBuilder createRenderBindGroup(const std::string& pipelineName, uint32_t groupIndex = 0u);
+	WgpBindGroupBuilder createComputeBindGroup(const std::string& pipelineName, uint32_t groupIndex = 0u);
+
     void addSampler(const WGPUSampler& sampler, SamplerSlot samplerSlot);
     const WGPUSampler& getSampler(SamplerSlot samplerSlot) const;
     void addSahderModule(const std::string& shaderModuleName, const std::string& stringPath, bool fromString = false);
     const WGPUShaderModule& getShaderModule(const std::string& shaderModuleName) const;
 	const WGPUPipelineLayout& getPipelineLayout(const std::string& pipelineLayoutName) const;
 	void setClearColor(const WGPUColor& clearColor);
-	bool isBlendAble(WGPUTextureFormat textureFormat);
-	
+
 	WGPUInstance instance = NULL;
 	WGPUAdapter adapter = NULL;
 	WGPUDevice device = NULL;
@@ -199,4 +219,6 @@ private:
 	std::unordered_map<std::string, WGPUPipelineLayout> pipelineLayouts;
 	std::unordered_map<SamplerSlot, WGPUSampler> samplers;
 	std::unordered_map<std::string, WGPUShaderModule> shaderModules;
+
+	bool static IsBlendAble(WGPUTextureFormat textureFormat);
 };

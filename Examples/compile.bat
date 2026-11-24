@@ -72,6 +72,7 @@ clang++^
  States/ComputeParticleEasing.cpp^
  States/PristineGrid.cpp^
  States/WireframeOverlay.cpp^
+ States/VolumetricTexture.cpp^
  ../Shape/Capsule.cpp^
  ../Shape/Cube.cpp^
  ../Shape/Cylinder.cpp^

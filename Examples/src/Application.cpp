@@ -35,6 +35,7 @@
 #include <States/ComputeParticleEasing.h>
 #include <States/PristineGrid.h>
 #include <States/WireframeOverlay.h>
+#include <States/VolumetricTexture.h>
 
 #include "Mouse.h"
 #include "Keyboard.h"
@@ -171,6 +172,8 @@ void Application::initStates(){
   //Machine->addStateAtTop(new ComputeParticleEasing(*Machine));
   //Machine->addStateAtTop(new PristineGrid(*Machine));
   //Machine->addStateAtTop(new WireframeOverlay(*Machine));
+  //Machine->addStateAtTop(new VolumetricTexture(*Machine));
+  
 }
 
 bool Application::isRunning(){

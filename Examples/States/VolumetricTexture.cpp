@@ -1,0 +1,406 @@
+#include <imgui.h>
+#include <imgui_impl_wgpu.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_internal.h>
+
+#include <glm/gtc/type_ptr.hpp>
+
+#include <WebGPU/WgpContext.h>
+#include <States/Menu.h>
+
+#include "Application.h"
+#include "Mouse.h"
+#include "Keyboard.h"
+#include "VolumetricTexture.h"
+
+VolumetricTexture::VolumetricTexture(StateMachine& machine) : State(machine, States::VOLUMETRIC_TEXTURE) {
+
+    m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+    m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f , -1.0f, 1.0f);
+    m_camera.lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f) + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    m_camera.setMovingSpeed(20.0f);
+	m_camera.setRotationSpeed(0.1f);
+
+	m_cube.buildCube({ -1.0f, -1.0f, -1.0f }, { 2.0f, 2.0f, 2.0f }, 1u, 1u, false, false);
+	m_trackball.reshape(Application::Width, Application::Height);
+
+	m_uniformBuffer.createBuffer(sizeof(Uniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+    m_uniforms.projection = m_camera.getOrthographicMatrix();
+    m_uniforms.view = m_camera.getViewMatrix();
+    m_uniforms.env = m_camera.getRotationMatrix();
+    m_uniforms.model = glm::mat4(1.0f);
+    m_uniforms.normal = Camera::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
+    m_uniforms.color = { 1.0f, 0.0f, 0.0f, 1.0f };
+    m_uniforms.camPosition = m_camera.getPosition();
+    m_uniforms.lightVP = glm::mat4(1.0f);
+	m_uniforms.shadow = Camera::BIAS *  m_uniforms.lightVP;
+	m_uniforms.lightPosition = glm::vec3(50.0f, 100.0f, -100.0f);
+    wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0, &m_uniforms, sizeof(Uniforms));
+
+	m_splatBuffer.createBuffer(sizeof(SplatUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_waveBuffer.createBuffer(sizeof(WaveUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+	m_rayMarchBuffer.createBuffer(sizeof(RayMarchUniforms), WGPUBufferUsage_CopyDst | WGPUBufferUsage_Uniform);
+
+	m_current = 0;
+	m_state[0] = new VolumeBuffer(wgpContext.device, m_width, m_height, m_depth);
+	m_state[1] = new VolumeBuffer(wgpContext.device, m_width, m_height, m_depth);
+	m_prevState = new VolumeBuffer(wgpContext.device, m_width, m_height, m_depth);
+
+	wgpContext.addSahderModule("VOL_RAYMARCH", "res/shader/volumetric_ray_march.wgsl");
+	wgpContext.createRenderPipeline("VOL_RAYMARCH", "RP_VOL_RAYMARCH", VL_P,
+		{ wgpContext.createBindGroupLayout()
+			.addUniformBuffer(0u, WGPUShaderStage_Vertex | WGPUShaderStage_Fragment, sizeof(RayMarchUniforms))
+			.addTexture3D(1u, WGPUShaderStage_Fragment)
+			.addSampler(2u, WGPUShaderStage_Fragment)
+			.build() },
+		1u, WGPUPrimitiveTopology_Undefined, WGPUTextureFormat_Undefined, WGPUTextureFormat_Undefined, WGPUCompareFunction_Less,
+		{ FRAGMENT_STATE | DEPTH_STENCIL_STATE, ColorMode::WRITE_RGBA, DepthMode::PASS, StencilMode::DEFAULT, BlendMode::ALPHA_BLENDING_ONE, WGPUTextureFormat_Undefined, WGPUCullMode_Front });
+
+	m_bgRayMarch[0] = wgpContext.createRenderBindGroup("RP_VOL_RAYMARCH")
+		.bindBuffer(0u, m_rayMarchBuffer.getBuffer(), sizeof(RayMarchUniforms))
+		.bindTextureView(1u, m_state[0]->view)
+		.bindSampler(2u, wgpContext.getSampler(SS_LINEAR_CLAMP))
+		.build();
+
+	m_bgRayMarch[1] = wgpContext.createRenderBindGroup("RP_VOL_RAYMARCH")
+		.bindBuffer(0, m_rayMarchBuffer.getBuffer(), sizeof(RayMarchUniforms))
+		.bindTextureView(1, m_state[1]->view)
+		.bindSampler(2, wgpContext.getSampler(SS_LINEAR_CLAMP))
+		.build();
+
+	wgpContext.addSahderModule("VOL_SPLAT", "res/shader/volumetric_splat.wgsl");
+	wgpContext.createComputePipeline("VOL_SPLAT", "cs_splat", "CP_VOL_SPLAT", {
+	wgpContext.createBindGroupLayout()
+		.addTexture3D(0u, WGPUShaderStage_Compute, WGPUTextureSampleType_UnfilterableFloat)
+		.addStorageTexture3D(1u, WGPUShaderStage_Compute, WGPUTextureFormat_RGBA16Float)
+		.addUniformBuffer(2u, WGPUShaderStage_Compute, sizeof(SplatUniforms))
+		.build()
+	});
+
+	m_bgSplat[0] = wgpContext.createComputeBindGroup("CP_VOL_SPLAT")
+		.bindTextureView(0u, m_state[0]->view)
+		.bindTextureView(1u, m_state[1]->view)
+		.bindBuffer(2u, m_splatBuffer.getBuffer(), sizeof(SplatUniforms))
+		.build();
+
+	m_bgSplat[1] = wgpContext.createComputeBindGroup("CP_VOL_SPLAT")
+		.bindTextureView(0u, m_state[1]->view)
+		.bindTextureView(1u, m_state[0]->view)
+		.bindBuffer(2u, m_splatBuffer.getBuffer(), sizeof(SplatUniforms))
+		.build();
+
+	wgpContext.addSahderModule("VOL_WAVES", "res/shader/volumetric_waves.wgsl");
+	wgpContext.createComputePipeline("VOL_WAVES", "cs_waves", "CP_VOL_WAVES", {
+	wgpContext.createBindGroupLayout()
+		.addTexture3D(0u, WGPUShaderStage_Compute, WGPUTextureSampleType_UnfilterableFloat)
+		.addTexture3D(1u, WGPUShaderStage_Compute, WGPUTextureSampleType_UnfilterableFloat)
+		.addStorageTexture3D(2u, WGPUShaderStage_Compute, WGPUTextureFormat_RGBA16Float)
+		.addUniformBuffer(3u, WGPUShaderStage_Compute, sizeof(WaveUniforms))
+		.build()
+	});
+
+	m_bgWaves[0] = wgpContext.createComputeBindGroup("CP_VOL_WAVES")
+		.bindTextureView(0, m_state[0]->view)
+		.bindTextureView(1, m_prevState->view)
+		.bindTextureView(2, m_state[1]->view)
+		.bindBuffer(3, m_waveBuffer.getBuffer(), sizeof(WaveUniforms))
+		.build();
+
+	m_bgWaves[1] = wgpContext.createComputeBindGroup("CP_VOL_WAVES")
+		.bindTextureView(0, m_state[1]->view)
+		.bindTextureView(1, m_prevState->view)
+		.bindTextureView(2, m_state[0]->view)
+		.bindBuffer(3, m_waveBuffer.getBuffer(), sizeof(WaveUniforms))
+		.build();
+
+
+	WaveUniforms waveUniforms = {};
+	waveUniforms.voxelSize = glm::vec3(1.0f / m_width, 1.0f / m_height, 1.0f / m_depth);
+	waveUniforms.damping = 0.99f;
+	wgpuQueueWriteBuffer(wgpContext.queue, m_waveBuffer.getBuffer(), 0u, &waveUniforms, sizeof(WaveUniforms));
+
+	m_wgpCube.create(m_cube);
+	wgpContext.setClearColor({ 0.0f, 0.25f, 0.5f, 1.0f });
+	wgpContext.OnDraw = std::bind(&VolumetricTexture::OnDraw, this, std::placeholders::_1, std::placeholders::_2);
+}
+
+VolumetricTexture::~VolumetricTexture() {
+	m_uniformBuffer.markForDelete();
+	m_splatBuffer.markForDelete();
+	m_waveBuffer.markForDelete();
+	m_rayMarchBuffer.markForDelete();
+
+	for (int i = 0; i < 2; ++i) {
+		if (m_bgSplat[i]) {
+			wgpuBindGroupRelease(m_bgSplat[i]);
+			m_bgSplat[i] = nullptr;
+		}
+		if (m_bgWaves[i]) {
+			wgpuBindGroupRelease(m_bgWaves[i]);
+			m_bgWaves[i] = nullptr;
+		}
+		if (m_bgRayMarch[i]) {
+			wgpuBindGroupRelease(m_bgRayMarch[i]);
+			m_bgRayMarch[i] = nullptr;
+		}
+	}
+
+	delete m_state[0];
+	m_state[0] = nullptr;
+
+	delete m_state[1];
+	m_state[1] = nullptr;
+
+	delete m_prevState;
+	m_prevState = nullptr;
+}
+
+void VolumetricTexture::fixedUpdate() {
+
+}
+
+void VolumetricTexture::update() {
+	Mouse &mouse = Mouse::instance();
+	Keyboard& keyboard = Keyboard::instance();
+	glm::vec3 direction = glm::vec3();
+	float dx = 0.0f;
+	float dy = 0.0f;
+	bool move = false;
+
+	if (keyboard.keyDown(GLFW_KEY_W)) {
+		direction += glm::vec3(0.0f, 0.0f, 1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(GLFW_KEY_S)) {
+		direction += glm::vec3(0.0f, 0.0f, -1.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(GLFW_KEY_A)) {
+		direction += glm::vec3(-1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(GLFW_KEY_D)) {
+		direction += glm::vec3(1.0f, 0.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(GLFW_KEY_Q)) {
+		direction += glm::vec3(0.0f, -1.0f, 0.0f);
+		move |= true;
+	}
+
+	if (keyboard.keyDown(GLFW_KEY_E)) {
+		direction += glm::vec3(0.0f, 1.0f, 0.0f);
+		move |= true;
+	}
+
+	if (mouse.buttonDown(GLFW_MOUSE_BUTTON_RIGHT)) {	
+		dx = mouse.xDelta();
+		dy = mouse.yDelta();
+	}
+	
+    if (move || dx != 0.0f || dy != 0.0f) {
+		if (dx || dy) {		
+			m_camera.rotate(dx, dy);
+		}
+
+		if (move) {
+			m_camera.move(direction * m_dt);
+		}
+	}
+	m_trackball.idle();
+
+	m_uniforms.projection = m_camera.getPerspectiveMatrix();
+    m_uniforms.view = m_camera.getViewMatrix();
+    m_uniforms.env = m_camera.getRotationMatrix();
+    m_uniforms.model = m_trackball.getTransform();
+    m_uniforms.normal = Camera::GetNormalMatrix(m_camera.getViewMatrix() * m_uniforms.model);
+    m_uniforms.color = { 1.0f, 0.0f, 0.0f, 1.0f };
+    m_uniforms.camPosition = m_camera.getPosition();
+    m_uniforms.lightVP = glm::mat4(1.0f);
+	m_uniforms.shadow = Camera::BIAS *  m_uniforms.lightVP;
+	m_uniforms.lightPosition = glm::vec3(50.0f, 100.0f, -100.0f);
+	wgpuQueueWriteBuffer(wgpContext.queue, m_uniformBuffer.getBuffer(), 0u, &m_uniforms, sizeof(Uniforms));
+
+	m_rmUniforms.projection = m_camera.getPerspectiveMatrix();
+	m_rmUniforms.modelView = m_camera.getViewMatrix() * m_trackball.getTransform();
+	m_rmUniforms.invModelView = m_trackball.getInvTransform() * m_camera.getInvViewMatrix();
+	m_rmUniforms.boxMin = glm::vec3(-1.0f, -1.0f, -1.0f);
+	m_rmUniforms.density = 0.01f;
+	m_rmUniforms.boxMax = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_rmUniforms.brightness = 2.0f;
+	m_rmUniforms.steps = 128;
+	m_rmUniforms.threshold = 0.99f;
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_rayMarchBuffer.getBuffer(), 0u, &m_rmUniforms, sizeof(RayMarchUniforms));
+}
+
+void VolumetricTexture::render() {
+	wgpDraw();
+}
+
+void VolumetricTexture::OnDraw(const WGPUCommandEncoder& commandEncoder, const WGPURenderPassDescriptor& renderPassDescriptor) {
+   uint32_t wgX = (m_width + 3u) / 4u;
+	uint32_t wgY = (m_height + 3u) / 4u;
+	uint32_t wgZ = (m_depth + 3u) / 4u;
+
+	{
+		WGPUTexelCopyTextureInfo src = {};
+		src.texture = m_state[1 - m_current]->texture;
+		src.mipLevel = 0u;
+		src.origin = { 0u, 0u, 0u };
+		src.aspect = WGPUTextureAspect_All;
+
+		WGPUTexelCopyTextureInfo dst = {};
+		dst.texture = m_prevState->texture;
+		dst.mipLevel = 0u;
+		dst.origin = { 0u, 0u, 0u };
+		dst.aspect = WGPUTextureAspect_All;
+
+		WGPUExtent3D copySize = { m_width, m_height, m_depth };
+		wgpuCommandEncoderCopyTextureToTexture(commandEncoder, &src, &dst, &copySize);
+	}
+
+	if ((rand() & 0xff) > 220) {
+		splat();
+	}
+
+	if (m_pendingSplat) {
+		m_pendingSplat = false;
+
+		WGPUComputePassEncoder computePass = wgpuCommandEncoderBeginComputePass(commandEncoder, nullptr);
+		wgpuComputePassEncoderSetPipeline(computePass, wgpContext.computePipelines.at("CP_VOL_SPLAT"));
+		wgpuComputePassEncoderSetBindGroup(computePass, 0u, m_bgSplat[m_current], 0u, nullptr);
+		wgpuComputePassEncoderDispatchWorkgroups(computePass, wgX, wgY, wgZ);
+		wgpuComputePassEncoderEnd(computePass);
+		wgpuComputePassEncoderRelease(computePass);
+
+		m_current = 1 - m_current;
+	}
+
+	{
+		WGPUComputePassEncoder computePass = wgpuCommandEncoderBeginComputePass(commandEncoder, nullptr);
+		wgpuComputePassEncoderSetPipeline(computePass, wgpContext.computePipelines.at("CP_VOL_WAVES"));
+		wgpuComputePassEncoderSetBindGroup(computePass, 0u, m_bgWaves[m_current], 0u, nullptr);
+		wgpuComputePassEncoderDispatchWorkgroups(computePass, wgX, wgY, wgZ);
+		wgpuComputePassEncoderEnd(computePass);
+		wgpuComputePassEncoderRelease(computePass);
+
+		m_current = 1 - m_current;
+	}
+
+	{
+		WGPURenderPassEncoder renderPassEncoder = wgpuCommandEncoderBeginRenderPass(commandEncoder, &renderPassDescriptor);
+
+		wgpuRenderPassEncoderSetPipeline(renderPassEncoder, wgpContext.renderPipelines.at("RP_VOL_RAYMARCH"));
+		wgpuRenderPassEncoderSetBindGroup(renderPassEncoder, 0u, m_bgRayMarch[m_current], 0u, nullptr);
+		m_wgpCube.drawRaw(renderPassEncoder);
+		wgpuRenderPassEncoderEnd(renderPassEncoder);
+		wgpuRenderPassEncoderRelease(renderPassEncoder);
+	}
+}
+
+void VolumetricTexture::OnMouseMotion(const Event::MouseMoveEvent& event) {
+	m_trackball.motion(event.x, event.y);
+}
+
+void VolumetricTexture::OnMouseButtonDown(const Event::MouseButtonEvent& event) {	
+	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, true, event.x, event.y);
+		Mouse::instance().attach(Application::Window, false, true);
+	}
+
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT)
+		Mouse::instance().attach(Application::Window, true, true, true);
+}
+
+void VolumetricTexture::OnMouseButtonUp(const Event::MouseButtonEvent& event) {
+	if (event.button == Event::MouseButtonEvent::BUTTON_LEFT) {
+		m_trackball.mouse(TrackBall::Button::ELeftButton, TrackBall::Modifier::ENoModifier, false, event.x, event.y);
+		Mouse::instance().attach(Application::Window, false, true);
+	} 
+
+	if (event.button == Event::MouseButtonEvent::BUTTON_RIGHT)
+		Mouse::instance().attach(Application::Window, false, false, true);
+}
+
+void VolumetricTexture::OnScroll(const Event::MouseWheelEvent& event) {
+	
+}
+
+void VolumetricTexture::OnKeyDown(const Event::KeyboardEvent& event) {
+    if (event.keyCode == GLFW_KEY_LEFT_ALT) {	
+	    m_drawUi = !m_drawUi;
+    }
+
+	if (event.keyCode == GLFW_KEY_ESCAPE) {
+		wgpCleanState();
+		m_isRunning = false;
+		m_machine.addStateAtBottom(new Menu(m_machine));
+	}
+}
+
+void VolumetricTexture::OnKeyUp(const Event::KeyboardEvent& event) {
+
+}
+
+void VolumetricTexture::resize(int deltaW, int deltaH) {
+	m_camera.perspective(glm::radians(72.0f), static_cast<float>(Application::Width) / static_cast<float>(Application::Height), 0.1f, 1000.0f);
+	m_camera.orthographic(0.0f, static_cast<float>(Application::Width), static_cast<float>(Application::Height), 0.0f , -1.0f, 1.0f);
+}
+
+void VolumetricTexture::renderUi(const WGPURenderPassEncoder& renderPassEncoder) {
+	ImGui_ImplWGPU_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+		ImGuiWindowFlags_NoBackground;
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("InvisibleWindow", nullptr, windowFlags);
+	ImGui::PopStyleVar(3);
+
+	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
+	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::End();
+
+	if (m_initUi) {
+		m_initUi = false;
+		ImGuiID dock_id_left = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Right, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_down = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Down, 0.2f, nullptr, &dockSpaceId);
+		ImGuiID dock_id_up = ImGui::DockBuilderSplitNode(dockSpaceId, ImGuiDir_Up, 0.2f, nullptr, &dockSpaceId);
+		ImGui::DockBuilderDockWindow("Settings", dock_id_left);
+	}
+
+	ImGui::Begin("Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::End();
+
+	ImGui::Render();
+	ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), renderPassEncoder);
+}
+
+void VolumetricTexture::splat() {
+	auto frand = []() { return rand() / static_cast<float>(RAND_MAX); };
+
+	SplatUniforms splatUniforms = {};
+	splatUniforms.center = glm::vec3(frand(), frand(), frand());
+	splatUniforms.radius = 0.1f;
+	splatUniforms.color = glm::vec4(frand(), frand(), frand(), 1.0f);
+
+	wgpuQueueWriteBuffer(wgpContext.queue, m_splatBuffer.getBuffer(), 0u, &splatUniforms, sizeof(SplatUniforms));
+	m_pendingSplat = true;
+}
